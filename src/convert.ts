@@ -14,12 +14,18 @@ export class Convert<T> extends Cast<T> {
         super(value => Maybe.just(convert(value)));
     }
 
+    public static readonly id = new Convert<unknown>(value => value);
+
     public static unit<T>(value: T): Convert<T> {
         return new Convert(_ => value);
     }
 
-    public static toEnum<T extends [any, ...any]>(...options: T): Convert<T[number]> {
-        return Guard.some(...options.map(Guard.isConst)).else(options[0]);
+    public compose<R>(g: Convert<R> | (() => Convert<R>)): Convert<R> {
+        return new Convert(value => (g instanceof Convert ? g : g()).convert(this.convert(value)));
+    }
+
+    public static toEnum<R extends [any, ...any]>(...options: R): Convert<R[number]> {
+        return Guard.isEnum(...options).else(options[0]);
     }
 
     public static toString(alt: string = '') {
@@ -68,7 +74,7 @@ export class Convert<T> extends Cast<T> {
                     if (alt.length) 
                         return Convert.toArray(Convert.to(alt[0])) as Convert<CastMap<T>>;
                     else
-                        return Convert.unit([]) as Convert<CastMap<T>> // We couldn't produce items of type never
+                        return Convert.unit([]) as Convert<CastMap<T>> // We can't produce items of type never
                 }
                 else if (alt instanceof Convert)  
                     return alt;
@@ -78,4 +84,13 @@ export class Convert<T> extends Cast<T> {
 
         return Convert.toObject(Utils.objectMap(alt as any, (key, val) => [key, Convert.to(val)])) as Convert<CastMap<T>>
     }
+
+    public toEnum<R extends [any, ...any]>(...options: R): Convert<R[number]> { return this.compose(Convert.toEnum(...options)) }
+    public toString(alt: string = ''): Convert<string> { return this.compose(Convert.toString(alt)) }
+    public toNumber(alt: number = 0) { return this.compose(Convert.toNumber(alt)) }
+    public toBoolean(alt: boolean = false) { return this.compose(Convert.toBoolean(alt)) }
+    public toBigInt(alt: bigint = BigInt(0)) { return this.compose(Convert.toBigInt(alt)) }
+    public toArray<T>(convertItem: Convert<T>): Convert<T[]> { return this.compose(Convert.toArray(convertItem)) }
+    public toObject<T extends Record<string, Convert<any>>>(convertValues: T): Convert<ConvertObject<T>> { return this.compose(Convert.toObject(convertValues)) }
+    public to<T>(alt: T): Convert<CastMap<T>> { return this.compose(Convert.to(alt)) }
 }

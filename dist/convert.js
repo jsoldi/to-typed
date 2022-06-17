@@ -7,8 +7,11 @@ export class Convert extends Cast {
     static unit(value) {
         return new Convert(_ => value);
     }
+    compose(g) {
+        return new Convert(value => (g instanceof Convert ? g : g()).convert(this.convert(value)));
+    }
     static toEnum(...options) {
-        return Guard.some(...options.map(Guard.isConst)).else(options[0]);
+        return Guard.isEnum(...options).else(options[0]);
     }
     static toString(alt = '') {
         return Cast.asString.else(alt);
@@ -50,7 +53,7 @@ export class Convert extends Cast {
                     if (alt.length)
                         return Convert.toArray(Convert.to(alt[0]));
                     else
-                        return Convert.unit([]); // We couldn't produce items of type never
+                        return Convert.unit([]); // We can't produce items of type never
                 }
                 else if (alt instanceof Convert)
                     return alt;
@@ -59,5 +62,14 @@ export class Convert extends Cast {
         }
         return Convert.toObject(Utils.objectMap(alt, (key, val) => [key, Convert.to(val)]));
     }
+    toEnum(...options) { return this.compose(Convert.toEnum(...options)); }
+    toString(alt = '') { return this.compose(Convert.toString(alt)); }
+    toNumber(alt = 0) { return this.compose(Convert.toNumber(alt)); }
+    toBoolean(alt = false) { return this.compose(Convert.toBoolean(alt)); }
+    toBigInt(alt = BigInt(0)) { return this.compose(Convert.toBigInt(alt)); }
+    toArray(convertItem) { return this.compose(Convert.toArray(convertItem)); }
+    toObject(convertValues) { return this.compose(Convert.toObject(convertValues)); }
+    to(alt) { return this.compose(Convert.to(alt)); }
 }
+Convert.id = new Convert(value => value);
 //# sourceMappingURL=convert.js.map

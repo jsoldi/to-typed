@@ -24,10 +24,19 @@ export class Cast {
         return new Cast(value => this.cast(value).bind(t => next(t).cast(value)));
     }
     compose(next) {
-        return this.bind(value => new Cast(_ => (Guard.isFunction.guard(next) ? next() : next).cast(value)));
+        return this.bind(value => new Cast(_ => (next instanceof Cast ? next : next()).cast(value)));
     }
     or(right) {
-        return new Cast(value => this.cast(value).or(right.cast(value)));
+        if (right instanceof Convert)
+            return new Convert(value => this.cast(value).else(right.convert(value)));
+        else
+            return new Cast(value => this.cast(value).or(right.cast(value)));
+    }
+    static some(...options) {
+        return options.reduce((acc, option) => acc.or(option), Guard.isNever);
+    }
+    if(condition) {
+        return this.bind(value => condition(value) ? Cast.just(value) : Cast.nothing());
     }
     and(guard) {
         return this.bind(value => guard.guard(value) ? Cast.just(value) : Cast.nothing());
@@ -72,5 +81,16 @@ export class Cast {
     static get asArray() {
         return Guard.isArray.or(Guard.isPrimitiveValue.map(a => [a]));
     }
+    get orDont() {
+        return this.or(Convert.id);
+    }
+    get asPrimitiveValue() { return this.compose(Cast.asPrimitiveValue); }
+    get asString() { return this.compose(Cast.asString); }
+    get asNumber() { return this.compose(Cast.asNumber); }
+    get asBigint() { return this.compose(Cast.asBigint); }
+    get asBoolean() { return this.compose(Cast.asBoolean); }
+    get asArray() { return this.compose(Cast.asArray); }
 }
+Cast.asUnknown = new Cast(value => Maybe.just(value));
+Cast.asNever = new Cast(_ => Maybe.nothing());
 //# sourceMappingURL=cast.js.map

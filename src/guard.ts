@@ -1,4 +1,4 @@
-import { Maybe, Cast } from "./internal.js";
+import { Maybe, Cast, Convert } from "./internal.js";
 
 export class Guard<T> extends Cast<T> {
     constructor(public readonly guard: (input: unknown) => input is T) { 
@@ -11,21 +11,15 @@ export class Guard<T> extends Cast<T> {
     public and<R>(right: Guard<R>): Guard<T & R> {
         return new Guard<T & R>((val): val is T & R => this.guard(val) && right.guard(val));
     }
-
+    
     public or<R>(right: Guard<R>): Guard<T | R>
+    public or<R>(right: Convert<R>): Convert<T | R>
     public or<R>(right: Cast<R>): Cast<T | R>
-    public or<R>(right: Guard<R> | Cast<R>): Guard<T | R> | Cast<T | R> {
+    public or<R>(right: Cast<R>): Cast<T | R> {
         if (right instanceof Guard) 
-            return new Guard<T | R>((val): val is T | R => this.guard(val) || right.guard(val));            
+            return new Guard<T | R>((val): val is T | R => this.guard(val) || right.guard(val));
         else
             return super.or(right);
-    }
-
-    public static some<T extends Guard<any>[]>(...options: T): Guard<T[number] extends Guard<infer R> ? R : never> {
-        if (options.length)
-            return options[0].or(Guard.some(...options.slice(1)));
-        else
-            return Guard.isNever;
     }
 
     public if(condition: (input: T) => boolean): Guard<T> {
@@ -38,6 +32,10 @@ export class Guard<T> extends Cast<T> {
 
     public static isClass<T>(cls: new (...args: any[]) => T): Guard<T> {
         return new Guard((val): val is T => val instanceof cls);
+    }
+
+    public static isEnum<T extends [any, ...any]>(...options: T): Guard<T[number]> {
+        return Guard.some(...options.map(Guard.isConst));
     }
 
     // `isPrimitiveValue`, `isNothing` and `isObject` shold cover every possible type with no overlap.

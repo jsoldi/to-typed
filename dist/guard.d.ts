@@ -1,4 +1,4 @@
-import { Cast } from "./internal.js";
+import { Cast, Convert } from "./internal.js";
 export declare class Guard<T> extends Cast<T> {
     readonly guard: (input: unknown) => input is T;
     constructor(guard: (input: unknown) => input is T);
@@ -6,11 +6,12 @@ export declare class Guard<T> extends Cast<T> {
     static readonly isNever: Guard<never>;
     and<R>(right: Guard<R>): Guard<T & R>;
     or<R>(right: Guard<R>): Guard<T | R>;
+    or<R>(right: Convert<R>): Convert<T | R>;
     or<R>(right: Cast<R>): Cast<T | R>;
-    static some<T extends Guard<any>[]>(...options: T): Guard<T[number] extends Guard<infer R> ? R : never>;
     if(condition: (input: T) => boolean): Guard<T>;
     static isConst<T>(value: T): Guard<T>;
     static isClass<T>(cls: new (...args: any[]) => T): Guard<T>;
+    static isEnum<T extends [any, ...any]>(...options: T): Guard<T[number]>;
     static get isPrimitiveValue(): Guard<PrimitiveValue>;
     static get isNothing(): Guard<Nothing>;
     static get isObject(): Guard<Object>;

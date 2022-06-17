@@ -1,7 +1,15 @@
 import { Maybe, Guard, Convert } from "./internal.js";
 
+type CastSomeOf<T extends Cast<any>[]> =
+    T extends Guard<any>[] ? Guard<T[number] extends Guard<infer R> ? R : never> :
+    T extends Cast<any>[] ? Cast<T[number] extends Cast<infer R> ? R : never> :
+    never
+
 export class Cast<T> {
     public constructor(public readonly cast: (value: unknown) => Maybe<T>) { }
+
+    public static readonly asUnknown = new Cast<unknown>(value => Maybe.just(value));
+    public static readonly asNever = new Cast<never>(_ => Maybe.nothing());
 
     public static just<T>(value: T): Cast<T> {
         return new Cast(_ => Maybe.just(value));
@@ -29,11 +37,24 @@ export class Cast<T> {
     }
 
     public compose<R>(next: Cast<R> | (() => Cast<R>)): Cast<R> {
-        return this.bind(value => new Cast(_ => (Guard.isFunction.guard(next) ? next() : next).cast(value)));
+        return this.bind(value => new Cast(_ => (next instanceof Cast ? next : next()).cast(value)));
     }
 
+    public or<R>(right: Convert<R>): Convert<T | R>
+    public or<R>(right: Cast<R>): Cast<T | R>
     public or<R>(right: Cast<R>): Cast<T | R> {
-        return new Cast(value => this.cast(value).or(right.cast(value)));
+        if (right instanceof Convert)
+            return new Convert(value => this.cast(value).else(right.convert(value)));
+        else
+            return new Cast(value => this.cast(value).or(right.cast(value)));
+    }
+
+    public static some<T extends Cast<any>[]>(...options: T): CastSomeOf<T> {
+        return options.reduce((acc, option) => acc.or(option), Guard.isNever) as CastSomeOf<T>;
+    }
+
+    public if(condition: (input: T) => boolean): Cast<T> {
+        return this.bind(value => condition(value) ? Cast.just(value) : Cast.nothing());
     }
 
     public and<R>(guard: Guard<R>): Cast<T & R> {
@@ -88,4 +109,15 @@ export class Cast<T> {
     public static get asArray(): Cast<unknown[]> {
         return Guard.isArray.or(Guard.isPrimitiveValue.map(a => [a]));
     }
+
+    public get orDont(): Convert<unknown> {
+        return this.or(Convert.id);
+    }
+
+    public get asPrimitiveValue(): Cast<PrimitiveValue> { return this.compose(Cast.asPrimitiveValue) }
+    public get asString(): Cast<string> { return this.compose(Cast.asString) }
+    public get asNumber(): Cast<number> { return this.compose(Cast.asNumber) }
+    public get asBigint(): Cast<bigint> { return this.compose(Cast.asBigint) }
+    public get asBoolean(): Cast<boolean> { return this.compose(Cast.asBoolean) }
+    public get asArray(): Cast<unknown[]> { return this.compose(Cast.asArray) }    
 }

@@ -13,12 +13,6 @@ export class Guard extends Cast {
         else
             return super.or(right);
     }
-    static some(...options) {
-        if (options.length)
-            return options[0].or(Guard.some(...options.slice(1)));
-        else
-            return Guard.isNever;
-    }
     if(condition) {
         return new Guard((val) => this.guard(val) && condition(val));
     }
@@ -27,6 +21,9 @@ export class Guard extends Cast {
     }
     static isClass(cls) {
         return new Guard((val) => val instanceof cls);
+    }
+    static isEnum(...options) {
+        return Guard.some(...options.map(Guard.isConst));
     }
     // `isPrimitiveValue`, `isNothing` and `isObject` shold cover every possible type with no overlap.
     static get isPrimitiveValue() {
