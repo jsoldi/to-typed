@@ -8,10 +8,10 @@ export class Convert extends Cast {
         return new Convert(_ => value);
     }
     compose(g) {
-        return new Convert(value => (g instanceof Convert ? g : g()).convert(this.convert(value)));
+        return new Convert(value => g.convert(this.convert(value)));
     }
     static toEnum(...options) {
-        return Guard.isEnum(...options).else(options[0]);
+        return Cast.asEnum(...options).else(options[0]);
     }
     static toString(alt = '') {
         return Cast.asString.else(alt);
@@ -25,14 +25,14 @@ export class Convert extends Cast {
     static toBigInt(alt = BigInt(0)) {
         return Cast.asBigint.else(alt);
     }
-    static toArray(convertItem) {
-        return Cast.asArray.map(val => val.map(convertItem.convert)).else([]);
+    static toArray(alt = []) {
+        return Cast.asArray.else(alt);
     }
-    static toObject(convertValues) {
-        return new Convert((value) => {
-            const obj = (value ?? {});
-            return Utils.objectMap(convertValues, (cKey, cVal) => [cKey, cVal.convert(obj[cKey])]);
-        });
+    static toArrayOf(convertItem, alt = []) {
+        return Cast.asArrayOf(convertItem).else(alt);
+    }
+    static toCollectionOf(converts) {
+        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).asCollectionOf(converts).elseThrow;
     }
     static to(alt) {
         switch (typeof alt) {
@@ -51,24 +51,25 @@ export class Convert extends Cast {
             case 'object':
                 if (Array.isArray(alt)) {
                     if (alt.length)
-                        return Convert.toArray(Convert.to(alt[0]));
+                        return Convert.toArrayOf(Convert.to(alt[0]));
                     else
                         return Convert.unit([]); // We can't produce items of type never
                 }
                 else if (alt instanceof Convert)
                     return alt;
                 else if (alt === null)
-                    return Convert.unit(alt);
+                    return Convert.unit(null);
         }
-        return Convert.toObject(Utils.objectMap(alt, (key, val) => [key, Convert.to(val)]));
+        return Convert.toCollectionOf(Utils.map(Convert.to)(alt));
     }
     toEnum(...options) { return this.compose(Convert.toEnum(...options)); }
     toString(alt = '') { return this.compose(Convert.toString(alt)); }
     toNumber(alt = 0) { return this.compose(Convert.toNumber(alt)); }
     toBoolean(alt = false) { return this.compose(Convert.toBoolean(alt)); }
     toBigInt(alt = BigInt(0)) { return this.compose(Convert.toBigInt(alt)); }
-    toArray(convertItem) { return this.compose(Convert.toArray(convertItem)); }
-    toObject(convertValues) { return this.compose(Convert.toObject(convertValues)); }
+    toArray(convertItem, alt = []) { return this.compose(Convert.toArrayOf(convertItem, alt)); }
+    toArrayOf(convertItem, alt = []) { return this.compose(Convert.toArrayOf(convertItem, alt)); }
+    toCollectionOf(converts) { return this.compose(Convert.toCollectionOf(converts)); }
     to(alt) { return this.compose(Convert.to(alt)); }
 }
 Convert.id = new Convert(value => value);

@@ -1,4 +1,25 @@
+/*
+    There are 8 values that typeof can return: string, number, bigint, boolean, symbol, undefined, object, and function.
+    Values that are typeof object can be further split into null and non-null object.
+    
+    I'm partitioning these 9 sets into 3 groups:
+
+    - PrimitiveValue: string, number, bigint, boolean, symbol. 
+        - TS Type: PrimitiveValues
+        - Guard: isPrimitiveValue
+    - Nothing: undefined and null
+        - TS Type: Nothing
+        - Guard: isNothing
+    - object: non-null object and function
+        - TS Type: object
+        - Guard: isObject
+
+    So far, the TypeScript object type seems to exactly match values that are typeof function or non-null object.
+*/
+
 type PrimitiveValue = string | number | bigint | boolean | symbol
-type Nothing = undefined | null; // null and undefined should always be converted to `Maybe.nothing()` (unless you want null or undefined) so they trigger the default.
-type Primitive = PrimitiveValue | Nothing
-type Anything = Primitive | Object // Object = everything except primitives
+type Nothing = undefined | null
+type Anything = PrimitiveValue | Nothing | object // The 3 main type partitions
+
+type Struct<S = unknown> = { readonly [k: string]: S };
+type Collection<S = unknown> = Struct<S> | readonly S[]

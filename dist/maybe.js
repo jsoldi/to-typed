@@ -9,6 +9,20 @@ export class Maybe {
     static nothing() {
         return new Maybe(false, null);
     }
+    static all(maybes) {
+        const result = (Array.isArray(maybes) ? [] : {});
+        const entries = Object.entries(maybes);
+        for (let [k, v] of entries) {
+            if (v.hasValue)
+                result[k] = v.value;
+            else
+                return Maybe.nothing();
+        }
+        return Maybe.just(result);
+    }
+    get elseThrow() {
+        return this.read(t => t, () => { throw new Error('No value'); });
+    }
     read(ifValue, ifNothing) {
         return this.hasValue ? ifValue(this.value) : ifNothing();
     }
@@ -21,8 +35,8 @@ export class Maybe {
     or(right) {
         return this.read(t => Maybe.just(t), () => right);
     }
-    else(other) {
-        return this.read((t) => t, () => other);
+    else(getAlt) {
+        return this.read((t) => t, () => getAlt());
     }
 }
 //# sourceMappingURL=maybe.js.map
