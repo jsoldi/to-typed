@@ -89,8 +89,29 @@ export class Cast {
     static asCollectionOf(casts) {
         return Guard.isCollection.bind(val => Cast.all(Utils.map((cast, k) => Cast.just(val[k]).compose(cast))(casts)));
     }
-    get orEmpty() {
-        return this.map(t => [t]).else([]);
+    static as(alt) {
+        switch (typeof alt) {
+            case 'string':
+                return Cast.asString;
+            case 'number':
+                return Cast.asNumber;
+            case 'boolean':
+                return Cast.asBoolean;
+            case 'bigint':
+                return Cast.asBigint;
+            case 'symbol':
+                return Guard.isSymbol;
+            case 'undefined':
+                return Guard.isConst(undefined);
+            case 'function':
+                return Guard.isFunction;
+            case 'object':
+                if (alt instanceof Cast)
+                    return alt;
+                else if (alt === null)
+                    return Guard.isConst(null);
+        }
+        return Cast.asCollectionOf(Utils.map(Cast.as)(alt));
     }
     get asPrimitiveValue() { return this.compose(Cast.asPrimitiveValue); }
     get asString() { return this.compose(Cast.asString); }
@@ -102,6 +123,7 @@ export class Cast {
     asEnum(...options) { return this.compose(Cast.asEnum(...options)); }
     asArrayOf(cast) { return this.compose(Cast.asArrayOf(cast)); }
     asCollectionOf(casts) { return this.compose(Cast.asCollectionOf(casts)); }
+    as(alt) { return this.compose(Cast.as(alt)); }
 }
 Cast.asUnknown = new Cast(value => Maybe.just(value));
 Cast.asNever = new Cast(_ => Maybe.nothing());

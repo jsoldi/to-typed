@@ -1,11 +1,11 @@
-import { Maybe, Cast } from "./internal.js";
+import { Maybe, Cast, Utils } from "./internal.js";
 export class Guard extends Cast {
     constructor(guard) {
         super(val => guard(val) ? Maybe.just(val) : Maybe.nothing());
         this.guard = guard;
     }
     and(right) {
-        return new Guard((val) => this.guard(val) && (right instanceof Guard ? right : right(val)).guard(val));
+        return new Guard((val) => this.guard(val) && (right instanceof Guard ? right.guard(val) : right(val)));
     }
     or(right) {
         if (right instanceof Guard)
@@ -44,7 +44,7 @@ export class Guard extends Cast {
     }
     static get isPrimitive() { return Guard.isPrimitiveValue.or(Guard.isNothing); }
     static get isSomething() { return Guard.isPrimitiveValue.or(Guard.isObject); }
-    //public static get isWeirdShit() { return Guard.isNothing.or(Guard.isObject); } // Just for completeness
+    //public static get isWeirdShit() { return Guard.isNothing.or(Guard.isObject); } // For completeness
     static get isString() { return new Guard((val) => typeof val === 'string'); }
     static get isNumber() { return new Guard((val) => typeof val === 'number'); }
     static get isBigInt() { return new Guard((val) => typeof val === 'bigint'); }
@@ -56,11 +56,39 @@ export class Guard extends Cast {
     static get isCollection() { return new Guard((val) => val !== null && typeof val === 'object'); }
     static get isStruct() { return new Guard((val) => val !== null && typeof val === 'object' && !Array.isArray(val)); }
     static get isArray() { return new Guard((val) => Array.isArray(val)); }
+    static get isFunction() { return new Guard((val) => typeof val === 'function'); }
     static isInstanceOf(cls) {
         return new Guard((val) => val instanceof cls);
     }
     static isArrayOf(guard) {
-        return new Guard((val) => Array.isArray(val) && val.every(guard.guard));
+        return Guard.isArray.and((val) => val.every(guard.guard));
+    }
+    static isCollectionOf(guards) {
+        return Guard.isCollection.and((col) => Object.entries(guards).every(([k, g]) => g.guard(col[k])));
+    }
+    static is(alt) {
+        switch (typeof alt) {
+            case 'string':
+                return Guard.isString;
+            case 'number':
+                return Guard.isNumber;
+            case 'boolean':
+                return Guard.isBoolean;
+            case 'bigint':
+                return Guard.isBigInt;
+            case 'symbol':
+                return Guard.isSymbol;
+            case 'undefined':
+                return Guard.isConst(undefined);
+            case 'function':
+                return Guard.isFunction;
+            case 'object':
+                if (alt instanceof Guard)
+                    return alt;
+                else if (alt === null)
+                    return Guard.isConst(null);
+        }
+        return Guard.isCollectionOf(Utils.map(Guard.is)(alt));
     }
 }
 Guard.isUnknown = new Guard((val) => true);

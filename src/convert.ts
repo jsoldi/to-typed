@@ -2,10 +2,10 @@ import { Utils, Maybe, Cast, Guard } from "./internal.js";
 
 // Maps { b: ? => B, c: C } to { b: B, c: C }:
 type TConvertMap<T> = 
+    T extends SimpleType ? SimpleTypeOf<T> :
     T extends Convert<infer R> ? R :
-    T extends Array<infer I> ? Array<TConvertMap<I>> :
     T extends { [k in keyof T]: any } ? { [k in keyof T]: TConvertMap<T[k]> } :
-    T
+    unknown;
 
 export class Convert<out T = unknown> extends Cast<T> {
     public constructor(public readonly convert: (value: unknown) => T) {
@@ -65,17 +65,13 @@ export class Convert<out T = unknown> extends Cast<T> {
             case 'bigint':
                 return Convert.toBigInt(alt) as Convert<TConvertMap<T>>
             case 'symbol':
-            case 'undefined':
+                Guard.isSymbol.else(alt);
             case 'function':
-                return Convert.unit(alt) as Convert<TConvertMap<T>>
+                return Guard.isFunction.else(alt) as Convert<TConvertMap<T>>
+            case 'undefined':
+                return Convert.unit(undefined) as Convert<TConvertMap<T>>
             case 'object': 
-                if (Array.isArray(alt)) {
-                    if (alt.length) 
-                        return Convert.toArrayOf(Convert.to(alt[0])) as Convert<TConvertMap<T>>;
-                    else
-                        return Convert.unit([]) as Convert<TConvertMap<T>> // We can't produce items of type never
-                }
-                else if (alt instanceof Convert)  
+                if (alt instanceof Convert)  
                     return alt;
                 else if (alt === null)
                     return Convert.unit(null) as Convert<TConvertMap<T>>

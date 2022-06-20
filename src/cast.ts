@@ -5,7 +5,14 @@ type CastSome<T extends Cast<any>[]> =
     T extends Cast<any>[] ? Cast<T[number] extends Cast<infer R> ? R : never> :
     never
 
-type TCastAll<T extends Collection<Cast>> = { [I in keyof T]: T[I] extends Cast<infer V> ? V : never }
+export type TCastAll<T extends Collection<Cast>> = { [I in keyof T]: T[I] extends Cast<infer V> ? V : never }
+
+// Maps { b: ? => B, c: C } to { b: B, c: C }:
+type TCastMap<T> = 
+    T extends SimpleType ? SimpleTypeOf<T> :
+    T extends Cast<infer R> ? R :
+    T extends { [k in keyof T]: any } ? { [k in keyof T]: TCastMap<T[k]> } :
+    unknown;
 
 export class Cast<out T = unknown> {
     public constructor(public readonly cast: (value: unknown) => Maybe<T>) { }
@@ -130,13 +137,35 @@ export class Cast<out T = unknown> {
 
     public static asCollectionOf<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>> {
         return Guard.isCollection.bind(val => 
-            Cast.all(Utils.map((cast: Cast, k) => Cast.just((val as any)[k]).compose(cast))(casts))
+            Cast.all(Utils.map((cast: Cast, k) => Cast.just((val as Struct)[k]).compose(cast))(casts))
         ) as Cast<TCastAll<T>>
     }
+    
+    public static as<T>(alt: T): Cast<TCastMap<T>> {
+        switch (typeof alt) {
+            case 'string':
+                return Cast.asString as Cast<TCastMap<T>>;
+            case 'number':
+                return Cast.asNumber as Cast<TCastMap<T>>;
+            case 'boolean':
+                return Cast.asBoolean as Cast<TCastMap<T>>;
+            case 'bigint':
+                return Cast.asBigint as Cast<TCastMap<T>>;
+            case 'symbol':
+                return Guard.isSymbol as Guard<TCastMap<T>>;
+            case 'undefined':
+                return Guard.isConst(undefined) as Guard<TCastMap<T>>;
+            case 'function':
+                return Guard.isFunction as Guard<TCastMap<T>>;
+            case 'object': 
+                if (alt instanceof Cast)
+                    return alt;
+                else if (alt === null)
+                    return Guard.isConst(null) as Guard<TCastMap<T>>;
+        }
 
-    public get orEmpty(): Convert<T[]> {
-        return this.map(t => [t]).else([]);
-    }
+        return Cast.asCollectionOf(Utils.map(Cast.as)(alt as any)) as Cast<TCastMap<T>>
+    }   
 
     public get asPrimitiveValue() { return this.compose(Cast.asPrimitiveValue) }
     public get asString() { return this.compose(Cast.asString) }
@@ -148,4 +177,5 @@ export class Cast<out T = unknown> {
     public asEnum<T extends [any, ...any]>(...options: T) { return this.compose(Cast.asEnum(...options)) }
     public asArrayOf<T>(cast: Cast<T>) { return this.compose(Cast.asArrayOf(cast)) }
     public asCollectionOf<T extends Collection<Cast>>(casts: T) { return this.compose(Cast.asCollectionOf(casts)) }    
+    public as<T>(alt: T) { return this.compose(Cast.as(alt)) }
 }

@@ -1,8 +1,13 @@
 import { Maybe, Guard, Convert } from "./internal.js";
 declare type CastSome<T extends Cast<any>[]> = T extends Guard<any>[] ? Guard<T[number] extends Guard<infer R> ? R : never> : T extends Cast<any>[] ? Cast<T[number] extends Cast<infer R> ? R : never> : never;
-declare type TCastAll<T extends Collection<Cast>> = {
+export declare type TCastAll<T extends Collection<Cast>> = {
     [I in keyof T]: T[I] extends Cast<infer V> ? V : never;
 };
+declare type TCastMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends Cast<infer R> ? R : T extends {
+    [k in keyof T]: any;
+} ? {
+    [k in keyof T]: TCastMap<T[k]>;
+} : unknown;
 export declare class Cast<out T = unknown> {
     readonly cast: (value: unknown) => Maybe<T>;
     constructor(cast: (value: unknown) => Maybe<T>);
@@ -34,7 +39,7 @@ export declare class Cast<out T = unknown> {
     static asEnum<T extends [any, ...any]>(...options: T): Cast<T[number]>;
     static asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     static asCollectionOf<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
-    get orEmpty(): Convert<T[]>;
+    static as<T>(alt: T): Cast<TCastMap<T>>;
     get asPrimitiveValue(): Cast<PrimitiveValue>;
     get asString(): Cast<string>;
     get asNumber(): Cast<number>;
@@ -45,6 +50,7 @@ export declare class Cast<out T = unknown> {
     asEnum<T extends [any, ...any]>(...options: T): Cast<T[number]>;
     asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     asCollectionOf<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
+    as<T>(alt: T): Cast<TCastMap<T>>;
 }
 export {};
 //# sourceMappingURL=cast.d.ts.map

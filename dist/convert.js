@@ -45,17 +45,13 @@ export class Convert extends Cast {
             case 'bigint':
                 return Convert.toBigInt(alt);
             case 'symbol':
-            case 'undefined':
+                Guard.isSymbol.else(alt);
             case 'function':
-                return Convert.unit(alt);
+                return Guard.isFunction.else(alt);
+            case 'undefined':
+                return Convert.unit(undefined);
             case 'object':
-                if (Array.isArray(alt)) {
-                    if (alt.length)
-                        return Convert.toArrayOf(Convert.to(alt[0]));
-                    else
-                        return Convert.unit([]); // We can't produce items of type never
-                }
-                else if (alt instanceof Convert)
+                if (alt instanceof Convert)
                     return alt;
                 else if (alt === null)
                     return Convert.unit(null);

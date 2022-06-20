@@ -23,3 +23,16 @@ type Anything = PrimitiveValue | Nothing | object // The 3 main type partitions
 
 type Struct<S = unknown> = { readonly [k: string]: S };
 type Collection<S = unknown> = Struct<S> | readonly S[]
+
+type SimpleType = PrimitiveValue | Nothing | Function;
+
+type SimpleTypeOf<T extends SimpleType> = 
+    T extends string ? string :
+    T extends number ? number :
+    T extends boolean ? boolean :
+    T extends bigint ? bigint :
+    T extends symbol ? symbol :
+    T extends undefined ? undefined :
+    T extends Function ? Function :
+    T extends null ? null :
+    never;
