@@ -96,7 +96,7 @@ export class Cast<out T = unknown> {
     public static get asPrimitiveValue(): Cast<PrimitiveValue> {
         return Guard.isPrimitiveValue.or(
             Guard.isArray
-                .if(a => a.length === 1)
+                .if(a => a.length > 0) // Should equal 1 but in a TS sense an array with > 1 items extends and array with 1 item.
                 .map(a => a[0])
                 .compose(Guard.isPrimitiveValue)
         );

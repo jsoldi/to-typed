@@ -10,6 +10,9 @@ export class Convert extends Cast {
     compose(g) {
         return new Convert(value => g.convert(this.convert(value)));
     }
+    map(fun) {
+        return new Convert(value => fun(this.convert(value)));
+    }
     static toEnum(options) {
         return Cast.asEnum(options).else(options[0]);
     }

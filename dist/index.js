@@ -1,5 +1,5 @@
 export { Maybe, Cast, Guard, Convert } from "./internal.js";
-import { Cast, Guard } from "./internal.js";
+import { Cast, Convert } from "./internal.js";
 function tela(value) {
     return Cast.just(value).asString.bind(str1 => Cast.asString.if(str2 => {
         console.log(`str1: ${str1}, str2: ${str2}`);
@@ -7,7 +7,7 @@ function tela(value) {
     })).map(_ => value);
 }
 function testea(value) {
-    const test = Guard.isEnum([null, 'A', 'B', 'C']);
+    const test = Convert.toArray().map(ar => ar[0]);
     const may = test.cast(value);
     if (may.hasValue) {
         console.log('has value');

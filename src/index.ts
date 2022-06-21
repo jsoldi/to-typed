@@ -10,7 +10,7 @@ function tela<T>(value: T) {
 }
 
 function testea(value: unknown) {
-    const test = Guard.isEnum([null, 'A', 'B', 'C']);
+    const test = Convert.toArray().map(ar => ar[0]);
 
     const may = test.cast(value);
 

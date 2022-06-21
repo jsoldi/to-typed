@@ -23,6 +23,10 @@ export class Convert<out T = unknown> extends Cast<T> {
         return new Convert(value => g.convert(this.convert(value)));
     }
 
+    public map<R>(fun: (value: T) => R): Convert<R> {
+        return new Convert(value => fun(this.convert(value)));
+    }
+
     public static toEnum<R extends readonly Primitive[]>(options: R): Convert<R[number]> {
         return Cast.asEnum(options).else(options[0]);
     }

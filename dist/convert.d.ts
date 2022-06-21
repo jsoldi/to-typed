@@ -11,6 +11,7 @@ export declare class Convert<out T = unknown> extends Cast<T> {
     static readonly id: Convert<unknown>;
     static unit<T>(value: T): Convert<T>;
     compose<R>(g: Convert<R>): Convert<R>;
+    map<R>(fun: (value: T) => R): Convert<R>;
     static toEnum<R extends readonly Primitive[]>(options: R): Convert<R[number]>;
     static toString(alt?: string): Convert<string>;
     static toNumber(alt?: number): Convert<number>;
