@@ -42,7 +42,7 @@ export class Cast<out T = unknown> {
         }
     }
 
-    public read<R>(ifValue: (left: T) => R, ifNothing: () => R): (value: unknown) => T | R {
+    public read<R>(ifValue: (left: T) => R, ifNothing: () => R): (value: unknown) => R {
         return value => this.cast(value).read(ifValue, ifNothing);
     }
 
@@ -96,26 +96,26 @@ export class Cast<out T = unknown> {
     public static get asPrimitiveValue(): Cast<PrimitiveValue> {
         return Guard.isPrimitiveValue.or(
             Guard.isArray
-                .if(a => a.length > 0) // Should equal 1 but in a TS sense an array with > 1 items extends and array with 1 item.
+                .if(a => a.length > 0) // Should equal 1 but, as a collection, an array with > 1 items extends and array with 1 item.
                 .map(a => a[0])
                 .compose(Guard.isPrimitiveValue)
         );
     }
 
     public static get asString(): Cast<string> {
-        return Cast.asPrimitiveValue.map(s => s.toString());
+        return Guard.isString.or(Cast.asPrimitiveValue.map(s => s.toString()));
     }
 
     public static get asNumber(): Cast<number> {
-        return Cast.asString.map(parseFloat).and(Guard.isFinite);
+        return Guard.isNumber.or(Cast.asString.map(parseFloat).and(Guard.isFinite));
     }
 
     public static get asBigint(): Cast<bigint> {
-        return Cast.asString.bind(s => Cast.try(() => BigInt(s)));
+        return Guard.isBigInt.or(Cast.asString.bind(s => Cast.try(() => BigInt(s))));
     }
 
     public static get asBoolean(): Cast<boolean> {
-        return Cast.asPrimitiveValue.map(v => !!v);
+        return Guard.isBoolean.or(Cast.asPrimitiveValue.map(v => !!v));
     }
 
     public static get asArray(): Cast<unknown[]> {
