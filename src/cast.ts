@@ -107,14 +107,43 @@ export class Cast<out T = unknown> {
     }
 
     public static get asNumber(): Cast<number> {
-        return Guard.isNumber.or(Cast.asString.map(parseFloat).and(Guard.isFinite));
+        return Cast.asPrimitiveValue.compose(Cast.some([
+            Guard.isNumber,
+            Guard.isString.map(parseFloat),
+            Guard.isBigInt.if(n => Number.MIN_SAFE_INTEGER <= n && n <= Number.MAX_SAFE_INTEGER).map(n => Number(n)),
+            Guard.isBoolean.map(b => b ? 1 : 0),
+        ]));
+    }
+
+    public static get asFinite(): Cast<number> {
+        return Cast.asNumber.and(Guard.isFinite);
+    }
+
+    public static get asInteger(): Cast<number> {
+        return Cast.asFinite.map(Math.round);
     }
 
     public static get asBigint(): Cast<bigint> {
-        return Guard.isBigInt.or(Cast.asString.bind(s => Cast.try(() => BigInt(s))));
+        return Cast.asPrimitiveValue.compose(Cast.some([
+            Guard.isBigInt,
+            Cast.asString.bind(s => Cast.try(() => BigInt(s))),
+            Cast.asInteger.map(n => BigInt(n)),
+            Guard.isBoolean.map(b => BigInt(b ? 1 : 0)),
+        ]));
     }
 
     public static get asBoolean(): Cast<boolean> {
+        return Guard.isBoolean.or(Cast.asString.bind(v => {
+            if (['true', 'on', '1'].includes(v))
+                return Cast.just(true);
+            else if (['false', 'off', '0'].includes(v))
+                return Cast.just(false);
+            else
+                return Cast.nothing();
+        }));
+    }
+
+    public static get asTruthy(): Cast<boolean> {
         return Guard.isBoolean.or(Cast.asPrimitiveValue.map(v => !!v));
     }
 
@@ -153,7 +182,12 @@ export class Cast<out T = unknown> {
             case 'string':
                 return Cast.asString as Cast<TCastMap<T>>;
             case 'number':
-                return Cast.asNumber as Cast<TCastMap<T>>;
+                if (Number.isInteger(alt))
+                    return Cast.asInteger as Cast<TCastMap<T>>;
+                else if (Number.isFinite(alt))
+                    return Cast.asFinite as Cast<TCastMap<T>>;
+                else
+                    return Cast.asNumber as Cast<TCastMap<T>>;
             case 'boolean':
                 return Cast.asBoolean as Cast<TCastMap<T>>;
             case 'bigint':

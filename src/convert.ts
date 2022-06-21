@@ -27,7 +27,7 @@ export class Convert<out T = unknown> extends Cast<T> {
         return new Convert(value => fun(this.convert(value)));
     }
 
-    public static toEnum<R extends readonly Primitive[]>(options: R): Convert<R[number]> {
+    public static toEnum<R extends readonly [Primitive, ...Primitive[]]>(options: R): Convert<R[number]> {
         return Cast.asEnum(options).else(options[0]);
     }
 
@@ -39,8 +39,20 @@ export class Convert<out T = unknown> extends Cast<T> {
         return Cast.asNumber.else(alt);
     }
 
+    public static toFinite(alt: number = 0) {
+        return Cast.asFinite.else(alt);
+    }
+
+    public static toInteger(alt: number = 0) {
+        return Cast.asInteger.else(alt);
+    }
+
     public static toBoolean(alt: boolean = false) {
         return Cast.asBoolean.else(alt);        
+    }
+
+    public static toTruthy(alt: boolean = false) {
+        return Cast.asTruthy.else(alt);        
     }
 
     public static toBigInt(alt: bigint = BigInt(0)) {
@@ -64,7 +76,12 @@ export class Convert<out T = unknown> extends Cast<T> {
             case 'string':
                 return Convert.toString(alt) as Convert<TConvertMap<T>>
             case 'number':
-                return Convert.toNumber(alt) as Convert<TConvertMap<T>>
+                if (Number.isInteger(alt))
+                    return Convert.toInteger(alt) as Convert<TConvertMap<T>>
+                else if (Number.isFinite(alt))
+                    return Convert.toFinite(alt) as Convert<TConvertMap<T>>
+                else
+                    return Convert.toNumber(alt) as Convert<TConvertMap<T>>
             case 'boolean':
                 return Convert.toBoolean(alt) as Convert<TConvertMap<T>>
             case 'bigint':
@@ -85,7 +102,7 @@ export class Convert<out T = unknown> extends Cast<T> {
         return Convert.toCollectionOf(Utils.map(Convert.to)(alt as any)) as Convert<TConvertMap<T>>
     }
 
-    public toEnum<R extends readonly Primitive[]>(options: R) { return this.compose(Convert.toEnum(options)) }
+    public toEnum<R extends readonly [Primitive, ...Primitive[]]>(options: R) { return this.compose(Convert.toEnum(options)) }
     public toString(alt: string = '') { return this.compose(Convert.toString(alt)) }
     public toNumber(alt: number = 0) { return this.compose(Convert.toNumber(alt)) }
     public toBoolean(alt: boolean = false) { return this.compose(Convert.toBoolean(alt)) }

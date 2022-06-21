@@ -58,21 +58,47 @@ export class Cast {
     }
     static get asPrimitiveValue() {
         return Guard.isPrimitiveValue.or(Guard.isArray
-            .if(a => a.length > 0) // Should equal 1 but in a TS sense an array with > 1 items extends and array with 1 item.
+            .if(a => a.length > 0) // Should equal 1 but, as a collection, an array with > 1 items extends and array with 1 item.
             .map(a => a[0])
             .compose(Guard.isPrimitiveValue));
     }
     static get asString() {
-        return Cast.asPrimitiveValue.map(s => s.toString());
+        return Guard.isString.or(Cast.asPrimitiveValue.map(s => s.toString()));
     }
     static get asNumber() {
-        return Cast.asString.map(parseFloat).and(Guard.isFinite);
+        return Cast.asPrimitiveValue.compose(Cast.some([
+            Guard.isNumber,
+            Guard.isString.map(parseFloat),
+            Guard.isBigInt.if(n => Number.MIN_SAFE_INTEGER <= n && n <= Number.MAX_SAFE_INTEGER).map(n => Number(n)),
+            Guard.isBoolean.map(b => b ? 1 : 0),
+        ]));
+    }
+    static get asFinite() {
+        return Cast.asNumber.and(Guard.isFinite);
+    }
+    static get asInteger() {
+        return Cast.asFinite.map(Math.round);
     }
     static get asBigint() {
-        return Cast.asString.bind(s => Cast.try(() => BigInt(s)));
+        return Cast.asPrimitiveValue.compose(Cast.some([
+            Guard.isBigInt,
+            Cast.asString.bind(s => Cast.try(() => BigInt(s))),
+            Cast.asInteger.map(n => BigInt(n)),
+            Guard.isBoolean.map(b => BigInt(b ? 1 : 0)),
+        ]));
     }
     static get asBoolean() {
-        return Cast.asPrimitiveValue.map(v => !!v);
+        return Guard.isBoolean.or(Cast.asString.bind(v => {
+            if (['true', 'on', '1'].includes(v))
+                return Cast.just(true);
+            else if (['false', 'off', '0'].includes(v))
+                return Cast.just(false);
+            else
+                return Cast.nothing();
+        }));
+    }
+    static get asTruthy() {
+        return Guard.isBoolean.or(Cast.asPrimitiveValue.map(v => !!v));
     }
     static get asArray() {
         return Guard.isArray.or(Guard.isPrimitiveValue.map(a => [a]));
@@ -97,7 +123,12 @@ export class Cast {
             case 'string':
                 return Cast.asString;
             case 'number':
-                return Cast.asNumber;
+                if (Number.isInteger(alt))
+                    return Cast.asInteger;
+                else if (Number.isFinite(alt))
+                    return Cast.asFinite;
+                else
+                    return Cast.asNumber;
             case 'boolean':
                 return Cast.asBoolean;
             case 'bigint':

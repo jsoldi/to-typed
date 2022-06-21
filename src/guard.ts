@@ -112,7 +112,12 @@ export class Guard<out T = unknown> extends Cast<T> {
             case 'string':
                 return Guard.isString as Guard<TGuardMap<T>>;
             case 'number':
-                return Guard.isNumber as Guard<TGuardMap<T>>;
+                if (Number.isInteger(alt))
+                    return Guard.isInteger as Guard<TGuardMap<T>>;
+                else if (Number.isFinite(alt))
+                    return Guard.isFinite as Guard<TGuardMap<T>>;
+                else
+                    return Guard.isNumber as Guard<TGuardMap<T>>;
             case 'boolean':
                 return Guard.isBoolean as Guard<TGuardMap<T>>;
             case 'bigint':

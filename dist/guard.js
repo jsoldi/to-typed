@@ -71,7 +71,12 @@ export class Guard extends Cast {
             case 'string':
                 return Guard.isString;
             case 'number':
-                return Guard.isNumber;
+                if (Number.isInteger(alt))
+                    return Guard.isInteger;
+                else if (Number.isFinite(alt))
+                    return Guard.isFinite;
+                else
+                    return Guard.isNumber;
             case 'boolean':
                 return Guard.isBoolean;
             case 'bigint':

@@ -18,7 +18,7 @@ export declare class Cast<out T = unknown> {
     static just<T>(value: T): Cast<T>;
     static nothing<T = never>(): Cast<T>;
     static try<T>(get: () => T): Cast<T>;
-    read<R>(ifValue: (left: T) => R, ifNothing: () => R): (value: unknown) => T | R;
+    read<R>(ifValue: (left: T) => R, ifNothing: () => R): (value: unknown) => R;
     bind<R>(next: (t: T) => Cast<R>): Cast<R>;
     compose<R>(next: Cast<R>): Cast<R>;
     or<R>(right: Convert<R>): Convert<T | R>;
@@ -33,8 +33,11 @@ export declare class Cast<out T = unknown> {
     static get asPrimitiveValue(): Cast<PrimitiveValue>;
     static get asString(): Cast<string>;
     static get asNumber(): Cast<number>;
+    static get asFinite(): Cast<number>;
+    static get asInteger(): Cast<number>;
     static get asBigint(): Cast<bigint>;
     static get asBoolean(): Cast<boolean>;
+    static get asTruthy(): Cast<boolean>;
     static get asArray(): Cast<unknown[]>;
     static get asCollection(): Cast<Collection>;
     static asConst<T extends Primitive>(value: T): Cast<T>;

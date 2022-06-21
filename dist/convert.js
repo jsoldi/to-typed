@@ -22,8 +22,17 @@ export class Convert extends Cast {
     static toNumber(alt = 0) {
         return Cast.asNumber.else(alt);
     }
+    static toFinite(alt = 0) {
+        return Cast.asFinite.else(alt);
+    }
+    static toInteger(alt = 0) {
+        return Cast.asInteger.else(alt);
+    }
     static toBoolean(alt = false) {
         return Cast.asBoolean.else(alt);
+    }
+    static toTruthy(alt = false) {
+        return Cast.asTruthy.else(alt);
     }
     static toBigInt(alt = BigInt(0)) {
         return Cast.asBigint.else(alt);
@@ -42,7 +51,12 @@ export class Convert extends Cast {
             case 'string':
                 return Convert.toString(alt);
             case 'number':
-                return Convert.toNumber(alt);
+                if (Number.isInteger(alt))
+                    return Convert.toInteger(alt);
+                else if (Number.isFinite(alt))
+                    return Convert.toFinite(alt);
+                else
+                    return Convert.toNumber(alt);
             case 'boolean':
                 return Convert.toBoolean(alt);
             case 'bigint':
