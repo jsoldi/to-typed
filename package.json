@@ -3,10 +3,9 @@
   "name": "convert-to",
   "version": "0.1.5",
   "description": "",
-  "main": "./dist/index.js",
+  "main": "./dist/lib/index.js",
   "scripts": {
-    "start": "tsc & node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tsc --build --clean & tsc --build & node ./dist/tests/all-tests.js",
     "build": "tsc --build --clean & tsc --build"
   },
   "author": "",
