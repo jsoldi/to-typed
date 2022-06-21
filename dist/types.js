@@ -1,4 +1,3 @@
-"use strict";
 /*
     There are 8 values that typeof can return: string, number, bigint, boolean, symbol, undefined, object, and function.
     Values that are typeof object can be further split into null and non-null object.
@@ -17,4 +16,5 @@
 
     So far, the TypeScript object type seems to exactly match values that are typeof function or non-null object.
 */
+export {};
 //# sourceMappingURL=types.js.map

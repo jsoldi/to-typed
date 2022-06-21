@@ -1,6 +1,7 @@
 import { Maybe, Cast, Convert, TCastAll, Utils } from "./internal.js";
+import { Collection, Nothing, PrimitiveValue, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 
-type TGuardEvery<A extends Guard<any>[]> = A extends Array<infer T> ? 
+type TGuardEvery<A extends readonly Guard<unknown>[]> = A extends Array<infer T> ? 
     ((g: T) => void) extends ((g: Guard<infer I>) => void) ? I : unknown : 
 never
 
@@ -37,8 +38,8 @@ export class Guard<out T = unknown> extends Cast<T> {
         return new Guard((val): val is T => this.guard(val) && condition(val));
     }
 
-    public static every<T extends Guard<any>[]>(...guards: T): Guard<TGuardEvery<T>> {
-        return guards.reduce((acc, guard) => acc.and(guard), Guard.isUnknown);
+    public static every<T extends readonly Guard<unknown>[]>(guards: T): Guard<TGuardEvery<T>> {
+        return guards.reduce((acc, guard) => acc.and(guard), Guard.isUnknown) as Guard<TGuardEvery<T>>;
     }
 
     public static isConst<T>(value: T) {
@@ -49,8 +50,8 @@ export class Guard<out T = unknown> extends Cast<T> {
         return new Guard((val): val is T => val instanceof cls);
     }
 
-    public static isEnum<T extends [any, ...any]>(...options: T): Guard<T[number]> {
-        return Guard.some(...options.map(Guard.isConst));
+    public static isEnum<T extends readonly unknown[]>(options: T): Guard<T[number]> {
+        return Guard.some(options.map(Guard.isConst));
     }
 
     public static get isPrimitiveValue(): Guard<PrimitiveValue> {

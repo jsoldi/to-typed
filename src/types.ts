@@ -17,16 +17,17 @@
     So far, the TypeScript object type seems to exactly match values that are typeof function or non-null object.
 */
 
-type PrimitiveValue = string | number | bigint | boolean | symbol
-type Nothing = undefined | null
+export type PrimitiveValue = string | number | bigint | boolean | symbol
+export type Nothing = undefined | null
 type Anything = PrimitiveValue | Nothing | object // The 3 main type partitions
 
-type Struct<S = unknown> = { readonly [k: string]: S };
-type Collection<S = unknown> = Struct<S> | readonly S[]
+export type Primitive = PrimitiveValue | Nothing
+export type Struct<S = unknown> = { readonly [k: string]: S };
+export type Collection<S = unknown> = Struct<S> | readonly S[]
 
-type SimpleType = PrimitiveValue | Nothing | Function;
+export type SimpleType = PrimitiveValue | Nothing | Function;
 
-type SimpleTypeOf<T extends SimpleType> = 
+export type SimpleTypeOf<T extends SimpleType> = 
     T extends string ? string :
     T extends number ? number :
     T extends boolean ? boolean :

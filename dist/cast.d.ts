@@ -1,5 +1,6 @@
 import { Maybe, Guard, Convert } from "./internal.js";
-declare type CastSome<T extends Cast<any>[]> = T extends Guard<any>[] ? Guard<T[number] extends Guard<infer R> ? R : never> : T extends Cast<any>[] ? Cast<T[number] extends Cast<infer R> ? R : never> : never;
+import { Collection, Primitive, PrimitiveValue, SimpleType, SimpleTypeOf } from "./types.js";
+declare type CastSome<T extends readonly Cast<unknown>[]> = T extends Guard<any>[] ? Guard<T[number] extends Guard<infer R> ? R : never> : T extends Cast<any>[] ? Cast<T[number] extends Cast<infer R> ? R : never> : never;
 export declare type TCastAll<T extends Collection<Cast>> = {
     [I in keyof T]: T[I] extends Cast<infer V> ? V : never;
 };
@@ -22,7 +23,7 @@ export declare class Cast<out T = unknown> {
     compose<R>(next: Cast<R>): Cast<R>;
     or<R>(right: Convert<R>): Convert<T | R>;
     or<R>(right: Cast<R>): Cast<T | R>;
-    static some<T extends Cast<any>[]>(...options: T): CastSome<T>;
+    static some<T extends readonly Cast<unknown>[]>(options: T): CastSome<T>;
     static all<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
     if(condition: (input: T) => boolean): Cast<T>;
     and<R>(guard: Guard<R>): Cast<T & R>;
@@ -35,8 +36,9 @@ export declare class Cast<out T = unknown> {
     static get asBigint(): Cast<bigint>;
     static get asBoolean(): Cast<boolean>;
     static get asArray(): Cast<unknown[]>;
-    static asConst<T extends PrimitiveValue>(value: T): Cast<T>;
-    static asEnum<T extends [any, ...any]>(...options: T): Cast<T[number]>;
+    static get asCollection(): Cast<Collection>;
+    static asConst<T extends Primitive>(value: T): Cast<T>;
+    static asEnum<T extends readonly Primitive[]>(options: T): Cast<T[number]>;
     static asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     static asCollectionOf<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
     static as<T>(alt: T): Cast<TCastMap<T>>;
@@ -47,7 +49,7 @@ export declare class Cast<out T = unknown> {
     get asBoolean(): Cast<boolean>;
     get asArray(): Cast<unknown[]>;
     asConst<T extends PrimitiveValue>(value: T): Cast<T>;
-    asEnum<T extends [any, ...any]>(...options: T): Cast<T[number]>;
+    asEnum<T extends readonly Primitive[]>(options: T): Cast<T[number]>;
     asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     asCollectionOf<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
     as<T>(alt: T): Cast<TCastMap<T>>;

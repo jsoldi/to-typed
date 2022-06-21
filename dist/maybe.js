@@ -20,7 +20,7 @@ export class Maybe {
         }
         return Maybe.just(result);
     }
-    get elseThrow() {
+    elseThrow() {
         return this.read(t => t, () => { throw new Error('No value'); });
     }
     read(ifValue, ifNothing) {

@@ -1,4 +1,5 @@
 import { Utils, Maybe, Cast, Guard } from "./internal.js";
+import { Collection, Primitive, SimpleType, SimpleTypeOf } from "./types.js";
 
 // Maps { b: ? => B, c: C } to { b: B, c: C }:
 type TConvertMap<T> = 
@@ -22,8 +23,8 @@ export class Convert<out T = unknown> extends Cast<T> {
         return new Convert(value => g.convert(this.convert(value)));
     }
 
-    public static toEnum<R extends [any, ...any]>(...options: R): Convert<R[number]> {
-        return Cast.asEnum(...options).else(options[0]);
+    public static toEnum<R extends readonly Primitive[]>(options: R): Convert<R[number]> {
+        return Cast.asEnum(options).else(options[0]);
     }
 
     public static toString(alt: string = '') {
@@ -80,7 +81,7 @@ export class Convert<out T = unknown> extends Cast<T> {
         return Convert.toCollectionOf(Utils.map(Convert.to)(alt as any)) as Convert<TConvertMap<T>>
     }
 
-    public toEnum<R extends [any, ...any]>(...options: R) { return this.compose(Convert.toEnum(...options)) }
+    public toEnum<R extends readonly Primitive[]>(options: R) { return this.compose(Convert.toEnum(options)) }
     public toString(alt: string = '') { return this.compose(Convert.toString(alt)) }
     public toNumber(alt: number = 0) { return this.compose(Convert.toNumber(alt)) }
     public toBoolean(alt: boolean = false) { return this.compose(Convert.toBoolean(alt)) }

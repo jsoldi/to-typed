@@ -26,7 +26,7 @@ export class Maybe<out T> {
         return Maybe.just(result);
     }
 
-    public get elseThrow(): T {
+    public elseThrow(): T {
         return this.read(t => t, () => { throw new Error('No value') });
     }
 

@@ -10,8 +10,8 @@ export class Convert extends Cast {
     compose(g) {
         return new Convert(value => g.convert(this.convert(value)));
     }
-    static toEnum(...options) {
-        return Cast.asEnum(...options).else(options[0]);
+    static toEnum(options) {
+        return Cast.asEnum(options).else(options[0]);
     }
     static toString(alt = '') {
         return Cast.asString.else(alt);
@@ -58,7 +58,7 @@ export class Convert extends Cast {
         }
         return Convert.toCollectionOf(Utils.map(Convert.to)(alt));
     }
-    toEnum(...options) { return this.compose(Convert.toEnum(...options)); }
+    toEnum(options) { return this.compose(Convert.toEnum(options)); }
     toString(alt = '') { return this.compose(Convert.toString(alt)); }
     toNumber(alt = 0) { return this.compose(Convert.toNumber(alt)); }
     toBoolean(alt = false) { return this.compose(Convert.toBoolean(alt)); }

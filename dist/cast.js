@@ -35,7 +35,7 @@ export class Cast {
         else
             return new Cast(value => this.cast(value).or(right.cast(value)));
     }
-    static some(...options) {
+    static some(options) {
         return options.reduce((acc, option) => acc.or(option), Guard.isNever);
     }
     static all(casts) {
@@ -77,17 +77,20 @@ export class Cast {
     static get asArray() {
         return Guard.isArray.or(Guard.isPrimitiveValue.map(a => [a]));
     }
-    static asConst(value) {
-        return Cast.asString.if(str => str === value.toString()).map(_ => value);
+    static get asCollection() {
+        return Guard.isCollection.or(Guard.isPrimitiveValue.map(a => [a]));
     }
-    static asEnum(...options) {
-        return Cast.some(...options.map(Cast.asConst));
+    static asConst(value) {
+        return Guard.isConst(value).or(Cast.just(value).asString.bind(str1 => Cast.asString.if(str2 => str1 === str2)).map(_ => value));
+    }
+    static asEnum(options) {
+        return Cast.some(options.map(Cast.asConst));
     }
     static asArrayOf(cast) {
-        return Guard.isArray.bind(a => Cast.all(Utils.map(i => Cast.just(i).compose(cast))(a)));
+        return Cast.asArray.bind(a => Cast.all(Utils.map(i => Cast.just(i).compose(cast))(a)));
     }
     static asCollectionOf(casts) {
-        return Guard.isCollection.bind(val => Cast.all(Utils.map((cast, k) => Cast.just(val[k]).compose(cast))(casts)));
+        return Cast.asCollection.bind(val => Cast.all(Utils.map((cast, k) => Cast.just(val[k]).compose(cast))(casts)));
     }
     static as(alt) {
         switch (typeof alt) {
@@ -120,7 +123,7 @@ export class Cast {
     get asBoolean() { return this.compose(Cast.asBoolean); }
     get asArray() { return this.compose(Cast.asArray); }
     asConst(value) { return this.compose(Cast.asConst(value)); }
-    asEnum(...options) { return this.compose(Cast.asEnum(...options)); }
+    asEnum(options) { return this.compose(Cast.asEnum(options)); }
     asArrayOf(cast) { return this.compose(Cast.asArrayOf(cast)); }
     asCollectionOf(casts) { return this.compose(Cast.asCollectionOf(casts)); }
     as(alt) { return this.compose(Cast.as(alt)); }

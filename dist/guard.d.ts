@@ -1,5 +1,6 @@
 import { Cast, Convert, TCastAll } from "./internal.js";
-declare type TGuardEvery<A extends Guard<any>[]> = A extends Array<infer T> ? ((g: T) => void) extends ((g: Guard<infer I>) => void) ? I : unknown : never;
+import { Collection, Nothing, PrimitiveValue, SimpleType, SimpleTypeOf, Struct } from "./types.js";
+declare type TGuardEvery<A extends readonly Guard<unknown>[]> = A extends Array<infer T> ? ((g: T) => void) extends ((g: Guard<infer I>) => void) ? I : unknown : never;
 declare type TGuardMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends Guard<infer R> ? R : T extends {
     [k in keyof T]: any;
 } ? {
@@ -15,10 +16,10 @@ export declare class Guard<out T = unknown> extends Cast<T> {
     or<R>(right: Convert<R>): Convert<T | R>;
     or<R>(right: Cast<R>): Cast<T | R>;
     if(condition: (input: T) => boolean): Guard<T>;
-    static every<T extends Guard<any>[]>(...guards: T): Guard<TGuardEvery<T>>;
+    static every<T extends readonly Guard<unknown>[]>(guards: T): Guard<TGuardEvery<T>>;
     static isConst<T>(value: T): Guard<T>;
     static isClass<T>(cls: new (...args: any[]) => T): Guard<T>;
-    static isEnum<T extends [any, ...any]>(...options: T): Guard<T[number]>;
+    static isEnum<T extends readonly unknown[]>(options: T): Guard<T[number]>;
     static get isPrimitiveValue(): Guard<PrimitiveValue>;
     static get isNothing(): Guard<Nothing>;
     static get isObject(): Guard<object>;

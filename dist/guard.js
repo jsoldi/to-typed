@@ -16,7 +16,7 @@ export class Guard extends Cast {
     if(condition) {
         return new Guard((val) => this.guard(val) && condition(val));
     }
-    static every(...guards) {
+    static every(guards) {
         return guards.reduce((acc, guard) => acc.and(guard), Guard.isUnknown);
     }
     static isConst(value) {
@@ -25,8 +25,8 @@ export class Guard extends Cast {
     static isClass(cls) {
         return new Guard((val) => val instanceof cls);
     }
-    static isEnum(...options) {
-        return Guard.some(...options.map(Guard.isConst));
+    static isEnum(options) {
+        return Guard.some(options.map(Guard.isConst));
     }
     static get isPrimitiveValue() {
         return new Guard((val) => typeof val === 'string' ||

@@ -1,6 +1,7 @@
 import { Maybe, Guard, Convert, Utils } from "./internal.js";
+import { Collection, Primitive, PrimitiveValue, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 
-type CastSome<T extends Cast<any>[]> =
+type CastSome<T extends readonly Cast<unknown>[]> =
     T extends Guard<any>[] ? Guard<T[number] extends Guard<infer R> ? R : never> :
     T extends Cast<any>[] ? Cast<T[number] extends Cast<infer R> ? R : never> :
     never
@@ -62,7 +63,7 @@ export class Cast<out T = unknown> {
             return new Cast(value => this.cast(value).or(right.cast(value)));
     }
 
-    public static some<T extends Cast<any>[]>(...options: T): CastSome<T> {
+    public static some<T extends readonly Cast<unknown>[]>(options: T): CastSome<T> {
         return options.reduce((acc, option) => acc.or(option), Guard.isNever) as CastSome<T>;
     }
 
@@ -121,22 +122,28 @@ export class Cast<out T = unknown> {
         return Guard.isArray.or(Guard.isPrimitiveValue.map(a => [a]));
     }
 
-    public static asConst<T extends PrimitiveValue>(value: T): Cast<T> {
-        return Cast.asString.if(str => str === value.toString()).map(_ => value);
+    public static get asCollection(): Cast<Collection> {
+        return Guard.isCollection.or(Guard.isPrimitiveValue.map(a => [a]));
     }
 
-    public static asEnum<T extends [any, ...any]>(...options: T): Cast<T[number]> {
-        return Cast.some(...options.map(Cast.asConst));
+    public static asConst<T extends Primitive>(value: T): Cast<T> {
+        return Guard.isConst(value).or(
+            Cast.just(value).asString.bind(str1 => Cast.asString.if(str2 => str1 === str2)).map(_ => value)
+        );
+    }
+
+    public static asEnum<T extends readonly Primitive[]>(options: T): Cast<T[number]> {
+        return Cast.some(options.map(Cast.asConst));
     }
 
     public static asArrayOf<T>(cast: Cast<T>) {
-        return Guard.isArray.bind(a => 
+        return Cast.asArray.bind(a => 
             Cast.all(Utils.map(i => Cast.just(i).compose(cast))(a))
         );
     }
 
     public static asCollectionOf<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>> {
-        return Guard.isCollection.bind(val => 
+        return Cast.asCollection.bind(val => 
             Cast.all(Utils.map((cast: Cast, k) => Cast.just((val as Struct)[k]).compose(cast))(casts))
         ) as Cast<TCastAll<T>>
     }
@@ -174,7 +181,7 @@ export class Cast<out T = unknown> {
     public get asBoolean() { return this.compose(Cast.asBoolean) }
     public get asArray() { return this.compose(Cast.asArray) }
     public asConst<T extends PrimitiveValue>(value: T) { return this.compose(Cast.asConst(value)) }
-    public asEnum<T extends [any, ...any]>(...options: T) { return this.compose(Cast.asEnum(...options)) }
+    public asEnum<T extends readonly Primitive[]>(options: T) { return this.compose(Cast.asEnum(options)) }
     public asArrayOf<T>(cast: Cast<T>) { return this.compose(Cast.asArrayOf(cast)) }
     public asCollectionOf<T extends Collection<Cast>>(casts: T) { return this.compose(Cast.asCollectionOf(casts)) }    
     public as<T>(alt: T) { return this.compose(Cast.as(alt)) }

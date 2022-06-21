@@ -1,3 +1,5 @@
+import { Collection } from "./types"
+
 export class Utils {
     static map<S, T>(map: (value: S, key: string) => T) {
         return <C extends Collection<S>>(container: C) : { [I in keyof C]: T } => {
