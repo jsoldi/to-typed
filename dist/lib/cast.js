@@ -97,9 +97,6 @@ export class Cast {
                 return Cast.nothing();
         }));
     }
-    static get asTruthy() {
-        return Guard.isBoolean.or(Cast.asPrimitiveValue.map(v => !!v));
-    }
     static get asArray() {
         return Guard.isArray.or(Guard.isPrimitiveValue.map(a => [a]));
     }

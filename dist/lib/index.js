@@ -1,61 +1,78 @@
 export { Maybe, Cast, Guard, Convert } from "./internal.js";
-// import { Maybe, Cast, Guard, Convert } from "./internal.js";
-// function samples() {
-//     const unknowns = {
-//         string: 'Hello world' as unknown,
-//         number: 123 as unknown,
-//         boolean: true as unknown,
-//         arrayOfNumbers: [4, 5, 6],
-//         tuple: ['One', true, 7] as const,
-//         object: {
-//             number: 8,
-//             string: 'Hello'
-//         }
+// import { Guard, Convert } from "./internal.js";
+// const guard = Guard.is({
+//     integer: 10,
+//     float: Number.EPSILON,
+//     string: 'default',
+//     boolean: false,
+//     tuple: [ 10, 'default', false ] as const,
+//     arrayOfInts: Guard.isArrayOf(Guard.isInteger),
+//     object: {
+//         includeInfinityAndNaN: Guard.isNumber,
+//         excludeInfinityOrNaN: Guard.isFinite
 //     }
-//     const guarded = {
-//         string: Guard.isString.guard(unknowns.string) ? unknowns.string : '', 
-//         number: Guard.isNumber.guard(unknowns.number) ? unknowns.number : 0,
-//         finite: Guard.isFinite.guard(unknowns.number) ? unknowns.number : 0,
-//         integer: Guard.isInteger.guard(unknowns.number) ? unknowns.number : 0,
-//         boolean: Guard.isBoolean.guard(unknowns.boolean) ? unknowns.boolean : false,
-//         array: Guard.isArray.guard(unknowns.tuple) ? unknowns.tuple : [],
-//         arrayOfNumbers: Guard.isArrayOf(Guard.isNumber).guard(unknowns.arrayOfNumbers) ? unknowns.arrayOfNumbers : [],
-//         tuple: Guard.isCollectionOf([
-//             Guard.isString, 
-//             Guard.isBoolean, 
-//             Guard.isNumber
-//         ]).guard(unknowns.tuple) ? unknowns.tuple : ['', false, 0],
-//         object1: Guard.isCollectionOf({ 
-//             number: Guard.isNumber, 
-//             string: Guard.isString 
-//         }).guard(unknowns.object) ? unknowns.object : { number: 0, string: '' },
-//         object2: Guard.is({ 
-//             number: 0, 
-//             string: '' 
-//         }).guard(unknowns.object) ? unknowns.object : { number: 0, string: '' }
+// })
+// const valid: unknown = {
+//     integer: 2,
+//     float: 3.14,
+//     string: 'hello',
+//     boolean: true,
+//     tuple: [ 10, 'hello', true, 'unimportant' ],
+//     arrayOfInts: [ 10, 20, 30 ],
+//     object: {
+//         includeInfinityAndNaN: -Infinity,
+//         excludeInfinityOrNaN: 3.14
 //     }
-//     const template = {
-//         one: Convert.toInteger(),
-//         two: Convert.toInteger(),
-//         pi: Convert.toFinite(),
-//         infinity: Convert.toNumber()
-//     }
-//     const converter = Convert.to(template);
-//     const result = converter.convert({
-//         one: 1.001,
-//         two: '1.999',
-//         pi: '3.14159',
-//         infinity: 'Infinity'
-//     })
-//     const asNumber = Cast.asNumber;
-//     const asFinite = Cast.asFinite;
-//     const asInteger = Cast.asInteger;
-//     const asBigint = Cast.asBigint;
-//     console.log(asNumber);
-//     console.log(asFinite);
-//     console.log(asInteger);
-//     console.log(asBigint);
-//     debugger;
 // }
-// samples();
+// if (guard.guard(valid)) {
+//     // In this context, `valid` has type:
+//     // const valid: {
+//     //     integer: number;
+//     //     float: number;
+//     //     string: string;
+//     //     boolean: boolean;
+//     //     tuple: readonly [number, string, boolean];
+//     //     arrayOfInts: number[];
+//     //     object: {
+//     //         includeInfinityAndNaN: number;
+//     //         excludeInfinityOrNaN: number;
+//     //     };
+//     // }        
+//     console.log('valid')
+// }
+// else
+//     console.log('invalid')
+// const converter = Convert.to({
+//     integer: 0,
+//     floatDefaultToEPSILON: Number.EPSILON,
+//     floatDefaultToZero: Convert.toFinite(0),
+//     string: '',
+//     boolean: false,
+//     ifTruthy: Convert.toTruthy(),
+//     tuple: [ 0, '', false ] as const,
+//     arrayOfInts: Convert.toArrayOf(Convert.to(0)),
+//     percentage: Convert.toFinite(.5).map(x => Math.round(x * 100) + '%'),
+//     object: {
+//         includeInfinityAndNaN: Convert.toNumber(),
+//         roundToInteger: Convert.toInteger()
+//     }
+// })
+// const defaults = converter.convert({ ignored: 'ignored' })
+// console.log(defaults)
+// const samples = converter.convert({
+//     integer: 2.99,
+//     floatDefaultToEPSILON: '3.14',
+//     floatDefaultToZero: 'cannot parse this',
+//     string: 'hello',
+//     boolean: 'true',
+//     ifTruthy: [],
+//     tuple: [ '10', 3.14159, 1, 'ignored' ],
+//     arrayOfInts: [ '10', 20, '30', false, true ],
+//     percentage: [ '0.251' ],
+//     object: {
+//         includeInfinityAndNaN: '-Infinity',
+//         roundToInteger: '3.14'
+//     }
+// })
+// console.log(samples)
 //# sourceMappingURL=index.js.map

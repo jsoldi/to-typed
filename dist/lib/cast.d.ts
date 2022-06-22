@@ -37,7 +37,6 @@ export declare class Cast<out T = unknown> {
     static get asInteger(): Cast<number>;
     static get asBigint(): Cast<bigint>;
     static get asBoolean(): Cast<boolean>;
-    static get asTruthy(): Cast<boolean>;
     static get asArray(): Cast<unknown[]>;
     static get asCollection(): Cast<Collection>;
     static asConst<T extends Primitive>(value: T): Cast<T>;

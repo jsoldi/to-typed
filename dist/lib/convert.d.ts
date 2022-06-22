@@ -18,7 +18,7 @@ export declare class Convert<out T = unknown> extends Cast<T> {
     static toFinite(alt?: number): Convert<number>;
     static toInteger(alt?: number): Convert<number>;
     static toBoolean(alt?: boolean): Convert<boolean>;
-    static toTruthy(alt?: boolean): Convert<boolean>;
+    static toTruthy(): Convert<boolean>;
     static toBigInt(alt?: bigint): Convert<bigint>;
     static toArray(alt?: unknown[]): Convert<unknown[]>;
     static toArrayOf<T>(convertItem: Convert<T>, alt?: T[]): Convert<T[]>;

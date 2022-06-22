@@ -31,8 +31,8 @@ export class Convert extends Cast {
     static toBoolean(alt = false) {
         return Cast.asBoolean.else(alt);
     }
-    static toTruthy(alt = false) {
-        return Cast.asTruthy.else(alt);
+    static toTruthy() {
+        return new Convert(value => !!value);
     }
     static toBigInt(alt = BigInt(0)) {
         return Cast.asBigint.else(alt);

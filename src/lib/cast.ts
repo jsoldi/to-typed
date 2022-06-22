@@ -143,10 +143,6 @@ export class Cast<out T = unknown> {
         }));
     }
 
-    public static get asTruthy(): Cast<boolean> {
-        return Guard.isBoolean.or(Cast.asPrimitiveValue.map(v => !!v));
-    }
-
     public static get asArray(): Cast<unknown[]> {
         return Guard.isArray.or(Guard.isPrimitiveValue.map(a => [a]));
     }
