@@ -1,12 +1,3 @@
-# to-typed
-
-Type-guards, casts and converts unknowns into typed values. 
-
-
-## Demo
-
-
-```typescript
 import { Guard, Convert } from "../lib/index.js";
 
 const guard = Guard.is({
@@ -114,4 +105,3 @@ console.log(samples)
 //     percentage: '25%',
 //     object: { includeInfinityAndNaN: -Infinity, roundToInteger: 3 }
 // }
-```

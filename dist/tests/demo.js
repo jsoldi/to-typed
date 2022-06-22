@@ -1,40 +1,28 @@
-# to-typed
-
-Type-guards, casts and converts unknowns into typed values. 
-
-
-## Demo
-
-
-```typescript
 import { Guard, Convert } from "../lib/index.js";
-
 const guard = Guard.is({
     integer: 10,
     float: Number.EPSILON,
     string: 'default',
     boolean: false,
-    tuple: [ 10, 'default', false ] as const,
+    tuple: [10, 'default', false],
     arrayOfInts: Guard.isArrayOf(Guard.isInteger),
     object: {
         includeInfinityAndNaN: Guard.isNumber,
         excludeInfinityOrNaN: Guard.isFinite
     }
-})
-
-const valid: unknown = {
+});
+const valid = {
     integer: 2,
     float: 3.14,
     string: 'hello',
     boolean: true,
-    tuple: [ 10, 'hello', true, 'unimportant' ],
-    arrayOfInts: [ 10, 20, 30 ],
+    tuple: [10, 'hello', true, 'unimportant'],
+    arrayOfInts: [10, 20, 30],
     object: {
         includeInfinityAndNaN: -Infinity,
         excludeInfinityOrNaN: 3.14
     }
-}
-
+};
 if (guard.guard(valid)) {
     // const valid: {
     //     integer: number;
@@ -48,11 +36,10 @@ if (guard.guard(valid)) {
     //         excludeInfinityOrNaN: number;
     //     };
     // }   
-    console.log('valid') // valid
+    console.log('valid'); // valid
 }
 else
-    console.log('invalid')
-
+    console.log('invalid');
 const converter = Convert.to({
     integer: 0,
     floatDefaultToEPSILON: Number.EPSILON,
@@ -60,18 +47,16 @@ const converter = Convert.to({
     string: '',
     boolean: false,
     ifTruthy: Convert.toTruthy(),
-    tuple: [ 0, '', false ] as const,
+    tuple: [0, '', false],
     arrayOfInts: Convert.toArrayOf(Convert.to(0)),
     percentage: Convert.toFinite(.5).map(x => Math.round(x * 100) + '%'),
     object: {
         includeInfinityAndNaN: Convert.toNumber(),
         roundToInteger: Convert.toInteger()
     }
-})
-
-const defaults = converter.convert({ ignored: 'ignored' })
-
-console.log(defaults) 
+});
+const defaults = converter.convert({ ignored: 'ignored' });
+console.log(defaults);
 // {
 //     integer: 0,
 //     floatDefaultToEPSILON: 2.220446049250313e-16,
@@ -84,7 +69,6 @@ console.log(defaults)
 //     percentage: '50%',
 //     object: { includeInfinityAndNaN: 0, roundToInteger: 0 }
 // }
-
 const samples = converter.convert({
     integer: 2.99,
     floatDefaultToEPSILON: '3.14',
@@ -92,16 +76,15 @@ const samples = converter.convert({
     string: 'hello',
     boolean: 'true',
     ifTruthy: [],
-    tuple: [ '10', 3.14159, 1, 'ignored' ],
-    arrayOfInts: [ '10', 20, '30', false, true ],
-    percentage: [ '0.251' ],
+    tuple: ['10', 3.14159, 1, 'ignored'],
+    arrayOfInts: ['10', 20, '30', false, true],
+    percentage: ['0.251'],
     object: {
         includeInfinityAndNaN: '-Infinity',
         roundToInteger: '3.14'
     }
-})
-
-console.log(samples) 
+});
+console.log(samples);
 // {
 //     integer: 3,
 //     floatDefaultToEPSILON: 3.14,
@@ -114,4 +97,4 @@ console.log(samples)
 //     percentage: '25%',
 //     object: { includeInfinityAndNaN: -Infinity, roundToInteger: 3 }
 // }
-```
+//# sourceMappingURL=demo.js.map
