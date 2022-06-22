@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "to-typed",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Type-guards, casts and converts unknowns into typed values",
   "main": "./dist/lib/index.js",
   "scripts": {
