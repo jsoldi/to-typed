@@ -1,15 +1,15 @@
 {
   "type": "module",
   "name": "convert-to",
-  "version": "0.1.6",
-  "description": "",
+  "version": "0.1.7",
+  "description": "Type-guards, casts and converts unknowns into typed values",
   "main": "./dist/lib/index.js",
   "scripts": {
     "test": "tsc --build --clean & tsc --build & node ./dist/tests/all-tests.js",
     "build": "tsc --build --clean & tsc --build"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Juan Soldi",
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "^17.0.35"
   }
