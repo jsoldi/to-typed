@@ -1,7 +1,7 @@
 {
   "type": "module",
-  "name": "convert-to",
-  "version": "0.1.7",
+  "name": "cast-as",
+  "version": "0.1.8",
   "description": "Type-guards, casts and converts unknowns into typed values",
   "main": "./dist/lib/index.js",
   "scripts": {
