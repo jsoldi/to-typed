@@ -2,7 +2,9 @@
 
 Type-guards, casts and converts unknowns into typed values. 
 
-## Samples
+
+## Demo
+
 
 ```typescript
 import { Guard, Convert } from "./internal.js";
