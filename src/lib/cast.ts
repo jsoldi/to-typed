@@ -123,7 +123,7 @@ export class Cast<out T = unknown> {
         return Cast.asFinite.map(Math.round);
     }
 
-    public static get asBigint(): Cast<bigint> {
+    public static get asBigInt(): Cast<bigint> {
         return Cast.asPrimitiveValue.compose(Cast.some([
             Guard.isBigInt,
             Cast.asString.bind(s => Cast.try(() => BigInt(s))),
@@ -187,7 +187,7 @@ export class Cast<out T = unknown> {
             case 'boolean':
                 return Cast.asBoolean as Cast<TCastMap<T>>;
             case 'bigint':
-                return Cast.asBigint as Cast<TCastMap<T>>;
+                return Cast.asBigInt as Cast<TCastMap<T>>;
             case 'symbol':
                 return Guard.isSymbol as Guard<TCastMap<T>>;
             case 'undefined':
@@ -207,7 +207,7 @@ export class Cast<out T = unknown> {
     public get asPrimitiveValue() { return this.compose(Cast.asPrimitiveValue) }
     public get asString() { return this.compose(Cast.asString) }
     public get asNumber() { return this.compose(Cast.asNumber) }
-    public get asBigint() { return this.compose(Cast.asBigint) }
+    public get asBigInt() { return this.compose(Cast.asBigInt) }
     public get asBoolean() { return this.compose(Cast.asBoolean) }
     public get asArray() { return this.compose(Cast.asArray) }
     public asConst<T extends PrimitiveValue>(value: T) { return this.compose(Cast.asConst(value)) }

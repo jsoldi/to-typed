@@ -56,7 +56,7 @@ export class Convert<out T = unknown> extends Cast<T> {
     }
 
     public static toBigInt(alt: bigint = BigInt(0)) {
-        return Cast.asBigint.else(alt);
+        return Cast.asBigInt.else(alt);
     }
 
     public static toArray(alt: unknown[] = []) {
