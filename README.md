@@ -1,4 +1,4 @@
-# convert-to
+# cast-as
 
 Type-guards, casts and converts unknowns into typed values. 
 
