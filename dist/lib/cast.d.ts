@@ -51,7 +51,7 @@ export declare class Cast<out T = unknown> {
     static get asArray(): Cast<unknown[]>;
     static get asCollection(): Cast<Collection>;
     static asConst<T extends Primitive>(value: T): Cast<T>;
-    static asEnum<T extends readonly Primitive[]>(options: T): Cast<T[number]>;
+    static asEnum<T extends readonly Primitive[]>(...options: T): Cast<T[number]>;
     protected static asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>>;
     static asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     static asStructOf<T>(cast: Cast<T>): Cast<Struct<T>>;
@@ -64,7 +64,7 @@ export declare class Cast<out T = unknown> {
     get asBoolean(): Cast<boolean>;
     get asArray(): Cast<unknown[]>;
     asConst<T extends PrimitiveValue>(value: T): Cast<T>;
-    asEnum<T extends readonly Primitive[]>(options: T): Cast<T[number]>;
+    asEnum<T extends readonly Primitive[]>(...options: T): Cast<[...T][number]>;
     protected asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>>;
     asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     asStructOf<T>(cast: Cast<T>): Cast<Struct<T>>;

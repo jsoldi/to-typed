@@ -104,7 +104,7 @@ export class Cast {
     static asConst(value) {
         return Guard.isConst(value).or(Cast.just(value).asString.bind(str1 => Cast.asString.if(str2 => str1 === str2)).map(_ => value));
     }
-    static asEnum(options) {
+    static asEnum(...options) {
         return Cast.some(...options.map(Cast.asConst));
     }
     static asCollectionOf(cast) {
@@ -155,7 +155,7 @@ export class Cast {
     get asBoolean() { return this.compose(Cast.asBoolean); }
     get asArray() { return this.compose(Cast.asArray); }
     asConst(value) { return this.compose(Cast.asConst(value)); }
-    asEnum(options) { return this.compose(Cast.asEnum(options)); }
+    asEnum(...options) { return this.compose(Cast.asEnum(...options)); }
     asCollectionOf(cast) { return this.compose(Cast.asCollectionOf(cast)); }
     asArrayOf(cast) { return this.compose(Cast.asArrayOf(cast)); }
     asStructOf(cast) { return this.compose(Cast.asStructOf(cast)); }

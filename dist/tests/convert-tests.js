@@ -3,10 +3,10 @@ import { testEq } from "./tester.js";
 function testConvert(name, convert, value, expectedValue) {
     testEq(name, convert.convert(value), expectedValue);
 }
-testConvert('Convert.toEnum gets the right item', Convert.toEnum(['a', 'b', 'c']), 'b', 'b');
-testConvert('Convert.toEnum uses first item by default', Convert.toEnum(['a', 'b', 'c']), null, 'a');
-testConvert('Convert.toEnum compares strings (1)', Convert.toEnum([null, 'true', 'false']), true, 'true');
-testConvert('Convert.toEnum compares strings (2)', Convert.toEnum([null, 'true', 'false']), false, 'false');
+testConvert('Convert.toEnum gets the right item', Convert.toEnum('a', 'b', 'c'), 'b', 'b');
+testConvert('Convert.toEnum uses first item by default', Convert.toEnum('a', 'b', 'c'), null, 'a');
+testConvert('Convert.toEnum compares strings (1)', Convert.toEnum(null, 'true', 'false'), true, 'true');
+testConvert('Convert.toEnum compares strings (2)', Convert.toEnum(null, 'true', 'false'), false, 'false');
 testConvert('Convert.toString uses only item in array', Convert.toString(), [10], '10');
 testConvert('Convert.toString uses first item in array', Convert.toString(), [true, false], 'true');
 testConvert('Convert.toString defaults for empty array', Convert.toString('DEF'), [], 'DEF');

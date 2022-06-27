@@ -27,8 +27,13 @@ export class Convert<out T = unknown> extends Cast<T> {
         return new Convert(value => fun(this.convert(value)));
     }
 
-    public static toEnum<R extends readonly [Primitive, ...Primitive[]]>(options: R): Convert<R[number]> {
-        return Cast.asEnum(options).else(options[0]);
+    /**
+     * Converts to a union of the given options, and defaults to the first option. 
+     * @param options an array of options to choose from, where the first option is the default
+     * @returns a `Convert` that converts to a union
+     */
+    public static toEnum<R extends readonly [Primitive, ...Primitive[]]>(...options: R): Convert<R[number]> {
+        return Cast.asEnum(...options).else(options[0]);
     }
 
     public static toString(alt: string = '') {
@@ -106,7 +111,7 @@ export class Convert<out T = unknown> extends Cast<T> {
         return Convert.toCollectionLike(Utils.map(Convert.to)(alt as any)) as Convert<TConvertMap<T>>
     }
 
-    public toEnum<R extends readonly [Primitive, ...Primitive[]]>(options: R) { return this.compose(Convert.toEnum(options)) }
+    public toEnum<R extends readonly [Primitive, ...Primitive[]]>(...options: R) { return this.compose(Convert.toEnum(...options)) }
     public toString(alt: string = '') { return this.compose(Convert.toString(alt)) }
     public toNumber(alt: number = 0) { return this.compose(Convert.toNumber(alt)) }
     public toBoolean(alt: boolean = false) { return this.compose(Convert.toBoolean(alt)) }

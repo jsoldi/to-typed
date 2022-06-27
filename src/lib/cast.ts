@@ -170,7 +170,7 @@ export class Cast<out T = unknown> {
         );
     }
 
-    public static asEnum<T extends readonly Primitive[]>(options: T): Cast<T[number]> {
+    public static asEnum<T extends readonly Primitive[]>(...options: T): Cast<T[number]> {
         return Cast.some(...options.map(Cast.asConst));
     }
 
@@ -230,7 +230,7 @@ export class Cast<out T = unknown> {
     public get asBoolean() { return this.compose(Cast.asBoolean) }
     public get asArray() { return this.compose(Cast.asArray) }
     public asConst<T extends PrimitiveValue>(value: T) { return this.compose(Cast.asConst(value)) }
-    public asEnum<T extends readonly Primitive[]>(options: T) { return this.compose(Cast.asEnum(options)) }
+    public asEnum<T extends readonly Primitive[]>(...options: T) { return this.compose(Cast.asEnum(...options)) }
     protected asCollectionOf<T>(cast: Cast<T>) { return this.compose(Cast.asCollectionOf(cast)) }
     public asArrayOf<T>(cast: Cast<T>) { return this.compose(Cast.asArrayOf(cast)) }
     public asStructOf<T>(cast: Cast<T>) { return this.compose(Cast.asStructOf(cast)) }
