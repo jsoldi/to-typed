@@ -52,7 +52,7 @@ const converter = Convert.to({
 });
 test('Demo - Convert uses defaults', () => assert.deepStrictEqual(converter.convert({ ignored: 'ignored' }), {
     integer: 0,
-    floatDefaultToEPSILON: Number.EPSILON,
+    floatDefaultToEPSILON: 2.220446049250313e-16,
     floatDefaultToZero: 0,
     string: '',
     boolean: false,

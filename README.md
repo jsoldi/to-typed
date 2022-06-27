@@ -7,51 +7,61 @@ Type-guards, casts and converts unknowns into typed values.
 
 
 ```typescript
-import { Guard, Convert } from "../lib/index.js";
+import { Guard, Cast, Convert } from "to-typed"
+
+// ---------------- Type guarding ----------------
 
 const guard = Guard.is({
     integer: 10,
     float: Number.EPSILON,
-    string: 'default',
     boolean: false,
-    tuple: [ 10, 'default', false ] as const,
-    arrayOfInts: Guard.isArrayOf(Guard.isInteger),
+    tuple: [ 20, 'default', false ] as const,
+    arrayOfNumbers: Guard.isArrayOf(Guard.isFinite),
+    even: Guard.isInteger.if(n => n % 2 === 0),
     object: {
-        includeInfinityAndNaN: Guard.isNumber,
-        excludeInfinityOrNaN: Guard.isFinite
+        union: Guard.some(
+            Guard.isConst(null),
+            Guard.isString, 
+            Guard.isNumber
+        ),
+        intersection: Guard.every(
+            Guard.is({ int: 0 }), 
+            Guard.is({ str: "" })
+        )
     }
 })
 
 const valid: unknown = {
-    integer: 2,
-    float: 3.14,
-    string: 'hello',
+    integer: 123,
+    float: 3.14159,
     boolean: true,
-    tuple: [ 10, 'hello', true, 'unimportant' ],
-    arrayOfInts: [ 10, 20, 30 ],
+    tuple: [10, 'hello', true, 'ignore me'],
+    arrayOfNumbers: [ -1, 1, 2.5, Number.MAX_VALUE ],
+    even: 16,
     object: {
-        includeInfinityAndNaN: -Infinity,
-        excludeInfinityOrNaN: 3.14
+        union: null,
+        intersection: { int: 100, str: 'good bye' }
     }
 }
 
-if (guard.guard(valid)) {
-    // const valid: {
+if (guard.guard(valid)) {    
+    // In this context, valid has type:
+    // {
     //     integer: number;
     //     float: number;
-    //     string: string;
     //     boolean: boolean;
     //     tuple: readonly [number, string, boolean];
-    //     arrayOfInts: number[];
+    //     arrayOfNumbers: number[];
+    //     even: number;
     //     object: {
-    //         includeInfinityAndNaN: number;
-    //         excludeInfinityOrNaN: number;
-    //     };
-    // }   
+    //         union: string | number | null;
+    //         intersection: { int: number } & { str: string }
+    //     }
+    // }
     console.log('valid') // valid
 }
-else
-    console.log('invalid')
+
+// ---------------- Type casting / converting ----------------
 
 const converter = Convert.to({
     integer: 0,
@@ -59,59 +69,68 @@ const converter = Convert.to({
     floatDefaultToZero: Convert.toFinite(0),
     string: '',
     boolean: false,
-    ifTruthy: Convert.toTruthy(),
+    trueIfTruthyInput: Convert.toTruthy(), 
     tuple: [ 0, '', false ] as const,
     arrayOfInts: Convert.toArrayOf(Convert.to(0)),
     percentage: Convert.toFinite(.5).map(x => Math.round(x * 100) + '%'),
     object: {
-        includeInfinityAndNaN: Convert.toNumber(),
-        roundToInteger: Convert.toInteger()
+        originalAndConverted: Convert.all({ 
+            original: Convert.id, 
+            converted: Convert.to('') 
+        }),
+        strictNumberOrString: Guard.isNumber.or(Convert.to('')),
+        relaxedNumberOrString: Cast.asNumber.or(Convert.to(''))
     }
 })
 
-const defaults = converter.convert({ ignored: 'ignored' })
-
-console.log(defaults) 
+console.log(converter.convert({ ignored: 'ignored' }))
 // {
 //     integer: 0,
 //     floatDefaultToEPSILON: 2.220446049250313e-16,
 //     floatDefaultToZero: 0,
 //     string: '',
 //     boolean: false,
-//     ifTruthy: false,
+//     trueIfTruthyInput: false,
 //     tuple: [ 0, '', false ],
 //     arrayOfInts: [],
 //     percentage: '50%',
-//     object: { includeInfinityAndNaN: 0, roundToInteger: 0 }
+//     object: {
+//         originalAndConverted: { original: undefined, converted: '' },
+//         strictNumberOrString: '',
+//         relaxedNumberOrString: ''
+//     }
 // }
 
-const samples = converter.convert({
+console.log(converter.convert({
     integer: 2.99,
     floatDefaultToEPSILON: '3.14',
     floatDefaultToZero: 'cannot parse this',
     string: 'hello',
     boolean: 'true',
-    ifTruthy: [],
+    trueIfTruthyInput: [],
     tuple: [ '10', 3.14159, 1, 'ignored' ],
     arrayOfInts: [ '10', 20, '30', false, true ],
-    percentage: [ '0.251' ],
+    percentage: [ '0.33333' ],
     object: {
-        includeInfinityAndNaN: '-Infinity',
-        roundToInteger: '3.14'
+        originalAndConverted: 12345,
+        strictNumberOrString: '-Infinity',
+        relaxedNumberOrString: '-Infinity'
     }
-})
-
-console.log(samples) 
+}))
 // {
 //     integer: 3,
 //     floatDefaultToEPSILON: 3.14,
 //     floatDefaultToZero: 0,
 //     string: 'hello',
 //     boolean: true,
-//     ifTruthy: true,
+//     trueIfTruthyInput: true,
 //     tuple: [ 10, '3.14159', true ],
 //     arrayOfInts: [ 10, 20, 30, 0, 1 ],
-//     percentage: '25%',
-//     object: { includeInfinityAndNaN: -Infinity, roundToInteger: 3 }
+//     percentage: '33%',
+//     object: {
+//         originalAndConverted: { original: 12345, converted: '12345' },
+//         strictNumberOrString: '-Infinity',
+//         relaxedNumberOrString: -Infinity
+//     }
 // }
 ```
