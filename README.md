@@ -73,6 +73,7 @@ const converter = Convert.to({
     tuple: [ 0, '', false ] as const,
     arrayOfInts: Convert.toArrayOf(Convert.to(0)),
     percentage: Convert.toFinite(.5).map(x => Math.round(x * 100) + '%'),
+    enum: Convert.toEnum('zero', 'one', 'two', 'three'),
     object: {
         originalAndConverted: Convert.all({ 
             original: Convert.id, 
@@ -94,6 +95,7 @@ console.log(converter.convert({ ignored: 'ignored' }))
 //     tuple: [ 0, '', false ],
 //     arrayOfInts: [],
 //     percentage: '50%',
+//     enum: 'zero',
 //     object: {
 //         originalAndConverted: { original: undefined, converted: '' },
 //         strictNumberOrString: '',
@@ -111,6 +113,7 @@ console.log(converter.convert({
     tuple: [ '10', 3.14159, 1, 'ignored' ],
     arrayOfInts: [ '10', 20, '30', false, true ],
     percentage: [ '0.33333' ],
+    enum: 'two',
     object: {
         originalAndConverted: 12345,
         strictNumberOrString: '-Infinity',
@@ -127,6 +130,7 @@ console.log(converter.convert({
 //     tuple: [ 10, '3.14159', true ],
 //     arrayOfInts: [ 10, 20, 30, 0, 1 ],
 //     percentage: '33%',
+//     enum: 'two',
 //     object: {
 //         originalAndConverted: { original: 12345, converted: '12345' },
 //         strictNumberOrString: '-Infinity',
