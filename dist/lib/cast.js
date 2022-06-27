@@ -35,11 +35,19 @@ export class Cast {
         else
             return new Cast(value => this.cast(value).or(right.cast(value)));
     }
-    static some(options) {
+    /**
+     * Unions a list of casts by combining them with the `or` operator.
+     * @param options An array of casts.
+     * @returns The union of the given casts.
+     */
+    static some(...options) {
         return options.reduce((acc, option) => acc.or(option), Guard.isNever);
     }
     static all(casts) {
-        return new Cast(value => Maybe.all(Utils.map((cast) => cast.cast(value))(casts)));
+        if (Guard.isCollectionOf(Guard.isInstanceOf(Convert)).guard(casts))
+            return new Convert((value) => Utils.map((conv) => conv.convert(value))(casts));
+        else
+            return new Cast(value => Maybe.all(Utils.map((cast) => cast.cast(value))(casts)));
     }
     if(condition) {
         return this.bind(value => condition(value) ? Cast.just(value) : Cast.nothing());
@@ -66,12 +74,7 @@ export class Cast {
         return Guard.isString.or(Cast.asPrimitiveValue.map(s => s.toString()));
     }
     static get asNumber() {
-        return Cast.asPrimitiveValue.compose(Cast.some([
-            Guard.isNumber,
-            Guard.isString.map(parseFloat),
-            Guard.isBigInt.if(n => Number.MIN_SAFE_INTEGER <= n && n <= Number.MAX_SAFE_INTEGER).map(n => Number(n)),
-            Guard.isBoolean.map(b => b ? 1 : 0),
-        ]));
+        return Cast.asPrimitiveValue.compose(Cast.some(Guard.isNumber, Guard.isString.map(parseFloat), Guard.isBigInt.if(n => Number.MIN_SAFE_INTEGER <= n && n <= Number.MAX_SAFE_INTEGER).map(n => Number(n)), Guard.isBoolean.map(b => b ? 1 : 0)));
     }
     static get asFinite() {
         return Cast.asNumber.and(Guard.isFinite);
@@ -79,13 +82,8 @@ export class Cast {
     static get asInteger() {
         return Cast.asFinite.map(Math.round);
     }
-    static get asBigint() {
-        return Cast.asPrimitiveValue.compose(Cast.some([
-            Guard.isBigInt,
-            Cast.asString.bind(s => Cast.try(() => BigInt(s))),
-            Cast.asInteger.map(n => BigInt(n)),
-            Guard.isBoolean.map(b => BigInt(b ? 1 : 0)),
-        ]));
+    static get asBigInt() {
+        return Cast.asPrimitiveValue.compose(Cast.some(Guard.isBigInt, Cast.asString.bind(s => Cast.try(() => BigInt(s))), Cast.asInteger.map(n => BigInt(n)), Guard.isBoolean.map(b => BigInt(b ? 1 : 0))));
     }
     static get asBoolean() {
         return Guard.isBoolean.or(Cast.asString.bind(v => {
@@ -98,21 +96,27 @@ export class Cast {
         }));
     }
     static get asArray() {
-        return Guard.isArray.or(Guard.isPrimitiveValue.map(a => [a]));
+        return Guard.isArray.or(Guard.isSomething.map(a => [a]));
     }
     static get asCollection() {
-        return Guard.isCollection.or(Guard.isPrimitiveValue.map(a => [a]));
+        return Guard.isCollection.or(Guard.isSomething.map(a => [a]));
     }
     static asConst(value) {
         return Guard.isConst(value).or(Cast.just(value).asString.bind(str1 => Cast.asString.if(str2 => str1 === str2)).map(_ => value));
     }
     static asEnum(options) {
-        return Cast.some(options.map(Cast.asConst));
+        return Cast.some(...options.map(Cast.asConst));
+    }
+    static asCollectionOf(cast) {
+        return Cast.asCollection.bind(a => Cast.all(Utils.map(i => Cast.just(i).compose(cast))(a)));
     }
     static asArrayOf(cast) {
-        return Cast.asArray.bind(a => Cast.all(Utils.map(i => Cast.just(i).compose(cast))(a)));
+        return Cast.asArray.compose(Cast.asCollectionOf(cast));
     }
-    static asCollectionOf(casts) {
+    static asStructOf(cast) {
+        return Guard.isStruct.compose(Cast.asCollectionOf(cast));
+    }
+    static asCollectionLike(casts) {
         return Cast.asCollection.bind(val => Cast.all(Utils.map((cast, k) => Cast.just(val[k]).compose(cast))(casts)));
     }
     static as(alt) {
@@ -129,7 +133,7 @@ export class Cast {
             case 'boolean':
                 return Cast.asBoolean;
             case 'bigint':
-                return Cast.asBigint;
+                return Cast.asBigInt;
             case 'symbol':
                 return Guard.isSymbol;
             case 'undefined':
@@ -142,18 +146,20 @@ export class Cast {
                 else if (alt === null)
                     return Guard.isConst(null);
         }
-        return Cast.asCollectionOf(Utils.map(Cast.as)(alt));
+        return Cast.asCollectionLike(Utils.map(Cast.as)(alt));
     }
     get asPrimitiveValue() { return this.compose(Cast.asPrimitiveValue); }
     get asString() { return this.compose(Cast.asString); }
     get asNumber() { return this.compose(Cast.asNumber); }
-    get asBigint() { return this.compose(Cast.asBigint); }
+    get asBigInt() { return this.compose(Cast.asBigInt); }
     get asBoolean() { return this.compose(Cast.asBoolean); }
     get asArray() { return this.compose(Cast.asArray); }
     asConst(value) { return this.compose(Cast.asConst(value)); }
     asEnum(options) { return this.compose(Cast.asEnum(options)); }
+    asCollectionOf(cast) { return this.compose(Cast.asCollectionOf(cast)); }
     asArrayOf(cast) { return this.compose(Cast.asArrayOf(cast)); }
-    asCollectionOf(casts) { return this.compose(Cast.asCollectionOf(casts)); }
+    asStructOf(cast) { return this.compose(Cast.asStructOf(cast)); }
+    asCollectionLike(casts) { return this.compose(Cast.asCollectionLike(casts)); }
     as(alt) { return this.compose(Cast.as(alt)); }
 }
 Cast.asUnknown = new Cast(value => Maybe.just(value));

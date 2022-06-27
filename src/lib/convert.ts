@@ -1,5 +1,5 @@
 import { Utils, Maybe, Cast, Guard } from "./internal.js";
-import { Collection, Primitive, SimpleType, SimpleTypeOf } from "./types.js";
+import { Collection, Primitive, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 
 // Maps { b: ? => B, c: C } to { b: B, c: C }:
 type TConvertMap<T> = 
@@ -67,8 +67,12 @@ export class Convert<out T = unknown> extends Cast<T> {
         return Cast.asArrayOf(convertItem).else(alt);
     }
  
-    public static toCollectionOf<T extends Collection<Convert>>(converts: T) {
-        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).asCollectionOf(converts).elseThrow;
+    public static toStructOf<T>(convertItem: Convert<T>, alt: Struct<T> = {}): Convert<Struct<T>> {
+        return Cast.asStructOf(convertItem).else(alt);
+    }
+
+    protected static toCollectionLike<T extends Collection<Convert>>(converts: T) {
+        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).as(converts).elseThrow;
     }
 
     public static to<T>(alt: T): Convert<TConvertMap<T>> {
@@ -99,7 +103,7 @@ export class Convert<out T = unknown> extends Cast<T> {
                     return Convert.unit(null) as Convert<TConvertMap<T>>
         }
 
-        return Convert.toCollectionOf(Utils.map(Convert.to)(alt as any)) as Convert<TConvertMap<T>>
+        return Convert.toCollectionLike(Utils.map(Convert.to)(alt as any)) as Convert<TConvertMap<T>>
     }
 
     public toEnum<R extends readonly [Primitive, ...Primitive[]]>(options: R) { return this.compose(Convert.toEnum(options)) }
@@ -109,6 +113,7 @@ export class Convert<out T = unknown> extends Cast<T> {
     public toBigInt(alt: bigint = BigInt(0)) { return this.compose(Convert.toBigInt(alt)) }
     public toArray<T>(convertItem: Convert<T>, alt: T[] = []) { return this.compose(Convert.toArrayOf(convertItem, alt)) }
     public toArrayOf<T>(convertItem: Convert<T>, alt: T[] = []) { return this.compose(Convert.toArrayOf(convertItem, alt)) }
-    public toCollectionOf<T extends Collection<Convert>>(converts: T) { return this.compose(Convert.toCollectionOf(converts)) }
+    public toStructOf<T>(convertItem: Convert<T>, alt: Struct<T> = {}) { return this.compose(Convert.toStructOf(convertItem, alt)) }
+    protected toCollectionLike<T extends Collection<Convert>>(converts: T) { return this.compose(Convert.toCollectionLike(converts)) }
     public to<T>(alt: T) { return this.compose(Convert.to(alt)) }
 }

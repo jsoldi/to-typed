@@ -38,7 +38,12 @@ export class Guard<out T = unknown> extends Cast<T> {
         return new Guard((val): val is T => this.guard(val) && condition(val));
     }
 
-    public static every<T extends readonly Guard<unknown>[]>(guards: T): Guard<TGuardEvery<T>> {
+    /**
+     * Intersects a list of guards by combining them with the `and` operator.
+     * @param guards An array of guards.
+     * @returns The intersection of the given guards.
+     */
+    public static every<T extends readonly Guard<unknown>[]>(...guards: T): Guard<TGuardEvery<T>> {
         return guards.reduce((acc, guard) => acc.and(guard), Guard.isUnknown) as Guard<TGuardEvery<T>>;
     }
 
@@ -51,7 +56,7 @@ export class Guard<out T = unknown> extends Cast<T> {
     }
 
     public static isEnum<T extends readonly unknown[]>(options: T): Guard<T[number]> {
-        return Guard.some(options.map(Guard.isConst));
+        return Guard.some(...options.map(Guard.isConst));
     }
 
     public static get isPrimitiveValue(): Guard<PrimitiveValue> {
@@ -80,7 +85,7 @@ export class Guard<out T = unknown> extends Cast<T> {
     //public static get isWeirdShit() { return Guard.isNothing.or(Guard.isObject); } // For completeness
 
     public static get isString(): Guard<string> { return new Guard((val): val is string => typeof val === 'string') }
-    public static get isNumber(): Guard<number> { return new Guard((val): val is number => typeof val === 'number') }
+    public static get isNumber(): Guard<number> { return new Guard((val): val is number => typeof val === 'number') } 
     public static get isBigInt(): Guard<bigint> { return new Guard((val): val is bigint => typeof val === 'bigint') }
     public static get isBoolean(): Guard<boolean> { return new Guard((val): val is boolean => typeof val === 'boolean') }
     public static get isSymbol(): Guard<symbol> { return new Guard((val): val is symbol => typeof val === 'symbol') }
@@ -97,11 +102,19 @@ export class Guard<out T = unknown> extends Cast<T> {
         return new Guard((val): val is T => val instanceof cls);
     }
 
-    public static isArrayOf<T>(guard: Guard<T>): Guard<T[]> {
-        return Guard.isArray.and((val): val is T[] => val.every(guard.guard));
+    public static isCollectionOf<T>(guard: Guard<T>): Guard<Collection<T>> {
+        return Guard.isCollection.and((col): col is Collection<T> => Object.values(col).every(guard.guard));
     }
 
-    public static isCollectionOf<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>> {
+    public static isArrayOf<T>(guard: Guard<T>): Guard<T[]> {
+        return Guard.isArray.and((arr): arr is T[] => arr.every(guard.guard));
+    }
+
+    public static isStructOf<T>(guard: Guard<T>): Guard<Struct<T>> {
+        return Guard.isStruct.and((str): str is Struct<T> => Object.values(str).every(guard.guard));
+    }
+
+    public static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>> {
         return Guard.isCollection.and((col): col is TCastAll<T> => 
             Object.entries(guards).every(([k, g]) => g.guard((col as Struct)[k]))
         );
@@ -135,6 +148,6 @@ export class Guard<out T = unknown> extends Cast<T> {
                     return Guard.isConst(null) as Guard<TGuardMap<T>>;
         }
 
-        return Guard.isCollectionOf(Utils.map(Guard.is)(alt as any)) as Guard<TGuardMap<T>>
+        return Guard.isCollectionLike(Utils.map(Guard.is)(alt as any)) as Guard<TGuardMap<T>>
     }
 }

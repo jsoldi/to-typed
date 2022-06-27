@@ -29,7 +29,6 @@ const valid = {
 test('Demo - Valid object is accepted', () => assert.strictEqual(guard.guard(valid), true));
 if (guard.guard(valid)) {
 }
-test('Demo - Invalid object is rejected', () => assert.strictEqual(guard.guard({}), false));
 // ---------------- Type casting/converting ----------------
 const converter = Convert.to({
     integer: 0,
@@ -52,7 +51,7 @@ const converter = Convert.to({
 });
 test('Demo - Convert uses defaults', () => assert.deepStrictEqual(converter.convert({ ignored: 'ignored' }), {
     integer: 0,
-    floatDefaultToEPSILON: Number.EPSILON,
+    floatDefaultToEPSILON: 2.220446049250313e-16,
     floatDefaultToZero: 0,
     string: '',
     boolean: false,
@@ -97,4 +96,4 @@ test('Demo - Convert converts values', () => assert.deepStrictEqual(converter.co
         relaxedNumberOrString: -Infinity
     }
 }));
-//# sourceMappingURL=demo.js.map
+//# sourceMappingURL=demo-tests.js.map

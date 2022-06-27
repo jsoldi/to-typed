@@ -16,7 +16,12 @@ export declare class Guard<out T = unknown> extends Cast<T> {
     or<R>(right: Convert<R>): Convert<T | R>;
     or<R>(right: Cast<R>): Cast<T | R>;
     if(condition: (input: T) => boolean): Guard<T>;
-    static every<T extends readonly Guard<unknown>[]>(guards: T): Guard<TGuardEvery<T>>;
+    /**
+     * Intersects a list of guards by combining them with the `and` operator.
+     * @param guards An array of guards.
+     * @returns The intersection of the given guards.
+     */
+    static every<T extends readonly Guard<unknown>[]>(...guards: T): Guard<TGuardEvery<T>>;
     static isConst<T>(value: T): Guard<T>;
     static isClass<T>(cls: new (...args: any[]) => T): Guard<T>;
     static isEnum<T extends readonly unknown[]>(options: T): Guard<T[number]>;
@@ -38,8 +43,10 @@ export declare class Guard<out T = unknown> extends Cast<T> {
     static get isArray(): Guard<Array<unknown>>;
     static get isFunction(): Guard<Function>;
     static isInstanceOf<T>(cls: new (...args: any[]) => T): Guard<T>;
+    static isCollectionOf<T>(guard: Guard<T>): Guard<Collection<T>>;
     static isArrayOf<T>(guard: Guard<T>): Guard<T[]>;
-    static isCollectionOf<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>>;
+    static isStructOf<T>(guard: Guard<T>): Guard<Struct<T>>;
+    static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>>;
     static is<T>(alt: T): Guard<TGuardMap<T>>;
 }
 export {};

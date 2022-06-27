@@ -35,7 +35,7 @@ export class Convert extends Cast {
         return new Convert(value => !!value);
     }
     static toBigInt(alt = BigInt(0)) {
-        return Cast.asBigint.else(alt);
+        return Cast.asBigInt.else(alt);
     }
     static toArray(alt = []) {
         return Cast.asArray.else(alt);
@@ -43,8 +43,11 @@ export class Convert extends Cast {
     static toArrayOf(convertItem, alt = []) {
         return Cast.asArrayOf(convertItem).else(alt);
     }
-    static toCollectionOf(converts) {
-        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).asCollectionOf(converts).elseThrow;
+    static toStructOf(convertItem, alt = {}) {
+        return Cast.asStructOf(convertItem).else(alt);
+    }
+    static toCollectionLike(converts) {
+        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).as(converts).elseThrow;
     }
     static to(alt) {
         switch (typeof alt) {
@@ -73,7 +76,7 @@ export class Convert extends Cast {
                 else if (alt === null)
                     return Convert.unit(null);
         }
-        return Convert.toCollectionOf(Utils.map(Convert.to)(alt));
+        return Convert.toCollectionLike(Utils.map(Convert.to)(alt));
     }
     toEnum(options) { return this.compose(Convert.toEnum(options)); }
     toString(alt = '') { return this.compose(Convert.toString(alt)); }
@@ -82,7 +85,8 @@ export class Convert extends Cast {
     toBigInt(alt = BigInt(0)) { return this.compose(Convert.toBigInt(alt)); }
     toArray(convertItem, alt = []) { return this.compose(Convert.toArrayOf(convertItem, alt)); }
     toArrayOf(convertItem, alt = []) { return this.compose(Convert.toArrayOf(convertItem, alt)); }
-    toCollectionOf(converts) { return this.compose(Convert.toCollectionOf(converts)); }
+    toStructOf(convertItem, alt = {}) { return this.compose(Convert.toStructOf(convertItem, alt)); }
+    toCollectionLike(converts) { return this.compose(Convert.toCollectionLike(converts)); }
     to(alt) { return this.compose(Convert.to(alt)); }
 }
 Convert.id = new Convert(value => value);

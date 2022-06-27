@@ -1,2 +1,3 @@
 import './convert-tests.js'
-//console.log(caca);
+import './guard-tests.js'
+import './demo.js'

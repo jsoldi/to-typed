@@ -16,7 +16,12 @@ export class Guard extends Cast {
     if(condition) {
         return new Guard((val) => this.guard(val) && condition(val));
     }
-    static every(guards) {
+    /**
+     * Intersects a list of guards by combining them with the `and` operator.
+     * @param guards An array of guards.
+     * @returns The intersection of the given guards.
+     */
+    static every(...guards) {
         return guards.reduce((acc, guard) => acc.and(guard), Guard.isUnknown);
     }
     static isConst(value) {
@@ -26,7 +31,7 @@ export class Guard extends Cast {
         return new Guard((val) => val instanceof cls);
     }
     static isEnum(options) {
-        return Guard.some(options.map(Guard.isConst));
+        return Guard.some(...options.map(Guard.isConst));
     }
     static get isPrimitiveValue() {
         return new Guard((val) => typeof val === 'string' ||
@@ -60,10 +65,16 @@ export class Guard extends Cast {
     static isInstanceOf(cls) {
         return new Guard((val) => val instanceof cls);
     }
-    static isArrayOf(guard) {
-        return Guard.isArray.and((val) => val.every(guard.guard));
+    static isCollectionOf(guard) {
+        return Guard.isCollection.and((col) => Object.values(col).every(guard.guard));
     }
-    static isCollectionOf(guards) {
+    static isArrayOf(guard) {
+        return Guard.isArray.and((arr) => arr.every(guard.guard));
+    }
+    static isStructOf(guard) {
+        return Guard.isStruct.and((str) => Object.values(str).every(guard.guard));
+    }
+    static isCollectionLike(guards) {
         return Guard.isCollection.and((col) => Object.entries(guards).every(([k, g]) => g.guard(col[k])));
     }
     static is(alt) {
@@ -93,7 +104,7 @@ export class Guard extends Cast {
                 else if (alt === null)
                     return Guard.isConst(null);
         }
-        return Guard.isCollectionOf(Utils.map(Guard.is)(alt));
+        return Guard.isCollectionLike(Utils.map(Guard.is)(alt));
     }
 }
 Guard.isUnknown = new Guard((val) => true);
