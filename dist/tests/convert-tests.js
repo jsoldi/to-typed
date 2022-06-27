@@ -77,6 +77,15 @@ testConvert('Convert.toInteger converts false to 0', Convert.toInteger(-1), fals
 testConvert('Convert.toInteger converts true to 1', Convert.toInteger(-1), true, 1);
 testConvert('Convert.toBigInt converts false to 0', Convert.toBigInt(BigInt(-1)), false, BigInt(0));
 testConvert('Convert.toBigInt converts true to 1', Convert.toBigInt(BigInt(-1)), true, BigInt(1));
+const convertAllEmptyArray = Convert.all([]);
+const convertAllEmptyStruct = Convert.all({});
+const convertAllStringInArray = Convert.all([Convert.toString()]);
+const convertAllStringInStruct = Convert.all({ a: Convert.toString() });
+const convertAllCastInArray = Convert.all([Cast.asString]);
+const convertAllCastInStruct = Convert.all({ a: Cast.asString });
+const convertAllCastAndConvertInArray = Convert.all([Convert.toString(), Cast.asNumber]);
+const convertAllCastAndConvertInTuple = Convert.all([Convert.toString(), Cast.asNumber]);
+const convertAllCastAndConvertInStruct = Convert.all({ a: Convert.toString(), b: Cast.asNumber });
 testEq('Convert.all empty array produces a Convert', Convert.all([]).constructor.name, Convert.prototype.constructor.name);
 testEq('Convert.all empty struct produces a Convert', Convert.all({}).constructor.name, Convert.prototype.constructor.name);
 testEq('Convert.all with Cast in array produces a Cast', Convert.all([Cast.asString]).constructor.name, Cast.prototype.constructor.name);

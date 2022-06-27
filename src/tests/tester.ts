@@ -37,8 +37,4 @@ export type TypesAreEqual<X, Y> =
     (<T>() => T extends X ? 1 : 2) extends
     (<T>() => T extends Y ? 1 : 2) ? true : false;
 
-export const typeEq: <X, Y>(x: X, y: Y) => TypesAreEqual<X, Y> = () => true as any
-export const typeAssert: (value: true) => void = () => { }
-export const typeGen: <T>() => T = <T>() => null as any as T
-
 export type TypeAssert<T extends true> = T

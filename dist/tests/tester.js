@@ -27,7 +27,4 @@ export function test(name, action) {
 export function testEq(name, actual, expected) {
     test(name, () => assert.deepStrictEqual(actual, expected));
 }
-export const typeEq = () => true;
-export const typeAssert = () => { };
-export const typeGen = () => null;
 //# sourceMappingURL=tester.js.map

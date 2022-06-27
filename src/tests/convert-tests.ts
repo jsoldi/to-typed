@@ -1,5 +1,5 @@
 import { Cast, Convert } from "../lib/index.js";
-import { testEq } from "./tester.js";
+import { testEq, TypeAssert, TypesAreEqual } from "./tester.js";
 
 function testConvert<T>(name: string, convert: Convert<T>, value: unknown, expectedValue: T) {
     testEq(name, convert.convert(value), expectedValue);
@@ -85,6 +85,26 @@ testConvert('Convert.toInteger converts false to 0', Convert.toInteger(-1), fals
 testConvert('Convert.toInteger converts true to 1', Convert.toInteger(-1), true, 1)
 testConvert('Convert.toBigInt converts false to 0', Convert.toBigInt(BigInt(-1)), false, BigInt(0))
 testConvert('Convert.toBigInt converts true to 1', Convert.toBigInt(BigInt(-1)), true, BigInt(1))
+
+const convertAllEmptyArray = Convert.all([])
+const convertAllEmptyStruct = Convert.all({})
+const convertAllStringInArray = Convert.all([ Convert.toString() ])
+const convertAllStringInStruct = Convert.all({ a: Convert.toString() })
+const convertAllCastInArray = Convert.all([ Cast.asString ])
+const convertAllCastInStruct = Convert.all({ a: Cast.asString })
+const convertAllCastAndConvertInArray = Convert.all([ Convert.toString(), Cast.asNumber ])
+const convertAllCastAndConvertInTuple = Convert.all([ Convert.toString(), Cast.asNumber ] as const)
+const convertAllCastAndConvertInStruct = Convert.all({ a: Convert.toString(), b: Cast.asNumber })
+
+type ConvertAllEmptyArrayIsConvert = TypeAssert<TypesAreEqual<typeof convertAllEmptyArray, Convert<unknown[]>>>
+type ConvertAllEmptyStructIsConvert = TypeAssert<TypesAreEqual<typeof convertAllEmptyStruct, Convert<{}>>>
+type ConvertAllStringInArrayIsConvert = TypeAssert<TypesAreEqual<typeof convertAllStringInArray, Convert<string[]>>>
+type ConvertAllStringInStructIsConvert = TypeAssert<TypesAreEqual<typeof convertAllStringInStruct, Convert<{ a: string }>>>
+type ConvertAllCastInArrayIsCast = TypeAssert<TypesAreEqual<typeof convertAllCastInArray, Cast<string[]>>>
+type ConvertAllCastInStructIsCast = TypeAssert<TypesAreEqual<typeof convertAllCastInStruct, Cast<{ a: string }>>>
+type ConvertAllCastAndConvertInArrayIsCast = TypeAssert<TypesAreEqual<typeof convertAllCastAndConvertInArray, Cast<(string | number)[]>>>
+type ConvertAllCastAndConvertInTupleIsCast = TypeAssert<TypesAreEqual<typeof convertAllCastAndConvertInTuple, Cast<readonly [string, number]>>>
+type ConvertAllCastAndConvertInStructIsCast = TypeAssert<TypesAreEqual<typeof convertAllCastAndConvertInStruct, Cast<{ a: string, b: number }>>>
 
 testEq('Convert.all empty array produces a Convert', Convert.all([]).constructor.name, Convert.prototype.constructor.name)
 testEq('Convert.all empty struct produces a Convert', Convert.all({}).constructor.name, Convert.prototype.constructor.name)
