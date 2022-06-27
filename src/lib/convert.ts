@@ -64,6 +64,10 @@ export class Convert<out T = unknown> extends Cast<T> {
         return Cast.asBigInt.else(alt);
     }
 
+    public static toDate(alt: Date = new Date(0)) {
+        return Cast.asDate.else(alt);
+    }
+
     public static toArray(alt: unknown[] = []) {
         return Cast.asArray.else(alt);
     }
@@ -116,6 +120,7 @@ export class Convert<out T = unknown> extends Cast<T> {
     public toNumber(alt: number = 0) { return this.compose(Convert.toNumber(alt)) }
     public toBoolean(alt: boolean = false) { return this.compose(Convert.toBoolean(alt)) }
     public toBigInt(alt: bigint = BigInt(0)) { return this.compose(Convert.toBigInt(alt)) }
+    public toDate(alt: Date = new Date(0)) { return this.compose(Convert.toDate(alt)) }
     public toArray<T>(convertItem: Convert<T>, alt: T[] = []) { return this.compose(Convert.toArrayOf(convertItem, alt)) }
     public toArrayOf<T>(convertItem: Convert<T>, alt: T[] = []) { return this.compose(Convert.toArrayOf(convertItem, alt)) }
     public toStructOf<T>(convertItem: Convert<T>, alt: Struct<T> = {}) { return this.compose(Convert.toStructOf(convertItem, alt)) }

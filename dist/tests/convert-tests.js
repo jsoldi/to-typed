@@ -96,4 +96,13 @@ testEq('Convert.all with both in array produces a Cast', Convert.all([Convert.to
 testEq('Convert.all with both in struct produces a Cast', Convert.all({ hi: Convert.toString(), bye: Cast.asString }).constructor.name, Cast.prototype.constructor.name);
 testConvert('Convert.all converts null to empty array', Convert.all([]).else('DEF'), null, []);
 testConvert('Convert.all converts null to empty struct', Convert.all({}).else('DEF'), null, {});
+testConvert('Convert.toDate defaults for null', Convert.toDate('DEF'), null, 'DEF');
+testConvert('Convert.toDate defaults for undefined', Convert.toDate('DEF'), undefined, 'DEF');
+testConvert('Convert.toDate defaults for invalid date', Convert.toDate('DEF'), new Date(NaN), 'DEF');
+testConvert('Convert.toDate converts valid date', Convert.toDate('DEF'), new Date('2020-01-02T03:04:05.678+01:00'), new Date('2020-01-02T03:04:05.678+01:00'));
+testConvert('Convert.toDate converts string', Convert.toDate('DEF'), '2020-01-02T03:04:05.678+01:00', new Date('2020-01-02T03:04:05.678+01:00'));
+testConvert('Convert.toDate fails for invalid string', Convert.toDate('DEF'), 'invalid', 'DEF');
+testConvert('Convert.toDate converts valid number', Convert.toDate('DEF'), 1577836800000, new Date('2020-01-01T00:00:00.000Z'));
+testConvert('Convert.toDate fails for float', Convert.toDate('DEF'), 1577836800000.1, 'DEF');
+testConvert('Convert.toDate fails for unsafe integer', Convert.toDate('DEF'), 999999999999999 * 10, 'DEF');
 //# sourceMappingURL=convert-tests.js.map

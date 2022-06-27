@@ -48,6 +48,7 @@ export declare class Cast<out T = unknown> {
     static get asInteger(): Cast<number>;
     static get asBigInt(): Cast<bigint>;
     static get asBoolean(): Cast<boolean>;
+    static get asDate(): Cast<Date>;
     static get asArray(): Cast<unknown[]>;
     static get asCollection(): Cast<Collection>;
     static asConst<T extends Primitive>(value: T): Cast<T>;
@@ -62,6 +63,7 @@ export declare class Cast<out T = unknown> {
     get asNumber(): Cast<number>;
     get asBigInt(): Cast<bigint>;
     get asBoolean(): Cast<boolean>;
+    get asDate(): Cast<Date>;
     get asArray(): Cast<unknown[]>;
     asConst<T extends PrimitiveValue>(value: T): Cast<T>;
     asEnum<T extends readonly Primitive[]>(...options: T): Cast<[...T][number]>;

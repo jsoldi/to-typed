@@ -25,6 +25,7 @@ export declare class Convert<out T = unknown> extends Cast<T> {
     static toBoolean(alt?: boolean): Convert<boolean>;
     static toTruthy(): Convert<boolean>;
     static toBigInt(alt?: bigint): Convert<bigint>;
+    static toDate(alt?: Date): Convert<Date>;
     static toArray(alt?: unknown[]): Convert<unknown[]>;
     static toArrayOf<T>(convertItem: Convert<T>, alt?: T[]): Convert<T[]>;
     static toStructOf<T>(convertItem: Convert<T>, alt?: Struct<T>): Convert<Struct<T>>;
@@ -35,6 +36,7 @@ export declare class Convert<out T = unknown> extends Cast<T> {
     toNumber(alt?: number): Convert<number>;
     toBoolean(alt?: boolean): Convert<boolean>;
     toBigInt(alt?: bigint): Convert<bigint>;
+    toDate(alt?: Date): Convert<Date>;
     toArray<T>(convertItem: Convert<T>, alt?: T[]): Convert<T[]>;
     toArrayOf<T>(convertItem: Convert<T>, alt?: T[]): Convert<T[]>;
     toStructOf<T>(convertItem: Convert<T>, alt?: Struct<T>): Convert<Struct<T>>;

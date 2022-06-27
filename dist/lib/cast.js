@@ -95,6 +95,11 @@ export class Cast {
                 return Cast.nothing();
         }));
     }
+    static get asDate() {
+        return Guard.some(Guard.isInstanceOf(Date), Guard.isString, Guard.isSafeInteger)
+            .bind(s => Cast.try(() => new Date(s)))
+            .if(d => !isNaN(d.getTime()));
+    }
     static get asArray() {
         return Guard.isArray.or(Guard.isSomething.map(a => [a]));
     }
@@ -153,6 +158,7 @@ export class Cast {
     get asNumber() { return this.compose(Cast.asNumber); }
     get asBigInt() { return this.compose(Cast.asBigInt); }
     get asBoolean() { return this.compose(Cast.asBoolean); }
+    get asDate() { return this.compose(Cast.asDate); }
     get asArray() { return this.compose(Cast.asArray); }
     asConst(value) { return this.compose(Cast.asConst(value)); }
     asEnum(...options) { return this.compose(Cast.asEnum(...options)); }

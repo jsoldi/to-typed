@@ -156,6 +156,16 @@ export class Cast<out T = unknown> {
         }));
     }
 
+    public static get asDate(): Cast<Date> {
+        return Guard.some(
+            Guard.isInstanceOf(Date),
+            Guard.isString, 
+            Guard.isSafeInteger
+        )
+        .bind(s => Cast.try(() => new Date(s)))
+        .if(d => !isNaN(d.getTime()))        
+    }
+
     public static get asArray(): Cast<unknown[]> {
         return Guard.isArray.or(Guard.isSomething.map(a => [a]));
     }
@@ -228,6 +238,7 @@ export class Cast<out T = unknown> {
     public get asNumber() { return this.compose(Cast.asNumber) }
     public get asBigInt() { return this.compose(Cast.asBigInt) }
     public get asBoolean() { return this.compose(Cast.asBoolean) }
+    public get asDate() { return this.compose(Cast.asDate) }
     public get asArray() { return this.compose(Cast.asArray) }
     public asConst<T extends PrimitiveValue>(value: T) { return this.compose(Cast.asConst(value)) }
     public asEnum<T extends readonly Primitive[]>(...options: T) { return this.compose(Cast.asEnum(...options)) }

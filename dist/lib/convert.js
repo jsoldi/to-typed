@@ -42,6 +42,9 @@ export class Convert extends Cast {
     static toBigInt(alt = BigInt(0)) {
         return Cast.asBigInt.else(alt);
     }
+    static toDate(alt = new Date(0)) {
+        return Cast.asDate.else(alt);
+    }
     static toArray(alt = []) {
         return Cast.asArray.else(alt);
     }
@@ -88,6 +91,7 @@ export class Convert extends Cast {
     toNumber(alt = 0) { return this.compose(Convert.toNumber(alt)); }
     toBoolean(alt = false) { return this.compose(Convert.toBoolean(alt)); }
     toBigInt(alt = BigInt(0)) { return this.compose(Convert.toBigInt(alt)); }
+    toDate(alt = new Date(0)) { return this.compose(Convert.toDate(alt)); }
     toArray(convertItem, alt = []) { return this.compose(Convert.toArrayOf(convertItem, alt)); }
     toArrayOf(convertItem, alt = []) { return this.compose(Convert.toArrayOf(convertItem, alt)); }
     toStructOf(convertItem, alt = {}) { return this.compose(Convert.toStructOf(convertItem, alt)); }
