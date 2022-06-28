@@ -8,7 +8,7 @@ This package contains 3 main types: `Cast`, `Guard` and `Convert`.
 
 ### Cast
 
-This is the base class of `Guard` and `Convert`. It wraps a function that takes an unknown value and returns a `Maybe`:
+This is the base class of `Guard` and `Convert`. It wraps a `cast` function that takes an unknown value and returns a `Maybe`:
 
 ```typescript
 public constructor(public readonly cast: (value: unknown) => Maybe<T>) { }
@@ -48,7 +48,7 @@ Note that `Cast` is the superset of `Guard` and `Convert`, and these two are com
 
 Also, since `Cast` is a monad (through the `just` and `bind` methods), operations can be chained in a functional/declarative style.
 
-## Quick Start Demo
+## Demo
 
 ```typescript
 import { Guard, Cast, Convert } from "to-typed"
