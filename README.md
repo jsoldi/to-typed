@@ -28,7 +28,7 @@ public constructor(public readonly guard: (input: unknown) => input is T) {
 }
 ```
 
-Every guard specific method starts with the `is` prefix, such as `isEnum` or `isBoolean`.
+Every guard factory method starts with the `is` prefix, such as `isEnum` or `isBoolean`.
 
 ### Convert
 
@@ -40,7 +40,7 @@ public constructor(public readonly convert: (value: unknown) => T) {
 }
 ```
 
-Every convert specific method starts with the `to` prefix, such as `toFinite` or `toString`.
+Every convert factory method starts with the `to` prefix, such as `toFinite` or `toString`.
 
 ## Remarks
 
