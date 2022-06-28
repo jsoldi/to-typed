@@ -13,7 +13,7 @@ type TGuardMap<T> =
     unknown;
 
 export class Guard<out T = unknown> extends Cast<T> {
-    constructor(public readonly guard: (input: unknown) => input is T) { 
+    public constructor(public readonly guard: (input: unknown) => input is T) { 
         super(val => guard(val) ? Maybe.just(val) : Maybe.nothing());
     }
 

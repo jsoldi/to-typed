@@ -1,10 +1,54 @@
 # to-typed
 
-Type-guards, casts and converts unknowns into typed values. 
+Type-guards, casts and converts unknown values into typed values. 
 
+## Introduction
 
-## Demo
+This package contains 3 main types: `Cast`, `Guard` and `Convert`. 
 
+### Cast
+
+This is the base class of `Guard` and `Convert`. It wraps a function that takes an unknown value and returns a `Maybe`:
+
+```typescript
+public constructor(public readonly cast: (value: unknown) => Maybe<T>) { }
+```
+
+If the cast suceeds, the function returns `Just` with the casted value, otherwise it returns `Nothing`. 
+
+Every cast factory method starts with the `as` prefix, such as `asNumber` or `asUnknown`.
+
+### Guard
+
+`Guard` is a wrap around a `guard` function that takes an `unknown` value and returns a boolean indicating whether the input value had the expected type. It implements the `cast` function by wraping the input value in a `Just` if it has the expected type, or `Nothing` otherwise:
+
+```typescript
+public constructor(public readonly guard: (input: unknown) => input is T) { 
+    super(val => guard(val) ? Maybe.just(val) : Maybe.nothing());
+}
+```
+
+Every guard specific method starts with the `is` prefix, such as `isEnum` or `isBoolean`.
+
+### Convert
+
+`Convert` is a wrap around a `convert` function that takes an `unknown` value and returns a typed value. It implements the `cast` function by always returning a `Just`:
+
+```typescript
+public constructor(public readonly convert: (value: unknown) => T) {
+    super(value => Maybe.just(convert(value)));
+}
+```
+
+Every convert specific method starts with the `to` prefix, such as `toFinite` or `toString`.
+
+## Remarks
+
+Note that `Cast` is the superset of `Guard` and `Convert`, and these two are complements of each other in the following sense: A `Maybe` is just a boolean and a value, and `Guard` ranges over the possible booleans, while `Convert` ranges over the possible values. This allows all 3 classes to play nicely with each other.
+
+Also, since `Cast` is a monad (through the `just` and `bind` methods), operations can be chained in a functional/declarative style.
+
+## Quick Start Demo
 
 ```typescript
 import { Guard, Cast, Convert } from "to-typed"
