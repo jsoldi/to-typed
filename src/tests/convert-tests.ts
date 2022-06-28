@@ -1,4 +1,4 @@
-import { Cast, Convert } from "../lib/index.js";
+import { Cast, Convert, Maybe } from "../lib/index.js";
 import { testEq, TypeAssert, TypesAreEqual } from "./tester.js";
 
 function testConvert<T>(name: string, convert: Convert<T>, value: unknown, expectedValue: T) {
@@ -127,3 +127,6 @@ testConvert('Convert.toDate fails for invalid string', Convert.toDate('DEF' as a
 testConvert('Convert.toDate converts valid number', Convert.toDate('DEF' as any), 1577836800000, new Date('2020-01-01T00:00:00.000Z'))
 testConvert('Convert.toDate fails for float', Convert.toDate('DEF' as any), 1577836800000.1, 'DEF' as any)
 testConvert('Convert.toDate fails for unsafe integer', Convert.toDate('DEF' as any), 999999999999999 * 10, 'DEF' as any)
+
+testConvert('Cast.elseNothing returns nothing on fail', Cast.asInteger.elseNothing, [], Maybe.nothing())
+testConvert('Cast.elseNothing returns something on success', Cast.asInteger.elseNothing, '123', Maybe.just(123))

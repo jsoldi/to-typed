@@ -64,6 +64,9 @@ export class Cast {
     get elseThrow() {
         return this.or(new Convert(_ => { throw new Error('Cast has no value.'); }));
     }
+    get elseNothing() {
+        return this.map(Maybe.just).else(Maybe.nothing());
+    }
     static get asPrimitiveValue() {
         return Guard.isPrimitiveValue.or(Guard.isArray
             .if(a => a.length > 0) // Should equal 1 but, as a collection, an array with > 1 items extends and array with 1 item.
@@ -124,6 +127,11 @@ export class Cast {
     static asCollectionLike(casts) {
         return Cast.asCollection.bind(val => Cast.all(Utils.map((cast, k) => Cast.just(val[k]).compose(cast))(casts)));
     }
+    /**
+     * Creates a `Cast` based on a sample value.
+     * @param alt a sample value
+     * @returns a `Cast` based on the given sample value
+     */
     static as(alt) {
         switch (typeof alt) {
             case 'string':

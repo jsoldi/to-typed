@@ -106,6 +106,10 @@ export class Cast<out T = unknown> {
         return this.or(new Convert(_ => { throw new Error('Cast has no value.') }));
     }
 
+    public get elseNothing(): Convert<Maybe<T>> {
+        return this.map(Maybe.just).else(Maybe.nothing());
+    }
+
     public static get asPrimitiveValue(): Cast<PrimitiveValue> {
         return Guard.isPrimitiveValue.or(
             Guard.isArray
@@ -184,7 +188,7 @@ export class Cast<out T = unknown> {
         return Cast.some(...options.map(Cast.asConst));
     }
 
-    protected static asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>> {
+    public static asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>> {
         return Cast.asCollection.bind(a => Cast.all(Utils.map(i => Cast.just(i).compose(cast))(a)));
     }
 
@@ -202,6 +206,11 @@ export class Cast<out T = unknown> {
         ) as Cast<TCastAll<T>>
     }
     
+    /**
+     * Creates a `Cast` based on a sample value.
+     * @param alt a sample value
+     * @returns a `Cast` based on the given sample value
+     */
     public static as<T>(alt: T): Cast<TCastMap<T>> {
         switch (typeof alt) {
             case 'string':
@@ -242,7 +251,7 @@ export class Cast<out T = unknown> {
     public get asArray() { return this.compose(Cast.asArray) }
     public asConst<T extends PrimitiveValue>(value: T) { return this.compose(Cast.asConst(value)) }
     public asEnum<T extends readonly Primitive[]>(...options: T) { return this.compose(Cast.asEnum(...options)) }
-    protected asCollectionOf<T>(cast: Cast<T>) { return this.compose(Cast.asCollectionOf(cast)) }
+    public asCollectionOf<T>(cast: Cast<T>) { return this.compose(Cast.asCollectionOf(cast)) }
     public asArrayOf<T>(cast: Cast<T>) { return this.compose(Cast.asArrayOf(cast)) }
     public asStructOf<T>(cast: Cast<T>) { return this.compose(Cast.asStructOf(cast)) }
     protected asCollectionLike<T extends Collection<Cast>>(casts: T) { return this.compose(Cast.asCollectionLike(casts)) }    

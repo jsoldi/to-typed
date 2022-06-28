@@ -41,6 +41,7 @@ export declare class Cast<out T = unknown> {
     map<R>(next: (t: T) => R): Cast<R>;
     else<R>(other: R): Convert<T | R>;
     get elseThrow(): Convert<T>;
+    get elseNothing(): Convert<Maybe<T>>;
     static get asPrimitiveValue(): Cast<PrimitiveValue>;
     static get asString(): Cast<string>;
     static get asNumber(): Cast<number>;
@@ -53,10 +54,15 @@ export declare class Cast<out T = unknown> {
     static get asCollection(): Cast<Collection>;
     static asConst<T extends Primitive>(value: T): Cast<T>;
     static asEnum<T extends readonly Primitive[]>(...options: T): Cast<T[number]>;
-    protected static asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>>;
+    static asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>>;
     static asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     static asStructOf<T>(cast: Cast<T>): Cast<Struct<T>>;
     protected static asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
+    /**
+     * Creates a `Cast` based on a sample value.
+     * @param alt a sample value
+     * @returns a `Cast` based on the given sample value
+     */
     static as<T>(alt: T): Cast<TCastMap<T>>;
     get asPrimitiveValue(): Cast<PrimitiveValue>;
     get asString(): Cast<string>;
@@ -67,7 +73,7 @@ export declare class Cast<out T = unknown> {
     get asArray(): Cast<unknown[]>;
     asConst<T extends PrimitiveValue>(value: T): Cast<T>;
     asEnum<T extends readonly Primitive[]>(...options: T): Cast<[...T][number]>;
-    protected asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>>;
+    asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>>;
     asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     asStructOf<T>(cast: Cast<T>): Cast<Struct<T>>;
     protected asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;

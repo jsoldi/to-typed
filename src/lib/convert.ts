@@ -84,6 +84,11 @@ export class Convert<out T = unknown> extends Cast<T> {
         return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).as(converts).elseThrow;
     }
 
+    /**
+     * Creates a `Convert` based on the given sample value, which is also used as the set of default values.
+     * @param alt a sample value which also serves as the set of default values
+     * @returns a `Convert` based on the given sample value
+     */
     public static to<T>(alt: T): Convert<TConvertMap<T>> {
         switch (typeof alt) {
             case 'string':

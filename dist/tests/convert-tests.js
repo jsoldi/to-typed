@@ -1,4 +1,4 @@
-import { Cast, Convert } from "../lib/index.js";
+import { Cast, Convert, Maybe } from "../lib/index.js";
 import { testEq } from "./tester.js";
 function testConvert(name, convert, value, expectedValue) {
     testEq(name, convert.convert(value), expectedValue);
@@ -105,4 +105,6 @@ testConvert('Convert.toDate fails for invalid string', Convert.toDate('DEF'), 'i
 testConvert('Convert.toDate converts valid number', Convert.toDate('DEF'), 1577836800000, new Date('2020-01-01T00:00:00.000Z'));
 testConvert('Convert.toDate fails for float', Convert.toDate('DEF'), 1577836800000.1, 'DEF');
 testConvert('Convert.toDate fails for unsafe integer', Convert.toDate('DEF'), 999999999999999 * 10, 'DEF');
+testConvert('Cast.elseNothing returns nothing on fail', Cast.asInteger.elseNothing, [], Maybe.nothing());
+testConvert('Cast.elseNothing returns something on success', Cast.asInteger.elseNothing, '123', Maybe.just(123));
 //# sourceMappingURL=convert-tests.js.map

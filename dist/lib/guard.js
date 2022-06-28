@@ -77,6 +77,11 @@ export class Guard extends Cast {
     static isCollectionLike(guards) {
         return Guard.isCollection.and((col) => Object.entries(guards).every(([k, g]) => g.guard(col[k])));
     }
+    /**
+     * Creates a `Guard` based on a sample value.
+     * @param alt a sample value
+     * @returns a `Guard` based on the given sample value
+     */
     static is(alt) {
         switch (typeof alt) {
             case 'string':

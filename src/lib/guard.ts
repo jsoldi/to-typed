@@ -114,12 +114,17 @@ export class Guard<out T = unknown> extends Cast<T> {
         return Guard.isStruct.and((str): str is Struct<T> => Object.values(str).every(guard.guard));
     }
 
-    public static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>> {
+    protected static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>> {
         return Guard.isCollection.and((col): col is TCastAll<T> => 
             Object.entries(guards).every(([k, g]) => g.guard((col as Struct)[k]))
         );
     }
     
+    /**
+     * Creates a `Guard` based on a sample value.
+     * @param alt a sample value
+     * @returns a `Guard` based on the given sample value
+     */
     public static is<T>(alt: T): Guard<TGuardMap<T>> {
         switch (typeof alt) {
             case 'string':

@@ -11,6 +11,7 @@ import { Guard, Cast, Convert } from "to-typed"
 
 // ---------------- Type guarding ----------------
 
+// Produce a `Guard` based on a sample value, which may also include other guards.
 const guard = Guard.is({
     integer: 10,
     float: Number.EPSILON,
@@ -63,6 +64,7 @@ if (guard.guard(valid)) {
 
 // ---------------- Type casting / converting ----------------
 
+// Produce a `Convert` based on a sample value, which also serves as a set of defaults.
 const converter = Convert.to({
     integer: 0,
     floatDefaultToEPSILON: Number.EPSILON,
