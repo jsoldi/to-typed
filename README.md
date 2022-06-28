@@ -44,12 +44,12 @@ Every convert specific method starts with the `to` prefix, such as `toFinite` or
 
 ## Remarks
 
-Note that `Cast` is the superset of `Guard` and `Convert`, and these two are complements of each other in the following sense: A `Maybe` is just a boolean and a value, and `Guard` ranges over the possible booleans, while `Convert` ranges over the possible values. This allows all 3 classes to play nicely with each other.
+Note that `Guard` and `Convert` are complementary subclasses of `Cast` in the following sense: `Guard` ranges over booleans and `Convert` ranges over values, while `Cast` ranges over maybes, which are pairs of booleans and values. This allows all 3 classes to play nicely with each other.
 
 Also, since `Cast` is a monad (through the `just` and `bind` methods), operations can be chained in a functional/declarative style.
 
 ## Demo
-
+ 
 ```typescript
 import { Guard, Cast, Convert } from "to-typed"
 
