@@ -14,7 +14,7 @@ export class Guard extends Cast {
             return super.or(right);
     }
     if(condition) {
-        return new Guard((val) => this.guard(val) && condition(val));
+        return new Guard((val) => this.guard(val) && !!condition(val));
     }
     /**
      * Intersects a list of guards by combining them with the `and` operator.

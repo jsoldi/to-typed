@@ -86,7 +86,7 @@ export class Cast<out T = unknown> {
             return new Cast(value => Maybe.all(Utils.map((cast: Cast) => cast.cast(value))(casts))) as Cast<TCastAll<T>>
     }
 
-    public if(condition: (input: T) => boolean): Cast<T> {
+    public if(condition: (input: T) => unknown): Cast<T> {
         return this.bind(value => condition(value) ? Cast.just(value) : Cast.nothing());
     }
 
@@ -102,8 +102,8 @@ export class Cast<out T = unknown> {
         return this.or(new Convert(_ => other));
     }
 
-    public get elseThrow(): Convert<T> {
-        return this.or(new Convert(_ => { throw new Error('Cast has no value.') }));
+    public elseThrow(getError: () => Error = () => new Error('Cast has no value')): Convert<T> {
+        return this.or(new Convert(_ => { throw getError(); }));
     }
 
     public get elseNothing(): Convert<Maybe<T>> {

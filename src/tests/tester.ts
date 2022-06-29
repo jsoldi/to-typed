@@ -33,6 +33,18 @@ export function testEq<T>(name: string, actual: T, expected: T) {
     test(name, () => assert.deepStrictEqual(actual, expected));
 }
 
+export function testError(name: string, expectedError: string, action: () => void) {
+    test(name, () => {
+        try {
+            action();
+            throw new Error(`Expected error, but no error was thrown`);
+        }
+        catch (e: any) {
+            assert.equal(e.message, expectedError);
+        }
+    });
+}
+
 export type TypesAreEqual<X, Y> =
     (<T>() => T extends X ? 1 : 2) extends
     (<T>() => T extends Y ? 1 : 2) ? true : false;

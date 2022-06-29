@@ -1,5 +1,5 @@
 import { Cast, Convert, Maybe } from "../lib/index.js";
-import { testEq } from "./tester.js";
+import { testEq, testError } from "./tester.js";
 function testConvert(name, convert, value, expectedValue) {
     testEq(name, convert.convert(value), expectedValue);
 }
@@ -107,4 +107,8 @@ testConvert('Convert.toDate fails for float', Convert.toDate('DEF'), 15778368000
 testConvert('Convert.toDate fails for unsafe integer', Convert.toDate('DEF'), 999999999999999 * 10, 'DEF');
 testConvert('Cast.elseNothing returns nothing on fail', Cast.asInteger.elseNothing, [], Maybe.nothing());
 testConvert('Cast.elseNothing returns something on success', Cast.asInteger.elseNothing, '123', Maybe.just(123));
+testEq('Cast.elseThrow returns a convert', Cast.asInteger.elseThrow().constructor.name, Convert.prototype.constructor.name);
+testConvert('Cast.elseThrow converts valid value', Cast.asInteger.elseThrow(), '123', 123);
+testError('Cast.elseThrow throws for invalid value with default message', 'Cast has no value', () => Cast.asInteger.elseThrow().convert('bad'));
+testError('Cast.elseThrow throws for invalid value with custom message', 'Bad number', () => Cast.asInteger.elseThrow(() => new Error('Bad number')).convert('bad'));
 //# sourceMappingURL=convert-tests.js.map

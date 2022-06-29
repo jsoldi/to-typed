@@ -20,8 +20,8 @@ export class Maybe {
         }
         return Maybe.just(result);
     }
-    elseThrow() {
-        return this.read(t => t, () => { throw new Error('No value'); });
+    elseThrow(getError = () => new Error('No value')) {
+        return this.else(() => { throw getError(); });
     }
     read(ifValue, ifNothing) {
         return this.hasValue ? ifValue(this.value) : ifNothing();

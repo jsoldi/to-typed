@@ -32,7 +32,7 @@ if (guard.guard(valid)) {
 }
 test('Demo - Invalid object is rejected', () => assert.strictEqual(guard.guard({}), false));
 // ---------------- Type casting/converting ----------------
-// Produce a `Convert` based on a sample value, which also serves as the default values.
+// Produce a `Convert` based on a sample value, which also serves as a set of defaults.
 const converter = Convert.to({
     integer: 0,
     floatDefaultToEPSILON: Number.EPSILON,

@@ -11,7 +11,7 @@ export declare class Maybe<out T> {
     static just<T>(value: T): Maybe<T>;
     static nothing<T = never>(): Maybe<T>;
     static all<T extends MaybeValues>(maybes: T): Maybe<TMaybeAll<T>>;
-    elseThrow(): T;
+    elseThrow(getError?: () => Error): T;
     read<R>(ifValue: (left: T) => R, ifNothing: () => R): R;
     bind<R>(next: (value: T) => Maybe<R>): Maybe<R>;
     map<R>(next: (value: T) => R): Maybe<R>;

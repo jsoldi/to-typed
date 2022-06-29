@@ -14,13 +14,21 @@ The base class of `Guard` and `Convert`. It is a wrap around a `cast` function t
 public constructor(public readonly cast: (value: unknown) => Maybe<T>) { }
 ```
 
-If the cast succeeds, the function returns `Just` with the casted value, otherwise it returns `Nothing`. 
+If the cast succeeds, the function returns [`just`](https://github.com/jsoldi/to-typed/blob/09cb2e6adc5cf684dee56c0bd01e1e21d6b94780/src/lib/maybe.ts#L7) the casted value, otherwise it returns [`nothing`](https://github.com/jsoldi/to-typed/blob/09cb2e6adc5cf684dee56c0bd01e1e21d6b94780/src/lib/maybe.ts#L11). 
+
+`Cast` is designed to make operations chainable in a functional/declarative way:
+
+```typescript
+Cast.asArrayOf(Cast.asString)
+    .map(a => a.filter(i => i.length).join(', '))
+    .if(str => str.length)
+```
 
 Every cast factory method starts with the `as` prefix, such as `asNumber` or `asUnknown`.
 
 ### `Guard`
 
-A wrap around a `guard` function that takes an `unknown` value and returns a boolean indicating whether the input value had the expected type. It implements the `cast` function by wrapping the input value in a `Just` if it has the expected type, or `Nothing` otherwise:
+A wrap around a `guard` function that takes an `unknown` value and returns a boolean indicating whether the input value had the expected type. It implements the `cast` function by returning `just` the input value if it has the expected type, or `nothing` otherwise:
 
 ```typescript
 public constructor(public readonly guard: (input: unknown) => input is T) { 
@@ -32,7 +40,7 @@ Every guard factory method starts with the `is` prefix, such as `isEnum` or `isB
 
 ### `Convert`
 
-A wrap around a `convert` function that takes an `unknown` value and returns a typed value. It implements the `cast` function by wrapping the converted value in a `Just`:
+A wrap around a `convert` function that takes an `unknown` value and returns a typed value. It implements the `cast` function by always returning `just` the converted value:
 
 ```typescript
 public constructor(public readonly convert: (value: unknown) => T) {
@@ -44,9 +52,7 @@ Every convert factory method starts with the `to` prefix, such as `toFinite` or 
 
 ## Remarks
 
-Note that `Guard` and `Convert` are complementary subclasses of `Cast` in the following sense: `Guard` ranges over booleans and `Convert` ranges over values, while `Cast` ranges over maybes, which are pairs of booleans and values. This allows all 3 classes to play nicely with each other.
-
-Also, since `Cast` is a monad (through the `just` and `bind` methods), operations can be chained in a functional/declarative style.
+Note that the choice of these 3 classes is not arbitrary. `Guard` and `Convert` are complementary subclasses of `Cast` in the sense that `Guard` ranges over booleans and `Convert` ranges over typed values, while `Cast` ranges over maybes, which are pairs of booleans and typed values. So they form a nice triad, and it seems unlikely that new classes will need to be added in future versions of the package, other than perhaps some utility ones only if there's some strong justification to do so.
 
 ## Demo
  

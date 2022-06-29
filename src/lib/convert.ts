@@ -81,7 +81,7 @@ export class Convert<out T = unknown> extends Cast<T> {
     }
 
     protected static toCollectionLike<T extends Collection<Convert>>(converts: T) {
-        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).as(converts).elseThrow;
+        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).as(converts).elseThrow();
     }
 
     /**

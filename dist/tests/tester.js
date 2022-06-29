@@ -27,4 +27,15 @@ export function test(name, action) {
 export function testEq(name, actual, expected) {
     test(name, () => assert.deepStrictEqual(actual, expected));
 }
+export function testError(name, expectedError, action) {
+    test(name, () => {
+        try {
+            action();
+            throw new Error(`Expected error, but no error was thrown`);
+        }
+        catch (e) {
+            assert.equal(e.message, expectedError);
+        }
+    });
+}
 //# sourceMappingURL=tester.js.map

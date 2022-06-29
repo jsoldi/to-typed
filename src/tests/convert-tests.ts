@@ -1,5 +1,5 @@
 import { Cast, Convert, Maybe } from "../lib/index.js";
-import { testEq, TypeAssert, TypesAreEqual } from "./tester.js";
+import { testEq, testError, TypeAssert, TypesAreEqual } from "./tester.js";
 
 function testConvert<T>(name: string, convert: Convert<T>, value: unknown, expectedValue: T) {
     testEq(name, convert.convert(value), expectedValue);
@@ -130,3 +130,8 @@ testConvert('Convert.toDate fails for unsafe integer', Convert.toDate('DEF' as a
 
 testConvert('Cast.elseNothing returns nothing on fail', Cast.asInteger.elseNothing, [], Maybe.nothing())
 testConvert('Cast.elseNothing returns something on success', Cast.asInteger.elseNothing, '123', Maybe.just(123))
+
+testEq('Cast.elseThrow returns a convert', Cast.asInteger.elseThrow().constructor.name, Convert.prototype.constructor.name);
+testConvert('Cast.elseThrow converts valid value', Cast.asInteger.elseThrow(), '123', 123);
+testError('Cast.elseThrow throws for invalid value with default message', 'Cast has no value', () => Cast.asInteger.elseThrow().convert('bad'));
+testError('Cast.elseThrow throws for invalid value with custom message', 'Bad number', () => Cast.asInteger.elseThrow(() => new Error('Bad number')).convert('bad'));

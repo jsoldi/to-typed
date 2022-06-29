@@ -26,8 +26,8 @@ export class Maybe<out T> {
         return Maybe.just(result);
     }
 
-    public elseThrow(): T {
-        return this.read(t => t, () => { throw new Error('No value') });
+    public elseThrow(getError: () => Error = () => new Error('No value')): T {
+        return this.else(() => { throw getError(); })
     }
 
     public read<R>(ifValue: (left: T) => R, ifNothing: () => R): R {

@@ -55,7 +55,7 @@ export class Convert extends Cast {
         return Cast.asStructOf(convertItem).else(alt);
     }
     static toCollectionLike(converts) {
-        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).as(converts).elseThrow;
+        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).as(converts).elseThrow();
     }
     /**
      * Creates a `Convert` based on the given sample value, which is also used as the set of default values.

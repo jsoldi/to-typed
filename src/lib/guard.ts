@@ -34,8 +34,8 @@ export class Guard<out T = unknown> extends Cast<T> {
             return super.or(right);
     }
 
-    public if(condition: (input: T) => boolean): Guard<T> {
-        return new Guard((val): val is T => this.guard(val) && condition(val));
+    public if(condition: (input: T) => unknown): Guard<T> {
+        return new Guard((val): val is T => this.guard(val) && !!condition(val));
     }
 
     /**

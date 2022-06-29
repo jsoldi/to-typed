@@ -36,11 +36,11 @@ export declare class Cast<out T = unknown> {
      */
     static all<T extends Collection<Convert>>(casts: T): Convert<TCastAll<T>>;
     static all<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
-    if(condition: (input: T) => boolean): Cast<T>;
+    if(condition: (input: T) => unknown): Cast<T>;
     and<R>(guard: Guard<R>): Cast<T & R>;
     map<R>(next: (t: T) => R): Cast<R>;
     else<R>(other: R): Convert<T | R>;
-    get elseThrow(): Convert<T>;
+    elseThrow(getError?: () => Error): Convert<T>;
     get elseNothing(): Convert<Maybe<T>>;
     static get asPrimitiveValue(): Cast<PrimitiveValue>;
     static get asString(): Cast<string>;

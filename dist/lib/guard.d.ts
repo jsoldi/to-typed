@@ -15,7 +15,7 @@ export declare class Guard<out T = unknown> extends Cast<T> {
     or<R>(right: Guard<R>): Guard<T | R>;
     or<R>(right: Convert<R>): Convert<T | R>;
     or<R>(right: Cast<R>): Cast<T | R>;
-    if(condition: (input: T) => boolean): Guard<T>;
+    if(condition: (input: T) => unknown): Guard<T>;
     /**
      * Intersects a list of guards by combining them with the `and` operator.
      * @param guards An array of guards.

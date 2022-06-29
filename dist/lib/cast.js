@@ -61,8 +61,8 @@ export class Cast {
     else(other) {
         return this.or(new Convert(_ => other));
     }
-    get elseThrow() {
-        return this.or(new Convert(_ => { throw new Error('Cast has no value.'); }));
+    elseThrow(getError = () => new Error('Cast has no value')) {
+        return this.or(new Convert(_ => { throw getError(); }));
     }
     get elseNothing() {
         return this.map(Maybe.just).else(Maybe.nothing());
