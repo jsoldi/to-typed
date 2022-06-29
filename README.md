@@ -22,6 +22,7 @@ If the cast succeeds, the function returns [`just`](https://github.com/jsoldi/to
 Cast.asArrayOf(Cast.asString)
     .map(a => a.filter(i => i.length).join(', '))
     .if(str => str.length)
+    .cast([10, 20, 30, 40])
 ```
 
 Every cast factory method starts with the `as` prefix, such as `asNumber` or `asUnknown`.
