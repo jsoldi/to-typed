@@ -20,7 +20,7 @@ If the cast succeeds, the function returns [`just`](https://github.com/jsoldi/to
 
 ```typescript
 Cast.asArrayOf(Cast.asString)
-    .map(a => a.filter(i => i.length).join(', '))
+    .map(array => array.filter(str => str.length).join(', '))
     .if(str => str.length)
     .cast([10, 20, 30, 40])
 ```
