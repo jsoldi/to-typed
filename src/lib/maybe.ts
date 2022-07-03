@@ -30,8 +30,10 @@ export class Maybe<out T> {
         return this.else(() => { throw getError(); })
     }
 
-    public read<R>(ifValue: (left: T) => R, ifNothing: () => R): R {
-        return this.hasValue ? ifValue(this.value) : ifNothing();
+    public read<R>(ifValue: (left: T) => R): R | void
+    public read<R>(ifValue: (left: T) => R, ifNothing: () => R): R
+    public read<R>(ifValue: (left: T) => R, ifNothing?: () => R): R | void {
+        return this.hasValue ? ifValue(this.value) : ifNothing ? ifNothing() : undefined;
     }
 
     public bind<R>(next: (value: T) => Maybe<R>): Maybe<R> {
