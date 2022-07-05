@@ -20,7 +20,7 @@ The base class of `Guard` and `Convert`. It is a wrap around a `cast` function t
 cast: (value: unknown) => Maybe<T>
 ```
 
-If the cast succeeds, the function returns [`just`](https://github.com/jsoldi/to-typed/blob/09cb2e6adc5cf684dee56c0bd01e1e21d6b94780/src/lib/maybe.ts#L7) the casted value, otherwise it returns [`nothing`](https://github.com/jsoldi/to-typed/blob/09cb2e6adc5cf684dee56c0bd01e1e21d6b94780/src/lib/maybe.ts#L11). 
+If the cast succeeds, the function returns [`just`](https://github.com/jsoldi/to-typed/blob/3304df454a9721f6b3b65b90c1ff4a0953537d36/src/lib/maybe.ts#L4) the casted value, otherwise it returns [`nothing`](https://github.com/jsoldi/to-typed/blob/3304df454a9721f6b3b65b90c1ff4a0953537d36/src/lib/maybe.ts#L9). 
 
 `Cast` and its derived classes are designed to make operations chainable in a functional/declarative way:
 
