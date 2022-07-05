@@ -12,7 +12,7 @@ npm install to-typed
 
 This package provides 3 interrelated classes: `Cast`, `Guard` and `Convert`. 
 
-### `Cast`
+### Cast
 
 The base class of `Guard` and `Convert`. It is a wrap around a `cast` function that takes an unknown value and returns a `Maybe`:
 
@@ -37,7 +37,7 @@ console.log(Convert
 
 Cast factory methods start with the `as` prefix, such as `asNumber` or `asUnknown`.
 
-### `Guard`
+### Guard
 
 A wrap around a `guard` function that takes an `unknown` value and returns a boolean indicating whether the input value has the expected type:
 
@@ -53,7 +53,7 @@ value => guard(value) ? Maybe.just(value) : Maybe.nothing()
 
 Guard factory methods start with the `is` prefix, such as `isEnum` or `isBoolean`.
 
-### `Convert`
+### Convert
 
 A wrap around a `convert` function that takes an `unknown` value and returns a typed value:
 
