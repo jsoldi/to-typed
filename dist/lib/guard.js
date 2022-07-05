@@ -1,20 +1,26 @@
 import { Maybe, Cast, Utils } from "./internal.js";
 export class Guard extends Cast {
-    constructor(guard) {
-        super(val => guard(val) ? Maybe.just(val) : Maybe.nothing());
-        this.guard = guard;
+    constructor(_guard) {
+        super((val, s) => _guard(val, s) ? Maybe.just(val) : Maybe.nothing());
+        this._guard = _guard;
+    }
+    guard(input, settings) {
+        return this._guard(input, settings ?? Cast.defaults);
+    }
+    config(config) {
+        return new Guard((value, s) => this._guard(value, { ...s, ...config }));
     }
     and(right) {
-        return new Guard((val) => this.guard(val) && (right instanceof Guard ? right.guard(val) : right(val)));
+        return new Guard((val, s) => this._guard(val, s) && (right instanceof Guard ? right._guard(val, s) : right(val, s)));
     }
     or(right) {
         if (right instanceof Guard)
-            return new Guard((val) => this.guard(val) || right.guard(val));
+            return new Guard((val, s) => this._guard(val, s) || right._guard(val, s));
         else
             return super.or(right);
     }
     if(condition) {
-        return new Guard((val) => this.guard(val) && !!condition(val));
+        return new Guard((val, s) => this._guard(val, s) && !!condition(val));
     }
     /**
      * Intersects a list of guards by combining them with the `and` operator.
@@ -66,16 +72,17 @@ export class Guard extends Cast {
         return new Guard((val) => val instanceof cls);
     }
     static isCollectionOf(guard) {
-        return Guard.isCollection.and((col) => Object.values(col).every(guard.guard));
+        return Guard.isCollection.and((col, s) => Object.values(col).every(a => guard._guard(a, s)));
     }
     static isArrayOf(guard) {
-        return Guard.isArray.and((arr) => arr.every(guard.guard));
+        return Guard.isArray.and((arr, s) => arr.every(i => guard._guard(i, s)));
     }
     static isStructOf(guard) {
-        return Guard.isStruct.and((str) => Object.values(str).every(guard.guard));
+        return Guard.isStruct.and((str, s) => Object.values(str).every(i => guard._guard(i, s)));
     }
     static isCollectionLike(guards) {
-        return Guard.isCollection.and((col) => Object.entries(guards).every(([k, g]) => g.guard(col[k])));
+        return Guard.isCollection.and((col, s) => (!s.strict || Object.keys(guards).length === Object.keys(col).length)
+            && Object.entries(guards).every(([k, g]) => g.guard(col[k], s)));
     }
     /**
      * Creates a `Guard` based on a sample value.
@@ -87,12 +94,7 @@ export class Guard extends Cast {
             case 'string':
                 return Guard.isString;
             case 'number':
-                if (Number.isInteger(alt))
-                    return Guard.isInteger;
-                else if (Number.isFinite(alt))
-                    return Guard.isFinite;
-                else
-                    return Guard.isNumber;
+                return Guard.isNumber;
             case 'boolean':
                 return Guard.isBoolean;
             case 'bigint':
@@ -109,7 +111,7 @@ export class Guard extends Cast {
                 else if (alt === null)
                     return Guard.isConst(null);
         }
-        return Guard.isCollectionLike(Utils.map(Guard.is)(alt));
+        return Guard.isCollectionLike(Utils.map(a => Guard.is(a))(alt));
     }
 }
 Guard.isUnknown = new Guard((val) => true);

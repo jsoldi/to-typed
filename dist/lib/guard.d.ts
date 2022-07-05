@@ -1,17 +1,24 @@
-import { Cast, Convert, TCastAll } from "./internal.js";
+import { Cast, Convert, TCastAll, CastSettings } from "./internal.js";
 import { Collection, Nothing, PrimitiveValue, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 declare type TGuardEvery<A extends readonly Guard<unknown>[]> = A extends Array<infer T> ? ((g: T) => void) extends ((g: Guard<infer I>) => void) ? I : unknown : never;
+declare const container: unique symbol;
+declare type SubtypeOf<T> = T & {
+    [container]: T;
+};
 declare type TGuardMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends Guard<infer R> ? R : T extends {
     [k in keyof T]: any;
 } ? {
     [k in keyof T]: TGuardMap<T[k]>;
 } : unknown;
 export declare class Guard<out T = unknown> extends Cast<T> {
-    readonly guard: (input: unknown) => input is T;
-    constructor(guard: (input: unknown) => input is T);
+    private readonly _guard;
+    constructor(_guard: (input: unknown, settings: CastSettings) => input is T);
     static readonly isUnknown: Guard<unknown>;
     static readonly isNever: Guard<never>;
-    and<R>(right: Guard<R> | ((t: T) => t is T & R)): Guard<T & R>;
+    guard<U>(input: U): input is T & SubtypeOf<U>;
+    guard<U>(input: U, settings: CastSettings): input is T & SubtypeOf<U>;
+    config(config: Partial<CastSettings>): Guard<T>;
+    and<R>(right: Guard<R> | ((t: T, s: CastSettings) => t is T & R)): Guard<T & R>;
     or<R>(right: Guard<R>): Guard<T | R>;
     or<R>(right: Convert<R>): Convert<T | R>;
     or<R>(right: Cast<R>): Cast<T | R>;

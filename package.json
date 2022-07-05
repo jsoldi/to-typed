@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "to-typed",
-  "version": "0.2.10",
+  "version": "0.3.0",
   "description": "Type-guards, casts and converts unknowns into typed values",
   "repository": {
     "type": "git",
@@ -15,7 +15,8 @@
   "main": "./dist/lib/index.js",
   "scripts": {
     "test": "tsc --build --clean & tsc --build & node ./dist/tests/all-tests.js",
-    "build": "tsc --build --clean & tsc --build"
+    "build": "tsc --build --clean & tsc --build",
+    "demo": "tsc --build --clean & tsc --build & node ./dist/tests/demo.js"
   },
   "author": "Juan Soldi",
   "license": "MIT",

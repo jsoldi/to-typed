@@ -1,4 +1,4 @@
-import { Utils, Maybe, Cast, Guard } from "./internal.js";
+import { Utils, Maybe, Cast, Guard, CastSettings } from "./internal.js";
 import { Collection, Primitive, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 
 // Maps { b: ? => B, c: C } to { b: B, c: C }:
@@ -9,8 +9,18 @@ type TConvertMap<T> =
     unknown;
 
 export class Convert<out T = unknown> extends Cast<T> {
-    public constructor(public readonly convert: (value: unknown) => T) {
-        super(value => Maybe.just(convert(value)));
+    public constructor(private readonly _convert: (value: unknown, settings: CastSettings) => T) {
+        super((value, s) => Maybe.just(_convert(value, s)));
+    }
+
+    public convert(value: unknown): T
+    public convert(value: unknown, settings: CastSettings): T
+    public convert(value: unknown, settings?: CastSettings) {
+        return this._convert(value, settings ?? Cast.defaults);
+    }
+
+    public config(config: Partial<CastSettings>) {
+        return new Convert((value, s) => this._convert(value, { ...s, ...config }));
     }
 
     public static readonly id = new Convert<unknown>(value => value);
@@ -20,11 +30,11 @@ export class Convert<out T = unknown> extends Cast<T> {
     }
 
     public compose<R>(g: Convert<R>): Convert<R> {
-        return new Convert(value => g.convert(this.convert(value)));
+        return new Convert((value, s) => g._convert(this._convert(value, s), s));
     }
 
     public map<R>(fun: (value: T) => R): Convert<R> {
-        return new Convert(value => fun(this.convert(value)));
+        return new Convert((value, s) => fun(this._convert(value, s)));
     }
 
     /**
@@ -84,6 +94,10 @@ export class Convert<out T = unknown> extends Cast<T> {
         return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).as(converts).elseThrow();
     }
 
+    public static toArrayWhere<T>(cast: Cast<T>) {
+        return Cast.asArrayWhere(cast).else([] as T[]);
+    }
+
     /**
      * Creates a `Convert` based on the given sample value, which is also used as the set of default values.
      * @param alt a sample value which also serves as the set of default values
@@ -94,12 +108,7 @@ export class Convert<out T = unknown> extends Cast<T> {
             case 'string':
                 return Convert.toString(alt) as Convert<TConvertMap<T>>
             case 'number':
-                if (Number.isInteger(alt))
-                    return Convert.toInteger(alt) as Convert<TConvertMap<T>>
-                else if (Number.isFinite(alt))
-                    return Convert.toFinite(alt) as Convert<TConvertMap<T>>
-                else
-                    return Convert.toNumber(alt) as Convert<TConvertMap<T>>
+                return Convert.toNumber(alt) as Convert<TConvertMap<T>>
             case 'boolean':
                 return Convert.toBoolean(alt) as Convert<TConvertMap<T>>
             case 'bigint':
@@ -130,5 +139,6 @@ export class Convert<out T = unknown> extends Cast<T> {
     public toArrayOf<T>(convertItem: Convert<T>, alt: T[] = []) { return this.compose(Convert.toArrayOf(convertItem, alt)) }
     public toStructOf<T>(convertItem: Convert<T>, alt: Struct<T> = {}) { return this.compose(Convert.toStructOf(convertItem, alt)) }
     protected toCollectionLike<T extends Collection<Convert>>(converts: T) { return this.compose(Convert.toCollectionLike(converts)) }
+    public toArrayWhere<T>(cast: Cast<T>) { return this.compose(Convert.toArrayWhere(cast)) }
     public to<T>(alt: T) { return this.compose(Convert.to(alt)) }
 }

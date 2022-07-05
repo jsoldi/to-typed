@@ -1,4 +1,4 @@
-import { Maybe, Guard, Convert, Utils } from "./internal.js";
+import { Maybe, Guard, Convert, Utils, CastSettings } from "./internal.js";
 import { Collection, Primitive, PrimitiveValue, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 
 type CastSome<T extends readonly Cast<unknown>[]> =
@@ -13,24 +13,40 @@ type TCastMap<T> =
     T extends SimpleType ? SimpleTypeOf<T> :
     T extends Cast<infer R> ? R :
     T extends { [k in keyof T]: any } ? { [k in keyof T]: TCastMap<T[k]> } :
-    unknown;
+    unknown; 
 
 export class Cast<out T = unknown> {
-    public constructor(public readonly cast: (value: unknown) => Maybe<T>) { }
+    public static readonly defaults: CastSettings = {
+        strict: false,
+        booleans: {
+            true: ['true', 'on', '1'],
+            false: ['false', 'off', '0']            
+        },
+        arrayToPrimitive: true,
+        primitiveToArray: true
+    }
+
+    public constructor(private readonly _cast: (value: unknown, settings: CastSettings) => Maybe<T>) { }
 
     public static readonly asUnknown = new Cast<unknown>(value => Maybe.just(value));
     public static readonly asNever = new Cast<never>(_ => Maybe.nothing());
 
-    public static maybe<T>(maybe: Maybe<T>) {
-        return new Cast(_ => maybe);
+    public cast(value: unknown): Maybe<T>
+    public cast(value: unknown, settings: CastSettings): Maybe<T>
+    public cast(value: unknown, settings?: CastSettings) {
+        return this._cast(value, settings ?? Cast.defaults);
+    }
+
+    public config(config: Partial<CastSettings>) {
+        return new Cast((value, s) => this._cast(value, { ...s, ...config }));
     }
 
     public static just<T>(value: T): Cast<T> {
-        return Cast.maybe(Maybe.just(value));
+        return new Cast(_ => Maybe.just(value));
     }
 
     public static nothing<T = never>() {
-        return Cast.maybe<T>(Maybe.nothing());
+        return new Cast<T>(_ => Maybe.nothing());
     }
 
     public static try<T>(get: () => T) {
@@ -42,25 +58,21 @@ export class Cast<out T = unknown> {
         }
     }
 
-    public read<R>(ifValue: (left: T) => R, ifNothing: () => R): (value: unknown) => R {
-        return value => this.cast(value).read(ifValue, ifNothing);
-    }
-
-    public bind<R>(next: (t: T) => Cast<R>): Cast<R> {
-        return new Cast(value => this.cast(value).bind(t => next(t).cast(value)));
+    public bind<R>(next: (t: T, s: CastSettings) => Cast<R>): Cast<R> {
+        return new Cast((value, s) => this._cast(value, s).bind(t => next(t, s)._cast(value, s)));
     }
 
     public compose<R>(next: Cast<R>): Cast<R> {
-        return this.bind(value => Cast.maybe(next.cast(value)));
+        return this.bind(value => new Cast((_, s) => next.cast(value, s)));
     }
 
     public or<R>(right: Convert<R>): Convert<T | R>
     public or<R>(right: Cast<R>): Cast<T | R>
     public or<R>(right: Cast<R>): Cast<T | R> {
         if (right instanceof Convert)
-            return new Convert(value => this.cast(value).else(() => right.convert(value)));
+            return new Convert((value, s) => this._cast(value, s).else(() => right.convert(value, s)));
         else
-            return new Cast(value => this.cast(value).or(right.cast(value)));
+            return new Cast((value, s) => this.cast(value, s).or(right.cast(value, s)));
     }
 
     /**
@@ -81,9 +93,13 @@ export class Cast<out T = unknown> {
     public static all<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>
     public static all<T extends Collection<Cast>>(casts: T): Convert<TCastAll<T>> | Cast<TCastAll<T>> {
         if (Guard.isCollectionOf(Guard.isInstanceOf(Convert)).guard(casts))
-            return new Convert((value: unknown) => Utils.map((conv: Convert) => conv.convert(value))(casts)) as Cast<TCastAll<T>>
+            return new Convert((value: unknown, s) => Utils.map((conv: Convert) => conv.convert(value, s))(casts)) as Cast<TCastAll<T>>
         else 
-            return new Cast(value => Maybe.all(Utils.map((cast: Cast) => cast.cast(value))(casts))) as Cast<TCastAll<T>>
+            return new Cast((value, s) => Maybe.all(Utils.map((cast: Cast) => cast.cast(value, s))(casts))) as Cast<TCastAll<T>>
+    }
+
+    public static any<T>(casts: Cast<T>[]): Convert<T[]> {
+        return new Convert((value, s) => Maybe.any(casts.map(cast => cast.cast(value, s))));
     }
 
     public if(condition: (input: T) => unknown): Cast<T> {
@@ -91,7 +107,7 @@ export class Cast<out T = unknown> {
     }
 
     public and<R>(guard: Guard<R>): Cast<T & R> {
-        return this.bind(value => guard.guard(value) ? Cast.just(value) : Cast.nothing());
+        return this.bind((value, s) => guard.guard(value, s) ? Cast.just(value) : Cast.nothing());
     }
 
     public map<R>(next: (t: T) => R): Cast<R> {
@@ -113,7 +129,7 @@ export class Cast<out T = unknown> {
     public static get asPrimitiveValue(): Cast<PrimitiveValue> {
         return Guard.isPrimitiveValue.or(
             Guard.isArray
-                .if(a => a.length > 0) // Should equal 1 but, as a collection, an array with > 1 items extends and array with 1 item.
+                .if(a => a.length === 1)
                 .map(a => a[0])
                 .compose(Guard.isPrimitiveValue)
         );
@@ -150,10 +166,10 @@ export class Cast<out T = unknown> {
     }
 
     public static get asBoolean(): Cast<boolean> {
-        return Guard.isBoolean.or(Cast.asString.bind(v => {
-            if (['true', 'on', '1'].includes(v))
+        return Guard.isBoolean.or(Cast.asString.bind((v, s) => {
+            if (s.booleans.true.includes(v))
                 return Cast.just(true);
-            else if (['false', 'off', '0'].includes(v))
+            else if (s.booleans.false.includes(v))
                 return Cast.just(false);
             else
                 return Cast.nothing();
@@ -206,6 +222,10 @@ export class Cast<out T = unknown> {
         ) as Cast<TCastAll<T>>
     }
     
+    public static asArrayWhere<T>(cast: Cast<T>): Cast<T[]> {
+        return Cast.asArray.bind(val => Cast.any(val.map(v => Cast.just(v).compose(cast))))
+    }
+
     /**
      * Creates a `Cast` based on a sample value.
      * @param alt a sample value
@@ -216,12 +236,7 @@ export class Cast<out T = unknown> {
             case 'string':
                 return Cast.asString as Cast<TCastMap<T>>;
             case 'number':
-                if (Number.isInteger(alt))
-                    return Cast.asInteger as Cast<TCastMap<T>>;
-                else if (Number.isFinite(alt))
-                    return Cast.asFinite as Cast<TCastMap<T>>;
-                else
-                    return Cast.asNumber as Cast<TCastMap<T>>;
+                return Cast.asNumber as Cast<TCastMap<T>>;
             case 'boolean':
                 return Cast.asBoolean as Cast<TCastMap<T>>;
             case 'bigint':
@@ -245,6 +260,8 @@ export class Cast<out T = unknown> {
     public get asPrimitiveValue() { return this.compose(Cast.asPrimitiveValue) }
     public get asString() { return this.compose(Cast.asString) }
     public get asNumber() { return this.compose(Cast.asNumber) }
+    public get asFinite() { return this.compose(Cast.asFinite) }
+    public get asInteger() { return this.compose(Cast.asInteger) }    
     public get asBigInt() { return this.compose(Cast.asBigInt) }
     public get asBoolean() { return this.compose(Cast.asBoolean) }
     public get asDate() { return this.compose(Cast.asDate) }
@@ -255,5 +272,6 @@ export class Cast<out T = unknown> {
     public asArrayOf<T>(cast: Cast<T>) { return this.compose(Cast.asArrayOf(cast)) }
     public asStructOf<T>(cast: Cast<T>) { return this.compose(Cast.asStructOf(cast)) }
     protected asCollectionLike<T extends Collection<Cast>>(casts: T) { return this.compose(Cast.asCollectionLike(casts)) }    
+    public asArrayWhere<T>(cast: Cast<T>) { return this.compose(Cast.asArrayWhere(cast)) }
     public as<T>(alt: T) { return this.compose(Cast.as(alt)) }
 }

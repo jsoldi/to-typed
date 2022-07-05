@@ -1,4 +1,4 @@
-import { Maybe, Guard, Convert } from "./internal.js";
+import { Maybe, Guard, Convert, CastSettings } from "./internal.js";
 import { Collection, Primitive, PrimitiveValue, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 declare type CastSome<T extends readonly Cast<unknown>[]> = T extends Guard<any>[] ? Guard<T[number] extends Guard<infer R> ? R : never> : T extends Cast<any>[] ? Cast<T[number] extends Cast<infer R> ? R : never> : never;
 export declare type TCastAll<T extends Collection<Cast>> = {
@@ -10,16 +10,18 @@ declare type TCastMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends Ca
     [k in keyof T]: TCastMap<T[k]>;
 } : unknown;
 export declare class Cast<out T = unknown> {
-    readonly cast: (value: unknown) => Maybe<T>;
-    constructor(cast: (value: unknown) => Maybe<T>);
+    private readonly _cast;
+    static readonly defaults: CastSettings;
+    constructor(_cast: (value: unknown, settings: CastSettings) => Maybe<T>);
     static readonly asUnknown: Cast<unknown>;
     static readonly asNever: Cast<never>;
-    static maybe<T>(maybe: Maybe<T>): Cast<T>;
+    cast(value: unknown): Maybe<T>;
+    cast(value: unknown, settings: CastSettings): Maybe<T>;
+    config(config: Partial<CastSettings>): Cast<T>;
     static just<T>(value: T): Cast<T>;
     static nothing<T = never>(): Cast<T>;
     static try<T>(get: () => T): Cast<T>;
-    read<R>(ifValue: (left: T) => R, ifNothing: () => R): (value: unknown) => R;
-    bind<R>(next: (t: T) => Cast<R>): Cast<R>;
+    bind<R>(next: (t: T, s: CastSettings) => Cast<R>): Cast<R>;
     compose<R>(next: Cast<R>): Cast<R>;
     or<R>(right: Convert<R>): Convert<T | R>;
     or<R>(right: Cast<R>): Cast<T | R>;
@@ -36,6 +38,7 @@ export declare class Cast<out T = unknown> {
      */
     static all<T extends Collection<Convert>>(casts: T): Convert<TCastAll<T>>;
     static all<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
+    static any<T>(casts: Cast<T>[]): Convert<T[]>;
     if(condition: (input: T) => unknown): Cast<T>;
     and<R>(guard: Guard<R>): Cast<T & R>;
     map<R>(next: (t: T) => R): Cast<R>;
@@ -58,6 +61,7 @@ export declare class Cast<out T = unknown> {
     static asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     static asStructOf<T>(cast: Cast<T>): Cast<Struct<T>>;
     protected static asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
+    static asArrayWhere<T>(cast: Cast<T>): Cast<T[]>;
     /**
      * Creates a `Cast` based on a sample value.
      * @param alt a sample value
@@ -67,6 +71,8 @@ export declare class Cast<out T = unknown> {
     get asPrimitiveValue(): Cast<PrimitiveValue>;
     get asString(): Cast<string>;
     get asNumber(): Cast<number>;
+    get asFinite(): Cast<number>;
+    get asInteger(): Cast<number>;
     get asBigInt(): Cast<bigint>;
     get asBoolean(): Cast<boolean>;
     get asDate(): Cast<Date>;
@@ -77,6 +83,7 @@ export declare class Cast<out T = unknown> {
     asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     asStructOf<T>(cast: Cast<T>): Cast<Struct<T>>;
     protected asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
+    asArrayWhere<T>(cast: Cast<T>): Cast<T[]>;
     as<T>(alt: T): Cast<TCastMap<T>>;
 }
 export {};

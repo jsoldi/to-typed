@@ -1,9 +1,12 @@
-import { Maybe, Cast, Convert, TCastAll, Utils } from "./internal.js";
+import { Maybe, Cast, Convert, TCastAll, Utils, CastSettings } from "./internal.js";
 import { Collection, Nothing, PrimitiveValue, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 
 type TGuardEvery<A extends readonly Guard<unknown>[]> = A extends Array<infer T> ? 
     ((g: T) => void) extends ((g: Guard<infer I>) => void) ? I : unknown : 
 never
+
+declare const container: unique symbol
+type SubtypeOf<T> = T & { [container]: T }
 
 // Maps { b: ? => B, c: C } to { b: B, c: C }:
 type TGuardMap<T> = 
@@ -13,15 +16,25 @@ type TGuardMap<T> =
     unknown;
 
 export class Guard<out T = unknown> extends Cast<T> {
-    public constructor(public readonly guard: (input: unknown) => input is T) { 
-        super(val => guard(val) ? Maybe.just(val) : Maybe.nothing());
+    public constructor(private readonly _guard: (input: unknown, settings: CastSettings) => input is T) { 
+        super((val, s) => _guard(val, s) ? Maybe.just(val) : Maybe.nothing());
     }
 
     public static readonly isUnknown = new Guard<unknown>((val): val is unknown => true);
     public static readonly isNever = new Guard<never>((val): val is never => false);
 
-    public and<R>(right: Guard<R> | ((t: T) => t is T & R)): Guard<T & R> {
-        return new Guard<T & R>((val): val is T & R => this.guard(val) && (right instanceof Guard ? right.guard(val) : right(val)));
+    public guard<U>(input: U): input is T & SubtypeOf<U>
+    public guard<U>(input: U, settings: CastSettings): input is T & SubtypeOf<U>
+    public guard<U>(input: U, settings?: CastSettings) {
+        return this._guard(input, settings ?? Cast.defaults);
+    }
+
+    public config(config: Partial<CastSettings>) {
+        return new Guard((value, s): value is T => this._guard(value, { ...s, ...config }));
+    }
+
+    public and<R>(right: Guard<R> | ((t: T, s: CastSettings) => t is T & R)): Guard<T & R> {
+        return new Guard<T & R>((val, s): val is T & R => this._guard(val, s) && (right instanceof Guard ? right._guard(val, s) : right(val, s)));
     }
 
     public or<R>(right: Guard<R>): Guard<T | R>
@@ -29,13 +42,13 @@ export class Guard<out T = unknown> extends Cast<T> {
     public or<R>(right: Cast<R>): Cast<T | R>
     public or<R>(right: Cast<R>): Cast<T | R> {
         if (right instanceof Guard) 
-            return new Guard<T | R>((val): val is T | R => this.guard(val) || right.guard(val));
+            return new Guard<T | R>((val, s): val is T | R => this._guard(val, s) || right._guard(val, s));
         else
             return super.or(right);
     }
 
     public if(condition: (input: T) => unknown): Guard<T> {
-        return new Guard((val): val is T => this.guard(val) && !!condition(val));
+        return new Guard((val, s): val is T => this._guard(val, s) && !!condition(val));
     }
 
     /**
@@ -103,20 +116,21 @@ export class Guard<out T = unknown> extends Cast<T> {
     }
 
     public static isCollectionOf<T>(guard: Guard<T>): Guard<Collection<T>> {
-        return Guard.isCollection.and((col): col is Collection<T> => Object.values(col).every(guard.guard));
+        return Guard.isCollection.and((col, s): col is Collection<T> => Object.values(col).every(a => guard._guard(a, s)));
     }
 
     public static isArrayOf<T>(guard: Guard<T>): Guard<T[]> {
-        return Guard.isArray.and((arr): arr is T[] => arr.every(guard.guard));
+        return Guard.isArray.and((arr, s): arr is T[] => arr.every(i => guard._guard(i, s)));
     }
 
     public static isStructOf<T>(guard: Guard<T>): Guard<Struct<T>> {
-        return Guard.isStruct.and((str): str is Struct<T> => Object.values(str).every(guard.guard));
+        return Guard.isStruct.and((str, s): str is Struct<T> => Object.values(str).every(i => guard._guard(i, s)));
     }
 
     protected static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>> {
-        return Guard.isCollection.and((col): col is TCastAll<T> => 
-            Object.entries(guards).every(([k, g]) => g.guard((col as Struct)[k]))
+        return Guard.isCollection.and((col, s): col is TCastAll<T> => 
+            (!s.strict || Object.keys(guards).length === Object.keys(col).length)
+            && Object.entries(guards).every(([k, g]) => g.guard((col as Struct)[k], s))
         );
     }
     
@@ -130,12 +144,7 @@ export class Guard<out T = unknown> extends Cast<T> {
             case 'string':
                 return Guard.isString as Guard<TGuardMap<T>>;
             case 'number':
-                if (Number.isInteger(alt))
-                    return Guard.isInteger as Guard<TGuardMap<T>>;
-                else if (Number.isFinite(alt))
-                    return Guard.isFinite as Guard<TGuardMap<T>>;
-                else
-                    return Guard.isNumber as Guard<TGuardMap<T>>;
+                return Guard.isNumber as Guard<TGuardMap<T>>;
             case 'boolean':
                 return Guard.isBoolean as Guard<TGuardMap<T>>;
             case 'bigint':
@@ -153,6 +162,6 @@ export class Guard<out T = unknown> extends Cast<T> {
                     return Guard.isConst(null) as Guard<TGuardMap<T>>;
         }
 
-        return Guard.isCollectionLike(Utils.map(Guard.is)(alt as any)) as Guard<TGuardMap<T>>
+        return Guard.isCollectionLike(Utils.map(a => Guard.is(a))(alt as any)) as Guard<TGuardMap<T>>
     }
 }

@@ -1,17 +1,23 @@
 import { Utils, Maybe, Cast, Guard } from "./internal.js";
 export class Convert extends Cast {
-    constructor(convert) {
-        super(value => Maybe.just(convert(value)));
-        this.convert = convert;
+    constructor(_convert) {
+        super((value, s) => Maybe.just(_convert(value, s)));
+        this._convert = _convert;
+    }
+    convert(value, settings) {
+        return this._convert(value, settings ?? Cast.defaults);
+    }
+    config(config) {
+        return new Convert((value, s) => this._convert(value, { ...s, ...config }));
     }
     static unit(value) {
         return new Convert(_ => value);
     }
     compose(g) {
-        return new Convert(value => g.convert(this.convert(value)));
+        return new Convert((value, s) => g._convert(this._convert(value, s), s));
     }
     map(fun) {
-        return new Convert(value => fun(this.convert(value)));
+        return new Convert((value, s) => fun(this._convert(value, s)));
     }
     /**
      * Converts to a union of the given options, and defaults to the first option.
@@ -57,6 +63,9 @@ export class Convert extends Cast {
     static toCollectionLike(converts) {
         return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).as(converts).elseThrow();
     }
+    static toArrayWhere(cast) {
+        return Cast.asArrayWhere(cast).else([]);
+    }
     /**
      * Creates a `Convert` based on the given sample value, which is also used as the set of default values.
      * @param alt a sample value which also serves as the set of default values
@@ -67,12 +76,7 @@ export class Convert extends Cast {
             case 'string':
                 return Convert.toString(alt);
             case 'number':
-                if (Number.isInteger(alt))
-                    return Convert.toInteger(alt);
-                else if (Number.isFinite(alt))
-                    return Convert.toFinite(alt);
-                else
-                    return Convert.toNumber(alt);
+                return Convert.toNumber(alt);
             case 'boolean':
                 return Convert.toBoolean(alt);
             case 'bigint':
@@ -101,6 +105,7 @@ export class Convert extends Cast {
     toArrayOf(convertItem, alt = []) { return this.compose(Convert.toArrayOf(convertItem, alt)); }
     toStructOf(convertItem, alt = {}) { return this.compose(Convert.toStructOf(convertItem, alt)); }
     toCollectionLike(converts) { return this.compose(Convert.toCollectionLike(converts)); }
+    toArrayWhere(cast) { return this.compose(Convert.toArrayWhere(cast)); }
     to(alt) { return this.compose(Convert.to(alt)); }
 }
 Convert.id = new Convert(value => value);

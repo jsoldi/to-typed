@@ -1,13 +1,18 @@
-export class Maybe {
-    constructor(hasValue, value) {
-        this.hasValue = hasValue;
-        this.value = value;
+class MaybeBase {
+    constructor(data) {
+        this.data = data;
     }
     static just(value) {
-        return new Maybe(true, value);
+        return new MaybeBase({ hasValue: true, value });
     }
     static nothing() {
-        return new Maybe(false, null);
+        return new MaybeBase({ hasValue: false });
+    }
+    get hasValue() {
+        return this.data.hasValue;
+    }
+    get value() {
+        return this.else(() => undefined);
     }
     static all(maybes) {
         const result = (Array.isArray(maybes) ? [] : {});
@@ -16,27 +21,28 @@ export class Maybe {
             if (v.hasValue)
                 result[k] = v.value;
             else
-                return Maybe.nothing();
+                return MaybeBase.nothing();
         }
-        return Maybe.just(result);
+        return MaybeBase.just(result);
     }
-    elseThrow(getError = () => new Error('No value')) {
-        return this.else(() => { throw getError(); });
+    static any(maybes) {
+        return maybes.flatMap(m => m.hasValue ? [m.value] : []);
     }
     read(ifValue, ifNothing) {
-        return this.hasValue ? ifValue(this.value) : ifNothing();
+        return this.data.hasValue ? ifValue(this.data.value) : ifNothing ? ifNothing() : undefined;
     }
     bind(next) {
-        return this.read(next, Maybe.nothing);
+        return this.read(next, MaybeBase.nothing);
     }
     map(next) {
-        return this.bind(value => Maybe.just(next(value)));
+        return this.bind(value => MaybeBase.just(next(value)));
     }
     or(right) {
-        return this.read(t => Maybe.just(t), () => right);
+        return this.read(t => MaybeBase.just(t), () => right);
     }
     else(getAlt) {
         return this.read((t) => t, () => getAlt());
     }
 }
+export const Maybe = MaybeBase;
 //# sourceMappingURL=maybe.js.map
