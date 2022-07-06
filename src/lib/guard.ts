@@ -5,8 +5,8 @@ type TGuardEvery<A extends readonly Guard<unknown>[]> = A extends Array<infer T>
     ((g: T) => void) extends ((g: Guard<infer I>) => void) ? I : unknown : 
 never
 
-abstract class Was<in out T> {
-    protected type: T | undefined
+abstract class Was<in out U> {
+    protected type: U | undefined
     private constructor() { }
 }
 

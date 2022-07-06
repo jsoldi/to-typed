@@ -1,8 +1,8 @@
 import { Cast, Convert, TCastAll, CastSettings } from "./internal.js";
 import { Collection, Nothing, PrimitiveValue, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 declare type TGuardEvery<A extends readonly Guard<unknown>[]> = A extends Array<infer T> ? ((g: T) => void) extends ((g: Guard<infer I>) => void) ? I : unknown : never;
-declare abstract class Was<in out T> {
-    protected type: T | undefined;
+declare abstract class Was<in out U> {
+    protected type: U | undefined;
     private constructor();
 }
 declare type SubtypeOf<T, U> = unknown extends T ? T & U : T extends never ? T & U : T extends null ? T & U : T extends undefined ? T & U : T & U & Was<U>;

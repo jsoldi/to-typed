@@ -1,5 +1,85 @@
 import { Guard } from "../lib/index.js";
-import { testEq } from "./tester.js";
+import { testEq, TypeAssert, TypesAreEqual } from "./tester.js";
+
+function guardsAreOneSided(value: unknown) {
+    if (typeof value === "string" || typeof value === "number") {
+        type ExtendsNumberAndString = TypeAssert<typeof value extends number | string ? true : false>
+
+        if (Guard.isInteger.guard(value)) {
+            type ExtendsNumberAndNotString = TypeAssert<typeof value extends number ? typeof value extends string ? false : true : false>
+
+            if (Guard.isSafeInteger.guard(value)) {
+                type ExtendsNumberAndNotString = TypeAssert<typeof value extends number ? typeof value extends string ? false : true : false>                    
+            } else {
+                type ExtendsNumberAndNotString = TypeAssert<typeof value extends number ? typeof value extends string ? false : true : false>
+            }
+        } else {
+            type ExtendsNumberAndString = TypeAssert<typeof value extends number | string ? true : false>
+        }
+
+        if (typeof value === "string" || Guard.isFinite.guard(value)) {
+            type ExtendsNumberAndString = TypeAssert<typeof value extends number | string ? true : false>
+
+            if (Guard.isInteger.guard(value)) {
+                type ExtendsNumberAndNotString = TypeAssert<typeof value extends number ? typeof value extends string ? false : true : false>
+            } else {
+                type ExtendsNumberAndString = TypeAssert<typeof value extends number | string ? true : false>
+            }
+        } else {
+            type IsNumber = TypeAssert<TypesAreEqual<number, typeof value>>        
+        }
+    } else {
+        type IsUnknown = TypeAssert<TypesAreEqual<unknown, typeof value>>        
+    }
+}
+
+function unknownGuardWorks(unknown: unknown, never: never) {
+    if (Guard.isUnknown.guard(unknown)) {
+        type IsUnknown = TypeAssert<TypesAreEqual<unknown, typeof unknown>>
+    } else {
+        type IsNever = TypeAssert<TypesAreEqual<never, typeof unknown>>
+    }
+
+    if (Guard.isUnknown.guard(never)) {
+        type IsNever = TypeAssert<TypesAreEqual<never, typeof never>>
+    } else {
+        type IsNever = TypeAssert<TypesAreEqual<never, typeof never>>
+    }
+
+    if (typeof unknown === 'string' || Guard.isInteger.guard(unknown)) {
+        const outer = unknown;
+
+        if (Guard.isUnknown.guard(unknown)) {
+            type IsUnchanged = TypeAssert<TypesAreEqual<typeof unknown, typeof outer>>
+        } else {
+            type IsNever = TypeAssert<TypesAreEqual<never, typeof unknown>>
+        }
+    }
+}
+
+function neverGuardWorks(unknown: unknown, never: never) {
+    if (Guard.isNever.guard(unknown)) {
+        type IsNever = TypeAssert<TypesAreEqual<never, typeof unknown>>
+    } else {
+        type IsUnknown = TypeAssert<TypesAreEqual<unknown, typeof unknown>>
+    }
+
+    if (Guard.isNever.guard(never)) {
+        type IsNever = TypeAssert<TypesAreEqual<never, typeof never>>
+    } else {
+        type IsNever = TypeAssert<TypesAreEqual<never, typeof never>>
+    }
+
+    if (typeof unknown === 'string' || Guard.isInteger.guard(unknown)) {
+        const outer = unknown;
+
+        if (Guard.isNever.guard(unknown)) {
+            type IsNever = TypeAssert<TypesAreEqual<never, typeof unknown>>
+        } else {
+            type IsUnchanged = TypeAssert<TypesAreEqual<typeof unknown, typeof outer>>
+        }
+    }
+}
 
 testEq('Guard.every returns true for empty array', Guard.every().guard(null), true)
 testEq('Guard.every returns true for single good', Guard.every(Guard.isString).guard('hey'), true)
