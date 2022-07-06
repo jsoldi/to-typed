@@ -15,6 +15,9 @@ export declare class Cast<out T = unknown> {
     constructor(_cast: (value: unknown, settings: CastSettings) => Maybe<T>);
     static readonly asUnknown: Cast<unknown>;
     static readonly asNever: Cast<never>;
+    private static unwrapArray;
+    private static wrapArray;
+    static lazy<T>(fun: (s: CastSettings) => Cast<T>): Cast<T>;
     cast(value: unknown): Maybe<T>;
     cast(value: unknown, settings: CastSettings): Maybe<T>;
     config(config: Partial<CastSettings>): Cast<T>;
@@ -32,19 +35,24 @@ export declare class Cast<out T = unknown> {
      */
     static some<T extends readonly Cast<unknown>[]>(...options: T): CastSome<T>;
     /**
-     * Produces a cast that applies each cast in the given collection to the input value.
+     * Creates a cast that outputs a collection by applying each cast in the given collection to the input value.
      * @param casts A collection of casts.
-     * @returns A cast that returns a collection of results, or nothing if any cast fails.
+     * @returns A cast that outputs a collection of results, or nothing if any cast fails.
      */
     static all<T extends Collection<Convert>>(casts: T): Convert<TCastAll<T>>;
     static all<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
+    /**
+     * Creates a convert that outputs an array containing the successful results of applying each cast in the given collection to the input value.
+     * @param casts An array of casts.
+     * @returns A convert that outputs an array of successfully results
+     */
     static any<T>(casts: Cast<T>[]): Convert<T[]>;
     if(condition: (input: T) => unknown): Cast<T>;
     and<R>(guard: Guard<R>): Cast<T & R>;
     map<R>(next: (t: T) => R): Cast<R>;
     else<R>(other: R): Convert<T | R>;
     elseThrow(getError?: () => Error): Convert<T>;
-    get elseNothing(): Convert<Maybe<T>>;
+    get toMaybe(): Convert<Maybe<T>>;
     static get asPrimitiveValue(): Cast<PrimitiveValue>;
     static get asString(): Cast<string>;
     static get asNumber(): Cast<number>;

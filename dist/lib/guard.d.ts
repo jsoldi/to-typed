@@ -15,10 +15,12 @@ export declare class Guard<out T = unknown> extends Cast<T> {
     constructor(_guard: (input: unknown, settings: CastSettings) => input is T);
     static readonly isUnknown: Guard<unknown>;
     static readonly isNever: Guard<never>;
+    static lazy<T>(fun: (s: CastSettings) => Guard<T>): Guard<T>;
     guard<U>(input: U): input is T & SubtypeOf<U>;
     guard<U>(input: U, settings: CastSettings): input is T & SubtypeOf<U>;
     config(config: Partial<CastSettings>): Guard<T>;
-    and<R>(right: Guard<R> | ((t: T, s: CastSettings) => t is T & R)): Guard<T & R>;
+    and<R>(right: Guard<R>): Guard<T & R>;
+    and<R>(right: (t: T, s: CastSettings) => t is T & R): Guard<T & R>;
     or<R>(right: Guard<R>): Guard<T | R>;
     or<R>(right: Convert<R>): Convert<T | R>;
     or<R>(right: Cast<R>): Cast<T | R>;

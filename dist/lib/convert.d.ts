@@ -8,6 +8,7 @@ declare type TConvertMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends
 export declare class Convert<out T = unknown> extends Cast<T> {
     private readonly _convert;
     constructor(_convert: (value: unknown, settings: CastSettings) => T);
+    static lazy<T>(fun: (s: CastSettings) => Convert<T>): Convert<T>;
     convert(value: unknown): T;
     convert(value: unknown, settings: CastSettings): T;
     config(config: Partial<CastSettings>): Convert<T>;

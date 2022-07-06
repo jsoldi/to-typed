@@ -23,6 +23,10 @@ export class Guard<out T = unknown> extends Cast<T> {
     public static readonly isUnknown = new Guard<unknown>((val): val is unknown => true);
     public static readonly isNever = new Guard<never>((val): val is never => false);
 
+    public static lazy<T>(fun: (s: CastSettings) => Guard<T>) {
+        return new Guard((val, s): val is T => fun(s)._guard(val, s));
+    }
+
     public guard<U>(input: U): input is T & SubtypeOf<U>
     public guard<U>(input: U, settings: CastSettings): input is T & SubtypeOf<U>
     public guard<U>(input: U, settings?: CastSettings) {
@@ -33,7 +37,9 @@ export class Guard<out T = unknown> extends Cast<T> {
         return new Guard((value, s): value is T => this._guard(value, { ...s, ...config }));
     }
 
-    public and<R>(right: Guard<R> | ((t: T, s: CastSettings) => t is T & R)): Guard<T & R> {
+    public and<R>(right: Guard<R>): Guard<T & R>
+    public and<R>(right: (t: T, s: CastSettings) => t is T & R): Guard<T & R>
+    public and<R>(right: Guard<R> | ((t: T, s: CastSettings) => t is T & R)) {
         return new Guard<T & R>((val, s): val is T & R => this._guard(val, s) && (right instanceof Guard ? right._guard(val, s) : right(val, s)));
     }
 
@@ -129,7 +135,7 @@ export class Guard<out T = unknown> extends Cast<T> {
 
     protected static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>> {
         return Guard.isCollection.and((col, s): col is TCastAll<T> => 
-            (!s.strict || Object.keys(guards).length === Object.keys(col).length)
+            (s.keyGuarding === 'loose' || Object.keys(guards).length === Object.keys(col).length)
             && Object.entries(guards).every(([k, g]) => g.guard((col as Struct)[k], s))
         );
     }

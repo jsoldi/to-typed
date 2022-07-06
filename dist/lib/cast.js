@@ -3,6 +3,29 @@ export class Cast {
     constructor(_cast) {
         this._cast = _cast;
     }
+    static unwrapArray(arr, s) {
+        switch (s.unwrapArray) {
+            case 'single':
+                return arr.length === 1 ? Cast.just(arr[0]) : Cast.nothing();
+            case 'first':
+                return arr.length > 0 ? Cast.just(arr[0]) : Cast.nothing();
+            case 'last':
+                return arr.length > 0 ? Cast.just(arr[arr.length - 1]) : Cast.nothing();
+            case 'never':
+                return Cast.nothing();
+        }
+    }
+    static wrapArray(val, s) {
+        switch (s.wrapArray) {
+            case 'single':
+                return Cast.just([val]);
+            case 'never':
+                return Cast.nothing();
+        }
+    }
+    static lazy(fun) {
+        return new Cast((val, s) => fun(s)._cast(val, s));
+    }
     cast(value, settings) {
         return this._cast(value, settings ?? Cast.defaults);
     }
@@ -49,6 +72,11 @@ export class Cast {
         else
             return new Cast((value, s) => Maybe.all(Utils.map((cast) => cast.cast(value, s))(casts)));
     }
+    /**
+     * Creates a convert that outputs an array containing the successful results of applying each cast in the given collection to the input value.
+     * @param casts An array of casts.
+     * @returns A convert that outputs an array of successfully results
+     */
     static any(casts) {
         return new Convert((value, s) => Maybe.any(casts.map(cast => cast.cast(value, s))));
     }
@@ -67,13 +95,12 @@ export class Cast {
     elseThrow(getError = () => new Error('Cast has no value')) {
         return this.or(new Convert(_ => { throw getError(); }));
     }
-    get elseNothing() {
+    get toMaybe() {
         return this.map(Maybe.just).else(Maybe.nothing());
     }
     static get asPrimitiveValue() {
         return Guard.isPrimitiveValue.or(Guard.isArray
-            .if(a => a.length === 1)
-            .map(a => a[0])
+            .bind(Cast.unwrapArray)
             .compose(Guard.isPrimitiveValue));
     }
     static get asString() {
@@ -93,9 +120,9 @@ export class Cast {
     }
     static get asBoolean() {
         return Guard.isBoolean.or(Cast.asString.bind((v, s) => {
-            if (s.booleans.true.includes(v))
+            if (s.booleanNames.true.includes(v))
                 return Cast.just(true);
-            else if (s.booleans.false.includes(v))
+            else if (s.booleanNames.false.includes(v))
                 return Cast.just(false);
             else
                 return Cast.nothing();
@@ -107,10 +134,10 @@ export class Cast {
             .if(d => !isNaN(d.getTime()));
     }
     static get asArray() {
-        return Guard.isArray.or(Guard.isSomething.map(a => [a]));
+        return Guard.isArray.or(Guard.isSomething.bind(Cast.wrapArray));
     }
     static get asCollection() {
-        return Guard.isCollection.or(Guard.isSomething.map(a => [a]));
+        return Guard.isCollection.or(Guard.isSomething.bind(Cast.wrapArray));
     }
     static asConst(value) {
         return Guard.isConst(value).or(Cast.just(value).asString.bind(str1 => Cast.asString.if(str2 => str1 === str2)).map(_ => value));
@@ -181,13 +208,13 @@ export class Cast {
     as(alt) { return this.compose(Cast.as(alt)); }
 }
 Cast.defaults = {
-    strict: false,
-    booleans: {
+    keyGuarding: 'loose',
+    booleanNames: {
         true: ['true', 'on', '1'],
         false: ['false', 'off', '0']
     },
-    arrayToPrimitive: true,
-    primitiveToArray: true
+    unwrapArray: 'single',
+    wrapArray: 'single'
 };
 Cast.asUnknown = new Cast(value => Maybe.just(value));
 Cast.asNever = new Cast(_ => Maybe.nothing());

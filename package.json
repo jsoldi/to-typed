@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "to-typed",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Type-guards, casts and converts unknowns into typed values",
   "repository": {
     "type": "git",

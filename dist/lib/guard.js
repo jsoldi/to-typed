@@ -4,6 +4,9 @@ export class Guard extends Cast {
         super((val, s) => _guard(val, s) ? Maybe.just(val) : Maybe.nothing());
         this._guard = _guard;
     }
+    static lazy(fun) {
+        return new Guard((val, s) => fun(s)._guard(val, s));
+    }
     guard(input, settings) {
         return this._guard(input, settings ?? Cast.defaults);
     }
@@ -81,7 +84,7 @@ export class Guard extends Cast {
         return Guard.isStruct.and((str, s) => Object.values(str).every(i => guard._guard(i, s)));
     }
     static isCollectionLike(guards) {
-        return Guard.isCollection.and((col, s) => (!s.strict || Object.keys(guards).length === Object.keys(col).length)
+        return Guard.isCollection.and((col, s) => (s.keyGuarding === 'loose' || Object.keys(guards).length === Object.keys(col).length)
             && Object.entries(guards).every(([k, g]) => g.guard(col[k], s)));
     }
     /**

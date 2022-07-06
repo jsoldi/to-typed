@@ -13,6 +13,10 @@ export class Convert<out T = unknown> extends Cast<T> {
         super((value, s) => Maybe.just(_convert(value, s)));
     }
 
+    public static lazy<T>(fun: (s: CastSettings) => Convert<T>): Convert<T> {
+        return new Convert((val, s) => fun(s)._convert(val, s));
+    }
+
     public convert(value: unknown): T
     public convert(value: unknown, settings: CastSettings): T
     public convert(value: unknown, settings?: CastSettings) {

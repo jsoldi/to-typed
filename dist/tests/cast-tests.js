@@ -1,7 +1,7 @@
 import { Cast } from "../lib/index.js";
 import { testEq } from "./tester.js";
 const customBooleans = {
-    booleans: {
+    booleanNames: {
         true: ["yup"],
         false: ["nope"]
     }

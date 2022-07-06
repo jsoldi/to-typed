@@ -4,6 +4,9 @@ export class Convert extends Cast {
         super((value, s) => Maybe.just(_convert(value, s)));
         this._convert = _convert;
     }
+    static lazy(fun) {
+        return new Convert((val, s) => fun(s)._convert(val, s));
+    }
     convert(value, settings) {
         return this._convert(value, settings ?? Cast.defaults);
     }

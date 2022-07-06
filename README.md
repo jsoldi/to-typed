@@ -71,21 +71,20 @@ Convert factory methods start with the `to` prefix, such as `toFinite` or `toStr
 
 ## Remarks
 
-Note that the choice of these 3 classes is not arbitrary. `Guard` and `Convert` are complementary subclasses of `Cast`, in the sense that `Cast` ranges over maybes, which are pairs of booleans and values, while `Guard` and `Convert` range over booleans and values respectively. 
+Note that `Guard` and `Convert` are complementary subclasses of `Cast` in the sense that `Guard` never provides an alternative to the input value, while `Convert` always provides one. The base class `Cast` lies in the middle by including both possibilities.
 
-In practice, this means that `Guard` guarantees its output, if any, to be the same as the input, while `Convert` guarantees to have an output. 
-
-A `Guard` can be turned into a `Cast` by calling some value mapping method:
+A `Guard` can produce a `Cast` by calling some value mapping method:
 
 ```typescript
-const guard = Guard.is({ value: Guard.isUnknown }); 
-const cast = guard.map(obj => obj.value);
+const guard = Guard.is({ value: Guard.isUnknown }); // Guard<{ value: unknown }>
+const cast = guard.map(obj => obj.value).asInteger; // Cast<number>
 ```
 
-And a `Cast` can be turned into a `Convert` by providing a default value:
+And a `Cast` can produce a `Convert` by providing a default value:
 
 ```typescript
-const convert = cast.asInteger.else(0);
+const convert = cast.if(x => x > 0).else(1); // Convert<number>
+console.log(convert.convert({ value: '33.3'})); // 33
 ```
 
 ## Usage
@@ -195,7 +194,7 @@ console.log(converter.convert({
     string: 'hello',
     boolean: 'true',
     trueIfTruthyInput: [],
-    tuple: [ '10', 3.14159, 1, 'ignored' ],
+    tuple: [ '10', 3.14159, 1, 'exclude-me' ],
     arrayOfInts: [ '10', 20, '30', false, true ],
     percentage: [ '0.33333' ],
     enum: 'two',

@@ -1,10 +1,10 @@
 export interface CastSettings {
-    readonly strict: boolean;
-    readonly booleans: {
+    readonly keyGuarding: 'loose' | 'strict';
+    readonly booleanNames: {
         readonly true: string[];
         readonly false: string[];
     };
-    readonly primitiveToArray: boolean;
-    readonly arrayToPrimitive: boolean;
+    readonly unwrapArray: 'never' | 'single' | 'first' | 'last';
+    readonly wrapArray: 'never' | 'single';
 }
 //# sourceMappingURL=cast-settings.d.ts.map

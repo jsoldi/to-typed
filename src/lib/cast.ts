@@ -17,19 +17,45 @@ type TCastMap<T> =
 
 export class Cast<out T = unknown> {
     public static readonly defaults: CastSettings = {
-        strict: false,
-        booleans: {
+        keyGuarding: 'loose',
+        booleanNames: {
             true: ['true', 'on', '1'],
             false: ['false', 'off', '0']            
         },
-        arrayToPrimitive: true,
-        primitiveToArray: true
+        unwrapArray: 'single',
+        wrapArray: 'single'
     }
 
     public constructor(private readonly _cast: (value: unknown, settings: CastSettings) => Maybe<T>) { }
 
     public static readonly asUnknown = new Cast<unknown>(value => Maybe.just(value));
     public static readonly asNever = new Cast<never>(_ => Maybe.nothing());
+
+    private static unwrapArray<T>(arr: T[], s: CastSettings) {
+        switch (s.unwrapArray) {
+            case 'single':
+                return arr.length === 1 ? Cast.just(arr[0]) : Cast.nothing();
+            case 'first':
+                return arr.length > 0 ? Cast.just(arr[0]) : Cast.nothing();
+            case 'last':
+                return arr.length > 0 ? Cast.just(arr[arr.length - 1]) : Cast.nothing();
+            case 'never':
+                return Cast.nothing();
+        }
+    }
+
+    private static wrapArray<T>(val: T, s: CastSettings) {
+        switch (s.wrapArray) {
+            case 'single':
+                return Cast.just([val]);
+            case 'never':
+                return Cast.nothing();
+        }
+    }
+
+    public static lazy<T>(fun: (s: CastSettings) => Cast<T>): Cast<T> {
+        return new Cast((val, s) => fun(s)._cast(val, s));
+    }
 
     public cast(value: unknown): Maybe<T>
     public cast(value: unknown, settings: CastSettings): Maybe<T>
@@ -85,9 +111,9 @@ export class Cast<out T = unknown> {
     }
 
     /**
-     * Produces a cast that applies each cast in the given collection to the input value.
+     * Creates a cast that outputs a collection by applying each cast in the given collection to the input value.
      * @param casts A collection of casts.
-     * @returns A cast that returns a collection of results, or nothing if any cast fails.
+     * @returns A cast that outputs a collection of results, or nothing if any cast fails.
      */
     public static all<T extends Collection<Convert>>(casts: T): Convert<TCastAll<T>>
     public static all<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>
@@ -98,7 +124,12 @@ export class Cast<out T = unknown> {
             return new Cast((value, s) => Maybe.all(Utils.map((cast: Cast) => cast.cast(value, s))(casts))) as Cast<TCastAll<T>>
     }
 
-    public static any<T>(casts: Cast<T>[]): Convert<T[]> {
+    /**
+     * Creates a convert that outputs an array containing the successful results of applying each cast in the given collection to the input value.
+     * @param casts An array of casts.
+     * @returns A convert that outputs an array of successfully results
+     */
+     public static any<T>(casts: Cast<T>[]): Convert<T[]> {
         return new Convert((value, s) => Maybe.any(casts.map(cast => cast.cast(value, s))));
     }
 
@@ -122,15 +153,14 @@ export class Cast<out T = unknown> {
         return this.or(new Convert(_ => { throw getError(); }));
     }
 
-    public get elseNothing(): Convert<Maybe<T>> {
+    public get toMaybe(): Convert<Maybe<T>> {
         return this.map(Maybe.just).else(Maybe.nothing());
     }
 
     public static get asPrimitiveValue(): Cast<PrimitiveValue> {
         return Guard.isPrimitiveValue.or(
             Guard.isArray
-                .if(a => a.length === 1)
-                .map(a => a[0])
+                .bind(Cast.unwrapArray)
                 .compose(Guard.isPrimitiveValue)
         );
     }
@@ -167,9 +197,9 @@ export class Cast<out T = unknown> {
 
     public static get asBoolean(): Cast<boolean> {
         return Guard.isBoolean.or(Cast.asString.bind((v, s) => {
-            if (s.booleans.true.includes(v))
+            if (s.booleanNames.true.includes(v))
                 return Cast.just(true);
-            else if (s.booleans.false.includes(v))
+            else if (s.booleanNames.false.includes(v))
                 return Cast.just(false);
             else
                 return Cast.nothing();
@@ -187,11 +217,11 @@ export class Cast<out T = unknown> {
     }
 
     public static get asArray(): Cast<unknown[]> {
-        return Guard.isArray.or(Guard.isSomething.map(a => [a]));
+        return Guard.isArray.or(Guard.isSomething.bind(Cast.wrapArray));
     }
 
     public static get asCollection(): Cast<Collection> {
-        return Guard.isCollection.or(Guard.isSomething.map(a => [a]));
+        return Guard.isCollection.or(Guard.isSomething.bind(Cast.wrapArray));
     }
 
     public static asConst<T extends Primitive>(value: T): Cast<T> {
