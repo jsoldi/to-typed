@@ -5,8 +5,17 @@ type TGuardEvery<A extends readonly Guard<unknown>[]> = A extends Array<infer T>
     ((g: T) => void) extends ((g: Guard<infer I>) => void) ? I : unknown : 
 never
 
-declare const container: unique symbol
-type SubtypeOf<T> = T & { [container]: T }
+abstract class Was<in out T> {
+    protected type: T | undefined
+    private constructor() { }
+}
+
+type SubtypeOf<T, U> = 
+    unknown extends T ? T & U :
+    T extends never ? T & U :
+    T extends null ? T & U :
+    T extends undefined ? T & U :
+    T & U & Was<U>
 
 // Maps { b: ? => B, c: C } to { b: B, c: C }:
 type TGuardMap<T> = 
@@ -27,8 +36,8 @@ export class Guard<out T = unknown> extends Cast<T> {
         return new Guard((val, s): val is T => fun(s)._guard(val, s));
     }
 
-    public guard<U>(input: U): input is T & SubtypeOf<U>
-    public guard<U>(input: U, settings: CastSettings): input is T & SubtypeOf<U>
+    public guard<U>(input: U): input is SubtypeOf<T, U>
+    public guard<U>(input: U, settings: CastSettings): input is SubtypeOf<T, U>
     public guard<U>(input: U, settings?: CastSettings) {
         return this._guard(input, settings ?? Cast.defaults);
     }

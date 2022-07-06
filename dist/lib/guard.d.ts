@@ -1,10 +1,11 @@
 import { Cast, Convert, TCastAll, CastSettings } from "./internal.js";
 import { Collection, Nothing, PrimitiveValue, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 declare type TGuardEvery<A extends readonly Guard<unknown>[]> = A extends Array<infer T> ? ((g: T) => void) extends ((g: Guard<infer I>) => void) ? I : unknown : never;
-declare const container: unique symbol;
-declare type SubtypeOf<T> = T & {
-    [container]: T;
-};
+declare abstract class Was<in out T> {
+    protected type: T | undefined;
+    private constructor();
+}
+declare type SubtypeOf<T, U> = unknown extends T ? T & U : T extends never ? T & U : T extends null ? T & U : T extends undefined ? T & U : T & U & Was<U>;
 declare type TGuardMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends Guard<infer R> ? R : T extends {
     [k in keyof T]: any;
 } ? {
@@ -16,8 +17,8 @@ export declare class Guard<out T = unknown> extends Cast<T> {
     static readonly isUnknown: Guard<unknown>;
     static readonly isNever: Guard<never>;
     static lazy<T>(fun: (s: CastSettings) => Guard<T>): Guard<T>;
-    guard<U>(input: U): input is T & SubtypeOf<U>;
-    guard<U>(input: U, settings: CastSettings): input is T & SubtypeOf<U>;
+    guard<U>(input: U): input is SubtypeOf<T, U>;
+    guard<U>(input: U, settings: CastSettings): input is SubtypeOf<T, U>;
     config(config: Partial<CastSettings>): Guard<T>;
     and<R>(right: Guard<R>): Guard<T & R>;
     and<R>(right: (t: T, s: CastSettings) => t is T & R): Guard<T & R>;

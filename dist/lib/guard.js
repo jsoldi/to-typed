@@ -1,4 +1,7 @@
 import { Maybe, Cast, Utils } from "./internal.js";
+class Was {
+    constructor() { }
+}
 export class Guard extends Cast {
     constructor(_guard) {
         super((val, s) => _guard(val, s) ? Maybe.just(val) : Maybe.nothing());
