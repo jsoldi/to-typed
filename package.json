@@ -14,9 +14,9 @@
   ],
   "main": "./dist/lib/index.js",
   "scripts": {
-    "test": "tsc --build --clean & tsc --build & node ./dist/tests/all-tests.js",
-    "build": "tsc --build --clean & tsc --build",
-    "demo": "tsc --build --clean & tsc --build & node ./dist/tests/demo.js"
+    "test": "tsc --build --clean & tsc & node ./dist/tests/all-tests.js",
+    "build": "tsc --build --clean & tsc",
+    "demo": "tsc --build --clean & tsc & node ./dist/tests/demo.js"
   },
   "author": "Juan Soldi",
   "license": "MIT",
