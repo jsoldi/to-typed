@@ -122,10 +122,14 @@ export class Cast<out T = unknown> {
     public static all<T extends Collection<Convert>>(casts: T): Convert<TCastAll<T>>
     public static all<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>
     public static all<T extends Collection<Cast>>(casts: T): Convert<TCastAll<T>> | Cast<TCastAll<T>> {
-        if (Guard.isCollectionOf(Guard.isInstanceOf(Convert)).guard(casts))
-            return new Convert((value: unknown, s) => Utils.map((conv: Convert) => conv.convert(value, s))(casts)) as Cast<TCastAll<T>>
-        else 
-            return new Cast((value, s) => Maybe.all(Utils.map((cast: Cast) => cast.cast(value, s))(casts))) as Cast<TCastAll<T>>
+        if (Guard.isCollectionOf(Guard.isInstanceOf(Convert)).guard(casts)) {
+            const map = Utils.mapLazy<Convert>(casts);
+            return new Convert((value: unknown, s) => map((conv: Convert) => conv.convert(value, s))) as Cast<TCastAll<T>>
+        }
+        else {
+            const map = Utils.mapLazy<Cast>(casts);
+            return new Cast((value, s) => Maybe.all(map((cast: Cast) => cast.cast(value, s)))) as Cast<TCastAll<T>>
+        }
     }
 
     /**
@@ -240,7 +244,7 @@ export class Cast<out T = unknown> {
     }
 
     public static asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>> {
-        return Cast.asCollection.bind(a => Cast.all(Utils.map(i => Cast.just(i).compose(cast))(a)));
+        return Cast.asCollection.bind(a => Cast.all(Utils.mapEager(a, i => Cast.just(i).compose(cast))));
     }
 
     public static asArrayOf<T>(cast: Cast<T>) {
@@ -252,8 +256,10 @@ export class Cast<out T = unknown> {
     }
 
     protected static asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>> {
+        const map = Utils.mapLazy<Cast>(casts);
+
         return Cast.asCollection.bind(val => 
-            Cast.all(Utils.map((cast: Cast, k) => Cast.just((val as Struct)[k]).compose(cast))(casts))
+            Cast.all(map((cast: Cast, k) => Cast.just((val as Struct)[k]).compose(cast)))
         ) as Cast<TCastAll<T>>
     }
     
@@ -289,7 +295,7 @@ export class Cast<out T = unknown> {
                     return Guard.isConst(null) as Guard<TCastMap<T>>;
         }
 
-        return Cast.asCollectionLike(Utils.map(Cast.as)(alt as any)) as Cast<TCastMap<T>>
+        return Cast.asCollectionLike(Utils.mapEager(alt as any, Cast.as)) as Cast<TCastMap<T>>
     }   
 
     public get asPrimitiveValue() { return this.compose(Cast.asPrimitiveValue) }

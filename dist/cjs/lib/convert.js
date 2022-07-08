@@ -99,7 +99,7 @@ class Convert extends internal_js_1.Cast {
                 else if (alt === null)
                     return Convert.unit(null);
         }
-        return Convert.toCollectionLike(internal_js_1.Utils.map(Convert.to)(alt));
+        return Convert.toCollectionLike(internal_js_1.Utils.mapEager(alt, Convert.to));
     }
     toEnum(...options) { return this.compose(Convert.toEnum(...options)); }
     toString(alt = '') { return this.compose(Convert.toString(alt)); }

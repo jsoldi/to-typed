@@ -102,9 +102,9 @@ console.log(converter.convert({
     string: 'hello',
     boolean: 'true',
     trueIfTruthyInput: [],
-    tuple: [ '10', 3.14159, 1, 'exclude-me' ],
-    arrayOfInts: [ '10', 20, '30', false, true ],
-    percentage: [ '0.33333' ],
+    tuple: ['10', 3.14159, 1, 'exclude-me'],
+    arrayOfInts: ['10', 20, '30', false, true],
+    percentage: ['0.33333'],
     enum: 'two',
     object: {
         originalAndConverted: 12345,

@@ -130,7 +130,7 @@ export class Convert<out T = unknown> extends Cast<T> {
                     return Convert.unit(null) as Convert<TConvertMap<T>>
         }
 
-        return Convert.toCollectionLike(Utils.map(Convert.to)(alt as any)) as Convert<TConvertMap<T>>
+        return Convert.toCollectionLike(Utils.mapEager(alt as any, Convert.to)) as Convert<TConvertMap<T>>
     }
 
     public toEnum<R extends readonly [Primitive, ...Primitive[]]>(...options: R) { return this.compose(Convert.toEnum(...options)) }

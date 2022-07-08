@@ -73,10 +73,14 @@ class Cast {
         return options.reduce((acc, option) => acc.or(option), internal_js_1.Guard.isNever);
     }
     static all(casts) {
-        if (internal_js_1.Guard.isCollectionOf(internal_js_1.Guard.isInstanceOf(internal_js_1.Convert)).guard(casts))
-            return new internal_js_1.Convert((value, s) => internal_js_1.Utils.map((conv) => conv.convert(value, s))(casts));
-        else
-            return new Cast((value, s) => internal_js_1.Maybe.all(internal_js_1.Utils.map((cast) => cast.cast(value, s))(casts)));
+        if (internal_js_1.Guard.isCollectionOf(internal_js_1.Guard.isInstanceOf(internal_js_1.Convert)).guard(casts)) {
+            const map = internal_js_1.Utils.mapLazy(casts);
+            return new internal_js_1.Convert((value, s) => map((conv) => conv.convert(value, s)));
+        }
+        else {
+            const map = internal_js_1.Utils.mapLazy(casts);
+            return new Cast((value, s) => internal_js_1.Maybe.all(map((cast) => cast.cast(value, s))));
+        }
     }
     /**
      * Creates a convert that outputs an array containing the successful results of applying each cast in the given collection to the input value.
@@ -152,7 +156,7 @@ class Cast {
         return Cast.some(...options.map(Cast.asConst));
     }
     static asCollectionOf(cast) {
-        return Cast.asCollection.bind(a => Cast.all(internal_js_1.Utils.map(i => Cast.just(i).compose(cast))(a)));
+        return Cast.asCollection.bind(a => Cast.all(internal_js_1.Utils.mapEager(a, i => Cast.just(i).compose(cast))));
     }
     static asArrayOf(cast) {
         return Cast.asArray.compose(Cast.asCollectionOf(cast));
@@ -161,7 +165,8 @@ class Cast {
         return internal_js_1.Guard.isStruct.compose(Cast.asCollectionOf(cast));
     }
     static asCollectionLike(casts) {
-        return Cast.asCollection.bind(val => Cast.all(internal_js_1.Utils.map((cast, k) => Cast.just(val[k]).compose(cast))(casts)));
+        const map = internal_js_1.Utils.mapLazy(casts);
+        return Cast.asCollection.bind(val => Cast.all(map((cast, k) => Cast.just(val[k]).compose(cast))));
     }
     static asArrayWhere(cast) {
         return Cast.asArray.bind(val => Cast.any(val.map(v => Cast.just(v).compose(cast))));
@@ -193,7 +198,7 @@ class Cast {
                 else if (alt === null)
                     return internal_js_1.Guard.isConst(null);
         }
-        return Cast.asCollectionLike(internal_js_1.Utils.map(Cast.as)(alt));
+        return Cast.asCollectionLike(internal_js_1.Utils.mapEager(alt, Cast.as));
     }
     get asPrimitiveValue() { return this.compose(Cast.asPrimitiveValue); }
     get asString() { return this.compose(Cast.asString); }

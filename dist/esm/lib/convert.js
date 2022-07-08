@@ -96,7 +96,7 @@ export class Convert extends Cast {
                 else if (alt === null)
                     return Convert.unit(null);
         }
-        return Convert.toCollectionLike(Utils.map(Convert.to)(alt));
+        return Convert.toCollectionLike(Utils.mapEager(alt, Convert.to));
     }
     toEnum(...options) { return this.compose(Convert.toEnum(...options)); }
     toString(alt = '') { return this.compose(Convert.toString(alt)); }

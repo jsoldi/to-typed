@@ -87,8 +87,10 @@ export class Guard extends Cast {
         return Guard.isStruct.and((str, s) => Object.values(str).every(i => guard._guard(i, s)));
     }
     static isCollectionLike(guards) {
-        return Guard.isCollection.and((col, s) => (s.keyGuarding === 'loose' || Object.keys(guards).length === Object.keys(col).length)
-            && Object.entries(guards).every(([k, g]) => g.guard(col[k], s)));
+        const gKeys = Object.keys(guards);
+        const gEntries = Object.entries(guards);
+        return Guard.isCollection.and((col, s) => (s.keyGuarding === 'loose' || gKeys.length === Object.keys(col).length)
+            && gEntries.every(([k, g]) => g.guard(col[k], s)));
     }
     /**
      * Creates a `Guard` based on a sample value.
@@ -117,7 +119,7 @@ export class Guard extends Cast {
                 else if (alt === null)
                     return Guard.isConst(null);
         }
-        return Guard.isCollectionLike(Utils.map(a => Guard.is(a))(alt));
+        return Guard.isCollectionLike(Utils.mapEager(alt, a => Guard.is(a)));
     }
 }
 Guard.isUnknown = new Guard((val) => true);

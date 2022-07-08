@@ -143,9 +143,12 @@ export class Guard<out T = unknown> extends Cast<T> {
     }
 
     protected static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>> {
+        const gKeys = Object.keys(guards);
+        const gEntries = Object.entries(guards);
+
         return Guard.isCollection.and((col, s): col is TCastAll<T> => 
-            (s.keyGuarding === 'loose' || Object.keys(guards).length === Object.keys(col).length)
-            && Object.entries(guards).every(([k, g]) => g.guard((col as Struct)[k], s))
+            (s.keyGuarding === 'loose' || gKeys.length === Object.keys(col).length)
+            && gEntries.every(([k, g]) => g.guard((col as Struct)[k], s))
         );
     }
     
@@ -177,6 +180,6 @@ export class Guard<out T = unknown> extends Cast<T> {
                     return Guard.isConst(null) as Guard<TGuardMap<T>>;
         }
 
-        return Guard.isCollectionLike(Utils.map(a => Guard.is(a))(alt as any)) as Guard<TGuardMap<T>>
+        return Guard.isCollectionLike(Utils.mapEager(alt as any, a => Guard.is(a))) as Guard<TGuardMap<T>>
     }
 }

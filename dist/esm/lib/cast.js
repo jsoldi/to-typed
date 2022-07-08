@@ -70,10 +70,14 @@ export class Cast {
         return options.reduce((acc, option) => acc.or(option), Guard.isNever);
     }
     static all(casts) {
-        if (Guard.isCollectionOf(Guard.isInstanceOf(Convert)).guard(casts))
-            return new Convert((value, s) => Utils.map((conv) => conv.convert(value, s))(casts));
-        else
-            return new Cast((value, s) => Maybe.all(Utils.map((cast) => cast.cast(value, s))(casts)));
+        if (Guard.isCollectionOf(Guard.isInstanceOf(Convert)).guard(casts)) {
+            const map = Utils.mapLazy(casts);
+            return new Convert((value, s) => map((conv) => conv.convert(value, s)));
+        }
+        else {
+            const map = Utils.mapLazy(casts);
+            return new Cast((value, s) => Maybe.all(map((cast) => cast.cast(value, s))));
+        }
     }
     /**
      * Creates a convert that outputs an array containing the successful results of applying each cast in the given collection to the input value.
@@ -149,7 +153,7 @@ export class Cast {
         return Cast.some(...options.map(Cast.asConst));
     }
     static asCollectionOf(cast) {
-        return Cast.asCollection.bind(a => Cast.all(Utils.map(i => Cast.just(i).compose(cast))(a)));
+        return Cast.asCollection.bind(a => Cast.all(Utils.mapEager(a, i => Cast.just(i).compose(cast))));
     }
     static asArrayOf(cast) {
         return Cast.asArray.compose(Cast.asCollectionOf(cast));
@@ -158,7 +162,8 @@ export class Cast {
         return Guard.isStruct.compose(Cast.asCollectionOf(cast));
     }
     static asCollectionLike(casts) {
-        return Cast.asCollection.bind(val => Cast.all(Utils.map((cast, k) => Cast.just(val[k]).compose(cast))(casts)));
+        const map = Utils.mapLazy(casts);
+        return Cast.asCollection.bind(val => Cast.all(map((cast, k) => Cast.just(val[k]).compose(cast))));
     }
     static asArrayWhere(cast) {
         return Cast.asArray.bind(val => Cast.any(val.map(v => Cast.just(v).compose(cast))));
@@ -190,7 +195,7 @@ export class Cast {
                 else if (alt === null)
                     return Guard.isConst(null);
         }
-        return Cast.asCollectionLike(Utils.map(Cast.as)(alt));
+        return Cast.asCollectionLike(Utils.mapEager(alt, Cast.as));
     }
     get asPrimitiveValue() { return this.compose(Cast.asPrimitiveValue); }
     get asString() { return this.compose(Cast.asString); }

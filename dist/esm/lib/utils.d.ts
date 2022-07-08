@@ -1,5 +1,10 @@
 import { Collection } from "./types";
 export declare class Utils {
-    static map<S, T>(map: (value: S, key: string) => T): <C extends Collection<S>>(container: C) => { [I in keyof C]: T; };
+    static mapLazy<S, C extends Collection<S> = Collection<S>>(container: C): <T>(map: (value: S, key: string) => T) => {
+        [I in keyof C]: T;
+    };
+    static mapEager<S, T, C extends Collection<S>>(container: C, map: (value: S, key: string) => T): {
+        [I in keyof C]: T;
+    };
 }
 //# sourceMappingURL=utils.d.ts.map

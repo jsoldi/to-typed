@@ -1,10 +1,21 @@
 export class Utils {
-    static map(map) {
-        return (container) => {
-            return Array.isArray(container) ?
-                container.map((v, i) => map(v, i.toString())) :
-                Object.fromEntries(Object.entries(container).map(([key, value]) => [key, map(value, key)]));
-        };
+    static mapLazy(container) {
+        if (Array.isArray(container)) {
+            return (map) => container.map((v, i) => map(v, i.toString()));
+        }
+        else {
+            const entries = Object.entries(container);
+            return (map) => Object.fromEntries(entries.map(([key, value]) => [key, map(value, key)]));
+        }
+    }
+    static mapEager(container, map) {
+        if (Array.isArray(container)) {
+            return container.map((v, i) => map(v, i.toString()));
+        }
+        else {
+            const entries = Object.entries(container);
+            return Object.fromEntries(entries.map(([key, value]) => [key, map(value, key)]));
+        }
     }
 }
 //# sourceMappingURL=utils.js.map

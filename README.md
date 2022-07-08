@@ -87,7 +87,7 @@ const convert = cast.if(x => x > 0).else(1); // Convert<number>
 console.log(convert.convert({ value: '33.3'})); // 33
 ```
 
-## Usage
+## Quick Start
  
 ```typescript
 import { Guard, Cast, Convert } from "to-typed"
@@ -194,9 +194,9 @@ console.log(converter.convert({
     string: 'hello',
     boolean: 'true',
     trueIfTruthyInput: [],
-    tuple: [ '10', 3.14159, 1, 'exclude-me' ],
-    arrayOfInts: [ '10', 20, '30', false, true ],
-    percentage: [ '0.33333' ],
+    tuple: ['10', 3.14159, 1, 'exclude-me'],
+    arrayOfInts: ['10', 20, '30', false, true],
+    percentage: ['0.33333'],
     enum: 'two',
     object: {
         originalAndConverted: 12345,
