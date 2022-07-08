@@ -110,7 +110,7 @@ export class Cast {
         return Guard.isString.or(Cast.asPrimitiveValue.map(s => s.toString()));
     }
     static get asNumber() {
-        return Cast.asPrimitiveValue.compose(Cast.some(Guard.isNumber, Guard.isString.map(parseFloat), Guard.isBigInt.if(n => Number.MIN_SAFE_INTEGER <= n && n <= Number.MAX_SAFE_INTEGER).map(n => Number(n)), Guard.isBoolean.map(b => b ? 1 : 0)));
+        return Cast.asPrimitiveValue.compose(Cast.some(Guard.isNumber, Guard.isConst('NaN').map(() => NaN), Guard.isString.map(parseFloat).if(n => !isNaN(n)), Guard.isBigInt.if(n => Number.MIN_SAFE_INTEGER <= n && n <= Number.MAX_SAFE_INTEGER).map(n => Number(n)), Guard.isBoolean.map(b => b ? 1 : 0)));
     }
     static get asFinite() {
         return Cast.asNumber.and(Guard.isFinite);

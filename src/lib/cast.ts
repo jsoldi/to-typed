@@ -176,7 +176,8 @@ export class Cast<out T = unknown> {
     public static get asNumber(): Cast<number> {
         return Cast.asPrimitiveValue.compose(Cast.some(
             Guard.isNumber,
-            Guard.isString.map(parseFloat),
+            Guard.isConst('NaN').map(() => NaN),
+            Guard.isString.map(parseFloat).if(n => !isNaN(n)),
             Guard.isBigInt.if(n => Number.MIN_SAFE_INTEGER <= n && n <= Number.MAX_SAFE_INTEGER).map(n => Number(n)),
             Guard.isBoolean.map(b => b ? 1 : 0),
         ));

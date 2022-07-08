@@ -46,6 +46,9 @@ class MaybeBase {
     else(getAlt) {
         return this.read((t) => t, () => getAlt());
     }
+    elseThrow(getError) {
+        return this.read((t) => t, () => { throw getError(); });
+    }
 }
 exports.Maybe = MaybeBase;
 //# sourceMappingURL=maybe.js.map

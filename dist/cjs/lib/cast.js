@@ -113,7 +113,7 @@ class Cast {
         return internal_js_1.Guard.isString.or(Cast.asPrimitiveValue.map(s => s.toString()));
     }
     static get asNumber() {
-        return Cast.asPrimitiveValue.compose(Cast.some(internal_js_1.Guard.isNumber, internal_js_1.Guard.isString.map(parseFloat), internal_js_1.Guard.isBigInt.if(n => Number.MIN_SAFE_INTEGER <= n && n <= Number.MAX_SAFE_INTEGER).map(n => Number(n)), internal_js_1.Guard.isBoolean.map(b => b ? 1 : 0)));
+        return Cast.asPrimitiveValue.compose(Cast.some(internal_js_1.Guard.isNumber, internal_js_1.Guard.isConst('NaN').map(() => NaN), internal_js_1.Guard.isString.map(parseFloat).if(n => !isNaN(n)), internal_js_1.Guard.isBigInt.if(n => Number.MIN_SAFE_INTEGER <= n && n <= Number.MAX_SAFE_INTEGER).map(n => Number(n)), internal_js_1.Guard.isBoolean.map(b => b ? 1 : 0)));
     }
     static get asFinite() {
         return Cast.asNumber.and(internal_js_1.Guard.isFinite);

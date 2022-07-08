@@ -27,6 +27,7 @@ declare class MaybeBase<out T> {
     map<R>(next: (value: T) => R): Maybe<R>;
     or<R>(right: Maybe<R>): Maybe<T | R>;
     else<R>(getAlt: () => R): T | R;
+    elseThrow(getError: () => Error): T;
 }
 export declare const Maybe: typeof MaybeBase;
 export {};

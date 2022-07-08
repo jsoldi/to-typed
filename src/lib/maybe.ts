@@ -70,6 +70,10 @@ class MaybeBase<out T> {
     public else<R>(getAlt: () => R): T | R {
         return this.read((t: T | R) => t, () => getAlt());
     }
+
+    public elseThrow(getError: () => Error): T {
+        return this.read((t: T) => t, () => { throw getError(); });
+    }
 }
 
 export const Maybe = MaybeBase;
