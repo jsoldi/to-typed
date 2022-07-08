@@ -16,7 +16,7 @@ type TCastMap<T> =
     unknown; 
 
 export class Cast<out T = unknown> {
-    public static readonly defaults: CastSettings = {
+    protected static readonly defaults: CastSettings = {
         keyGuarding: 'loose',
         booleanNames: {
             true: ['true', 'on', '1'],
@@ -27,6 +27,10 @@ export class Cast<out T = unknown> {
     }
 
     public constructor(private readonly _cast: (value: unknown, settings: CastSettings) => Maybe<T>) { }
+    
+    private static get build() {
+        return typeof __filename === 'undefined' ? 'cjs' : 'esm';
+    }
 
     public static readonly asUnknown = new Cast<unknown>(value => Maybe.just(value));
     public static readonly asNever = new Cast<never>(_ => Maybe.nothing());
