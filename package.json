@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "to-typed",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "Type-guards, casts and converts unknowns into typed values",
   "repository": {
     "type": "git",
@@ -12,11 +12,11 @@
     "type-cast",
     "type-convert"
   ],
-  "main": "./dist/cjs/lib/index.js",
-  "module": "./dist/esm/lib/index.js",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
   "exports": {
-    "import": "./dist/esm/lib/index.js",
-    "require": "./dist/cjs/lib/index.js"
+    "import": "./dist/esm/index.js",
+    "require": "./dist/cjs/index.js"
   },
   "files": [
     "dist"
