@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "to-typed",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Type-guards, casts and converts unknowns into typed values",
   "repository": {
     "type": "git",
@@ -26,14 +26,16 @@
     "build:esm": "tsc --outDir ./dist/esm --module es2020",
     "build:cjs": "tsc --outDir ./dist/cjs --module commonjs && echo { \"type\": \"commonjs\" } > ./dist/cjs/package.json",
     "build": "npm run build:clear && npm run build:esm && npm run build:cjs",
-    "test:run": "node ./dist/esm/tests/all-tests.js",
+    "test:run": "ts-node --esm ./tests/all-tests.ts",
     "test": "npm run build && npm run test:run",
-    "demo:run": "node ./dist/esm/tests/demo.js",
+    "demo:run": "ts-node --esm ./tests/demo.ts",
     "demo": "npm run build && npm run demo:run"
   },
   "author": "Juan Soldi",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^17.0.35"
+    "@types/node": "~17.0.35",
+    "ts-node": "~10.8.2",
+    "typescript": "~4.7.2"
   }
 }
