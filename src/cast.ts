@@ -29,7 +29,7 @@ export class Cast<out T = unknown> {
     public constructor(private readonly _cast: (value: unknown, settings: CastSettings) => Maybe<T>) { }
     
     private static get build() {
-        return typeof __filename === 'undefined' ? 'cjs' : 'esm';
+        return typeof __filename === 'undefined' ? 'esm' : 'cjs';
     }
 
     public static readonly asUnknown = new Cast<unknown>(value => Maybe.just(value));
