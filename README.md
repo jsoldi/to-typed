@@ -71,7 +71,7 @@ Convert factory methods start with the `to` prefix, such as `toFinite` or `toStr
 
 ## Remarks
 
-Note that `Guard` and `Convert` are complementary subclasses of `Cast` in the sense that `Guard` never provides an alternative to the input value, while `Convert` always provides one. The base class `Cast` lies in the middle by including both possibilities.
+Note that `Guard` and `Convert` are complementary subclasses of `Cast` in the sense that `Guard` cannot provide an alternative to the input value, while `Convert` must provide one. The base class `Cast` lies in the middle by including both possibilities.
 
 A `Guard` can produce a `Cast` by calling some value mapping method:
 

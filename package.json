@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "to-typed",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Type-guards, casts and converts unknowns into typed values",
   "repository": {
     "type": "git",
@@ -18,6 +18,9 @@
     "import": "./dist/esm/lib/index.js",
     "require": "./dist/cjs/lib/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build:clear": "node build-utils.js rf ./dist",
     "build:esm": "tsc --outDir ./dist/esm --module es2020",

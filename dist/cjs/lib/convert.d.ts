@@ -13,7 +13,7 @@ export declare class Convert<out T = unknown> extends Cast<T> {
     convert(value: unknown, settings: CastSettings): T;
     config(config: Partial<CastSettings>): Convert<T>;
     static readonly id: Convert<unknown>;
-    static unit<T>(value: T): Convert<T>;
+    static toConst<T>(value: T): Convert<T>;
     compose<R>(g: Convert<R>): Convert<R>;
     map<R>(fun: (value: T) => R): Convert<R>;
     /**

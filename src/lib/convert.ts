@@ -29,7 +29,7 @@ export class Convert<out T = unknown> extends Cast<T> {
 
     public static readonly id = new Convert<unknown>(value => value);
 
-    public static unit<T>(value: T): Convert<T> {
+    public static toConst<T>(value: T): Convert<T> {
         return new Convert(_ => value);
     }
 
@@ -122,12 +122,12 @@ export class Convert<out T = unknown> extends Cast<T> {
             case 'function':
                 return Guard.isFunction.else(alt) as Convert<TConvertMap<T>>
             case 'undefined':
-                return Convert.unit(undefined) as Convert<TConvertMap<T>>
+                return Convert.toConst(undefined) as Convert<TConvertMap<T>>
             case 'object': 
                 if (alt instanceof Convert)  
                     return alt;
                 else if (alt === null)
-                    return Convert.unit(null) as Convert<TConvertMap<T>>
+                    return Convert.toConst(null) as Convert<TConvertMap<T>>
         }
 
         return Convert.toCollectionLike(Utils.mapEager(alt as any, Convert.to)) as Convert<TConvertMap<T>>

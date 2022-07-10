@@ -16,7 +16,7 @@ class Convert extends internal_js_1.Cast {
     config(config) {
         return new Convert((value, s) => this._convert(value, { ...s, ...config }));
     }
-    static unit(value) {
+    static toConst(value) {
         return new Convert(_ => value);
     }
     compose(g) {
@@ -92,12 +92,12 @@ class Convert extends internal_js_1.Cast {
             case 'function':
                 return internal_js_1.Guard.isFunction.else(alt);
             case 'undefined':
-                return Convert.unit(undefined);
+                return Convert.toConst(undefined);
             case 'object':
                 if (alt instanceof Convert)
                     return alt;
                 else if (alt === null)
-                    return Convert.unit(null);
+                    return Convert.toConst(null);
         }
         return Convert.toCollectionLike(internal_js_1.Utils.mapEager(alt, Convert.to));
     }
