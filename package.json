@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "to-typed",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "description": "Type-guards, casts and converts unknowns into typed values",
   "repository": {
     "type": "git",
@@ -16,7 +16,7 @@
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
   "typesVersions": {
-    "<4.7": { "dist/types/*": ["dist/types-4.5/*"] }
+    "<4.7": { "dist/types/*": ["dist/types-4.2/*"] }
   },
   "exports": {
     "types": "./dist/types/index.d.ts",
