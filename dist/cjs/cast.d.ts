@@ -4,7 +4,7 @@ declare type CastSome<T extends readonly Cast<unknown>[]> = T extends Guard<any>
 export declare type TCastAll<T extends Collection<Cast>> = {
     [I in keyof T]: T[I] extends Cast<infer V> ? V : never;
 };
-declare type TCastMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends Cast<infer R> ? R : T extends {
+export declare type TCastMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends Cast<infer R> ? R : T extends {
     [k in keyof T]: any;
 } ? {
     [k in keyof T]: TCastMap<T[k]>;
@@ -87,7 +87,7 @@ export declare class Cast<out T = unknown> {
     get asDate(): Cast<Date>;
     get asArray(): Cast<unknown[]>;
     asConst<T extends PrimitiveValue>(value: T): Cast<T>;
-    asEnum<T extends readonly Primitive[]>(...options: T): Cast<[...T][number]>;
+    asEnum<T extends readonly Primitive[]>(...options: T): Cast<T[number]>;
     asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>>;
     asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     asStructOf<T>(cast: Cast<T>): Cast<Struct<T>>;

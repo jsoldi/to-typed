@@ -4,7 +4,7 @@ export class Cast {
         this._cast = _cast;
     }
     static get build() {
-        return typeof __filename === 'undefined' ? 'cjs' : 'esm';
+        return typeof __filename === 'undefined' ? 'esm' : 'cjs';
     }
     static unwrapArray(arr, s) {
         switch (s.unwrapArray) {

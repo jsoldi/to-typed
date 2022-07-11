@@ -9,7 +9,7 @@ type CastSome<T extends readonly Cast<unknown>[]> =
 export type TCastAll<T extends Collection<Cast>> = { [I in keyof T]: T[I] extends Cast<infer V> ? V : never }
 
 // Maps { b: ? => B, c: C } to { b: B, c: C }:
-type TCastMap<T> = 
+export type TCastMap<T> = 
     T extends SimpleType ? SimpleTypeOf<T> :
     T extends Cast<infer R> ? R :
     T extends { [k in keyof T]: any } ? { [k in keyof T]: TCastMap<T[k]> } :
@@ -307,12 +307,12 @@ export class Cast<out T = unknown> {
     public get asBoolean() { return this.compose(Cast.asBoolean) }
     public get asDate() { return this.compose(Cast.asDate) }
     public get asArray() { return this.compose(Cast.asArray) }
-    public asConst<T extends PrimitiveValue>(value: T) { return this.compose(Cast.asConst(value)) }
-    public asEnum<T extends readonly Primitive[]>(...options: T) { return this.compose(Cast.asEnum(...options)) }
-    public asCollectionOf<T>(cast: Cast<T>) { return this.compose(Cast.asCollectionOf(cast)) }
-    public asArrayOf<T>(cast: Cast<T>) { return this.compose(Cast.asArrayOf(cast)) }
-    public asStructOf<T>(cast: Cast<T>) { return this.compose(Cast.asStructOf(cast)) }
-    protected asCollectionLike<T extends Collection<Cast>>(casts: T) { return this.compose(Cast.asCollectionLike(casts)) }    
-    public asArrayWhere<T>(cast: Cast<T>) { return this.compose(Cast.asArrayWhere(cast)) }
-    public as<T>(alt: T) { return this.compose(Cast.as(alt)) }
+    public asConst<T extends PrimitiveValue>(value: T): Cast<T> { return this.compose(Cast.asConst(value)) }
+    public asEnum<T extends readonly Primitive[]>(...options: T): Cast<T[number]> { return this.compose(Cast.asEnum(...options)) }
+    public asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>> { return this.compose(Cast.asCollectionOf(cast)) }
+    public asArrayOf<T>(cast: Cast<T>): Cast<T[]> { return this.compose(Cast.asArrayOf(cast)) }
+    public asStructOf<T>(cast: Cast<T>): Cast<Struct<T>> { return this.compose(Cast.asStructOf(cast)) }
+    protected asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>> { return this.compose(Cast.asCollectionLike(casts)) }    
+    public asArrayWhere<T>(cast: Cast<T>): Cast<T[]> { return this.compose(Cast.asArrayWhere(cast)) }
+    public as<T>(alt: T): Cast<TCastMap<T>> { return this.compose(Cast.as(alt)) }
 }

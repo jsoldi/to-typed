@@ -1,4 +1,4 @@
-import { Utils, Maybe, Cast, Guard, CastSettings } from "./internal.js";
+import { Utils, Maybe, Cast, Guard, CastSettings, TCastMap } from "./internal.js";
 import { Collection, Primitive, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 
 // Maps { b: ? => B, c: C } to { b: B, c: C }:
@@ -94,11 +94,11 @@ export class Convert<out T = unknown> extends Cast<T> {
         return Cast.asStructOf(convertItem).else(alt);
     }
 
-    protected static toCollectionLike<T extends Collection<Convert>>(converts: T) {
+    protected static toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastMap<T>> {
         return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).as(converts).elseThrow();
     }
 
-    public static toArrayWhere<T>(cast: Cast<T>) {
+    public static toArrayWhere<T>(cast: Cast<T>): Convert<T[]> {
         return Cast.asArrayWhere(cast).else([] as T[]);
     }
 
@@ -133,16 +133,16 @@ export class Convert<out T = unknown> extends Cast<T> {
         return Convert.toCollectionLike(Utils.mapEager(alt as any, Convert.to)) as Convert<TConvertMap<T>>
     }
 
-    public toEnum<R extends readonly [Primitive, ...Primitive[]]>(...options: R) { return this.compose(Convert.toEnum(...options)) }
+    public toEnum<R extends readonly [Primitive, ...Primitive[]]>(...options: R): Convert<R[number]> { return this.compose(Convert.toEnum(...options)) }
     public toString(alt: string = '') { return this.compose(Convert.toString(alt)) }
     public toNumber(alt: number = 0) { return this.compose(Convert.toNumber(alt)) }
     public toBoolean(alt: boolean = false) { return this.compose(Convert.toBoolean(alt)) }
     public toBigInt(alt: bigint = BigInt(0)) { return this.compose(Convert.toBigInt(alt)) }
     public toDate(alt: Date = new Date(0)) { return this.compose(Convert.toDate(alt)) }
-    public toArray<T>(convertItem: Convert<T>, alt: T[] = []) { return this.compose(Convert.toArrayOf(convertItem, alt)) }
-    public toArrayOf<T>(convertItem: Convert<T>, alt: T[] = []) { return this.compose(Convert.toArrayOf(convertItem, alt)) }
-    public toStructOf<T>(convertItem: Convert<T>, alt: Struct<T> = {}) { return this.compose(Convert.toStructOf(convertItem, alt)) }
-    protected toCollectionLike<T extends Collection<Convert>>(converts: T) { return this.compose(Convert.toCollectionLike(converts)) }
-    public toArrayWhere<T>(cast: Cast<T>) { return this.compose(Convert.toArrayWhere(cast)) }
-    public to<T>(alt: T) { return this.compose(Convert.to(alt)) }
+    public toArray<T>(convertItem: Convert<T>, alt: T[] = []): Convert<T[]> { return this.compose(Convert.toArrayOf(convertItem, alt)) }
+    public toArrayOf<T>(convertItem: Convert<T>, alt: T[] = []): Convert<T[]> { return this.compose(Convert.toArrayOf(convertItem, alt)) }
+    public toStructOf<T>(convertItem: Convert<T>, alt: Struct<T> = {}): Convert<Struct<T>> { return this.compose(Convert.toStructOf(convertItem, alt)) }
+    protected toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastMap<T>> { return this.compose(Convert.toCollectionLike(converts)) }
+    public toArrayWhere<T>(cast: Cast<T>): Convert<T[]> { return this.compose(Convert.toArrayWhere(cast)) }
+    public to<T>(alt: T): Convert<TConvertMap<T>> { return this.compose(Convert.to(alt)) }
 }
