@@ -1,4 +1,4 @@
-import { Cast } from "../dist/esm/index.js";
+import { Cast } from "../src/index.js";
 import { testEq, testError, TypeAssert, TypesAreEqual } from "./tester.js";
 
 const customBooleans = {

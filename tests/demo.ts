@@ -1,4 +1,4 @@
-import { Guard, Cast, Convert } from '../dist/esm/index.js';
+import { Guard, Cast, Convert } from '../src/index.js';
 
 // ---------------- Type guarding ----------------
 

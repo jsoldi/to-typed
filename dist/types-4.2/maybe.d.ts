@@ -4,7 +4,7 @@ declare type MaybeValues = {
 declare type TMaybeAll<T extends MaybeValues> = {
     [I in keyof T]: T[I] extends Maybe<infer V> ? V : never;
 };
-interface Just<out T> extends MaybeBase<T> {
+interface Just<T> extends MaybeBase<T> {
     hasValue: true;
     value: T;
 }
@@ -12,7 +12,7 @@ interface Nothing<T> extends MaybeBase<T> {
     hasValue: false;
 }
 export declare type Maybe<T> = Just<T> | Nothing<T>;
-declare class MaybeBase<out T> {
+declare class MaybeBase<T> {
     private readonly data;
     private constructor();
     static just<T>(value: T): Maybe<T>;

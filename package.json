@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "to-typed",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "description": "Type-guards, casts and converts unknowns into typed values",
   "repository": {
     "type": "git",
@@ -14,7 +14,12 @@
   ],
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "typesVersions": {
+    "<4.7": { "dist/types/*": ["dist/types-4.5/*"] }
+  },
   "exports": {
+    "types": "./dist/types/index.d.ts",
     "import": "./dist/esm/index.js",
     "require": "./dist/cjs/index.js"
   },
@@ -25,15 +30,15 @@
     "build:clear": "node build-utils.js rf ./dist",
     "build:esm": "tsc --outDir ./dist/esm --module es2020",
     "build:cjs": "tsc --outDir ./dist/cjs --module commonjs && echo { \"type\": \"commonjs\" } > ./dist/cjs/package.json",
-    "build": "npm run build:clear && npm run build:esm && npm run build:cjs",
-    "test:run": "ts-node --esm ./tests/all-tests.ts",
-    "test": "npm run build && npm run test:run",
-    "demo:run": "ts-node --esm ./tests/demo.ts",
-    "demo": "npm run build && npm run demo:run"
+    "build:down": "downlevel-dts ./dist/types ./dist/types-4.2 --to=4.2",
+    "build": "npm run build:clear && npm run build:cjs && npm run build:esm && npm run build:down",
+    "test": "ts-node --esm ./tests/all-tests.ts",
+    "demo": "ts-node --esm ./tests/demo.ts"
   },
   "author": "Juan Soldi",
   "license": "MIT",
   "devDependencies": {
+    "downlevel-dts": "^0.10.0",
     "ts-node": "~10.8.2",
     "typescript": "~4.7.2"
   }

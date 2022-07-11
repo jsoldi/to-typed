@@ -8,7 +8,7 @@ interface Just<out T> extends MaybeBase<T> {
     hasValue: true;
     value: T;
 }
-interface Nothing<T> extends MaybeBase<T> {
+interface Nothing<out T> extends MaybeBase<T> {
     hasValue: false;
 }
 export declare type Maybe<T> = Just<T> | Nothing<T>;

@@ -1,7 +1,7 @@
 import { Cast, Convert, TCastAll, CastSettings } from "./internal.js";
 import { Collection, Nothing, PrimitiveValue, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 declare type TGuardEvery<A extends readonly Guard<unknown>[]> = A extends Array<infer T> ? ((g: T) => void) extends ((g: Guard<infer I>) => void) ? I : unknown : never;
-declare abstract class Was<in out U> {
+declare abstract class Was<U> {
     protected type: U | undefined;
     private constructor();
 }
@@ -11,7 +11,7 @@ declare type TGuardMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends G
 } ? {
     [k in keyof T]: TGuardMap<T[k]>;
 } : unknown;
-export declare class Guard<out T = unknown> extends Cast<T> {
+export declare class Guard<T = unknown> extends Cast<T> {
     private readonly _guard;
     constructor(_guard: (input: unknown, settings: CastSettings) => input is T);
     static readonly isUnknown: Guard<unknown>;

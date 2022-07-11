@@ -1,4 +1,4 @@
-import { Cast, Convert, Maybe } from "../dist/esm/index.js";
+import { Cast, Convert, Maybe } from "../src/index.js";
 import { testEq, testError, TypeAssert, TypesAreEqual } from "./tester.js";
 
 function testConvert<T>(name: string, convert: Convert<T>, value: unknown, expectedValue: T) {

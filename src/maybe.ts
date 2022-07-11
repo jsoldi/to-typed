@@ -6,7 +6,7 @@ interface Just<out T> extends MaybeBase<T> {
     value: T 
 }
 
-interface Nothing<T> extends MaybeBase<T> { 
+interface Nothing<out T> extends MaybeBase<T> { 
     hasValue: false 
 }
 

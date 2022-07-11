@@ -9,7 +9,7 @@ export declare type TCastMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T ext
 } ? {
     [k in keyof T]: TCastMap<T[k]>;
 } : unknown;
-export declare class Cast<out T = unknown> {
+export declare class Cast<T = unknown> {
     private readonly _cast;
     protected static readonly defaults: CastSettings;
     constructor(_cast: (value: unknown, settings: CastSettings) => Maybe<T>);

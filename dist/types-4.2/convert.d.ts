@@ -5,7 +5,7 @@ declare type TConvertMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends
 } ? {
     [k in keyof T]: TConvertMap<T[k]>;
 } : unknown;
-export declare class Convert<out T = unknown> extends Cast<T> {
+export declare class Convert<T = unknown> extends Cast<T> {
     private readonly _convert;
     constructor(_convert: (value: unknown, settings: CastSettings) => T);
     static lazy<T>(fun: (s: CastSettings) => Convert<T>): Convert<T>;
@@ -21,7 +21,10 @@ export declare class Convert<out T = unknown> extends Cast<T> {
      * @param options an array of options to choose from, where the first option is the default
      * @returns a `Convert` that converts to a union
      */
-    static toEnum<R extends readonly [Primitive, ...Primitive[]]>(...options: R): Convert<R[number]>;
+    static toEnum<R extends readonly [
+        Primitive,
+        ...Primitive[]
+    ]>(...options: R): Convert<R[number]>;
     static toString(alt?: string): Convert<string>;
     static toNumber(alt?: number): Convert<number>;
     static toFinite(alt?: number): Convert<number>;
@@ -41,7 +44,10 @@ export declare class Convert<out T = unknown> extends Cast<T> {
      * @returns a `Convert` based on the given sample value
      */
     static to<T>(alt: T): Convert<TConvertMap<T>>;
-    toEnum<R extends readonly [Primitive, ...Primitive[]]>(...options: R): Convert<R[number]>;
+    toEnum<R extends readonly [
+        Primitive,
+        ...Primitive[]
+    ]>(...options: R): Convert<R[number]>;
     toString(alt?: string): Convert<string>;
     toNumber(alt?: number): Convert<number>;
     toBoolean(alt?: boolean): Convert<boolean>;

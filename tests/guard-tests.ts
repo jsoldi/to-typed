@@ -1,4 +1,4 @@
-import { Guard } from "../dist/esm/index.js";
+import { Guard } from "../src/index.js";
 import { testEq } from "./tester.js";
 
 testEq('Guard.every returns true for empty array', Guard.every().guard(null), true)

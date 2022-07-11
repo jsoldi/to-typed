@@ -1,4 +1,4 @@
-import { Guard } from "../dist/esm/index.js";
+import { Guard } from "../src/index.js";
 import { TypeAssert, TypesAreEqual } from "./tester.js";
 
 function guardsAreOneSided(value: unknown) {
