@@ -1,17 +1,19 @@
-import { Guard } from "../src/index.js";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const index_js_1 = require("../src/index.js");
 function guardsAreOneSided(value) {
     if (typeof value === "string" || typeof value === "number") {
-        if (Guard.isInteger.guard(value)) {
-            if (Guard.isSafeInteger.guard(value)) {
+        if (index_js_1.Guard.isInteger.guard(value)) {
+            if (index_js_1.Guard.isSafeInteger.guard(value)) {
             }
             else {
             }
         }
         else {
         }
-        if (typeof value === "string" || Guard.isFinite.guard(value)) {
-            if (Guard.isInteger.guard(value)) {
-                if (Guard.isSafeInteger.guard(value)) {
+        if (typeof value === "string" || index_js_1.Guard.isFinite.guard(value)) {
+            if (index_js_1.Guard.isInteger.guard(value)) {
+                if (index_js_1.Guard.isSafeInteger.guard(value)) {
                 }
                 else {
                 }
@@ -26,66 +28,66 @@ function guardsAreOneSided(value) {
     }
 }
 function unknownGuardWorks(unknown, never) {
-    if (Guard.isUnknown.guard(unknown)) {
+    if (index_js_1.Guard.isUnknown.guard(unknown)) {
     }
     else {
     }
-    if (Guard.isUnknown.guard(never)) {
+    if (index_js_1.Guard.isUnknown.guard(never)) {
     }
     else {
     }
-    if (typeof unknown === 'string' || Guard.isInteger.guard(unknown)) {
+    if (typeof unknown === 'string' || index_js_1.Guard.isInteger.guard(unknown)) {
         const outer = unknown;
-        if (Guard.isUnknown.guard(unknown)) {
+        if (index_js_1.Guard.isUnknown.guard(unknown)) {
         }
         else {
         }
     }
 }
 function neverGuardWorks(unknown, never) {
-    if (Guard.isNever.guard(unknown)) {
+    if (index_js_1.Guard.isNever.guard(unknown)) {
     }
     else {
     }
-    if (Guard.isNever.guard(never)) {
+    if (index_js_1.Guard.isNever.guard(never)) {
     }
     else {
     }
-    if (typeof unknown === 'string' || Guard.isInteger.guard(unknown)) {
+    if (typeof unknown === 'string' || index_js_1.Guard.isInteger.guard(unknown)) {
         const outer = unknown;
-        if (Guard.isNever.guard(unknown)) {
+        if (index_js_1.Guard.isNever.guard(unknown)) {
         }
         else {
         }
     }
 }
 function nothingGuardsWork(unknown) {
-    if (Guard.isConst(null).guard(unknown)) {
+    if (index_js_1.Guard.isConst(null).guard(unknown)) {
     }
     else {
     }
-    if (Guard.isConst(undefined).guard(unknown)) {
+    if (index_js_1.Guard.isConst(undefined).guard(unknown)) {
     }
     else {
     }
-    if (Guard.isNothing.guard(unknown)) {
+    if (index_js_1.Guard.isNothing.guard(unknown)) {
     }
     else {
     }
-    if (typeof unknown === "string" || Guard.isInteger.guard(unknown) || unknown === null || unknown === undefined) {
-        if (Guard.isConst(null).guard(unknown)) {
-            if (Guard.isConst(undefined).guard(unknown)) {
+    if (typeof unknown === "string" || index_js_1.Guard.isInteger.guard(unknown) || unknown === null || unknown === undefined) {
+        if (index_js_1.Guard.isConst(null).guard(unknown)) {
+            if (index_js_1.Guard.isConst(undefined).guard(unknown)) {
             }
             else {
             }
         }
         else {
         }
-        if (Guard.isConst(undefined).guard(unknown)) {
+        if (index_js_1.Guard.isConst(undefined).guard(unknown)) {
         }
         else {
         }
-        if (Guard.isNothing.guard(unknown)) {
+        if (index_js_1.Guard.isNothing.guard(unknown)) {
         }
         else {
         }

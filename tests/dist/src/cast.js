@@ -1,5 +1,8 @@
-import { Maybe, Guard, Convert, Utils } from "./internal.js";
-export class Cast {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Cast = void 0;
+const internal_js_1 = require("./internal.js");
+class Cast {
     constructor(_cast) {
         this._cast = _cast;
     }
@@ -36,10 +39,10 @@ export class Cast {
         return new Cast((value, s) => this._cast(value, { ...s, ...config }));
     }
     static just(value) {
-        return new Cast(_ => Maybe.just(value));
+        return new Cast(_ => internal_js_1.Maybe.just(value));
     }
     static nothing() {
-        return new Cast(_ => Maybe.nothing());
+        return new Cast(_ => internal_js_1.Maybe.nothing());
     }
     static try(get) {
         try {
@@ -56,8 +59,8 @@ export class Cast {
         return this.bind(value => new Cast((_, s) => next.cast(value, s)));
     }
     or(right) {
-        if (right instanceof Convert)
-            return new Convert((value, s) => this._cast(value, s).else(() => right.convert(value, s)));
+        if (right instanceof internal_js_1.Convert)
+            return new internal_js_1.Convert((value, s) => this._cast(value, s).else(() => right.convert(value, s)));
         else
             return new Cast((value, s) => this.cast(value, s).or(right.cast(value, s)));
     }
@@ -67,16 +70,16 @@ export class Cast {
      * @returns The union of the given casts.
      */
     static some(...options) {
-        return options.reduce((acc, option) => acc.or(option), Guard.isNever);
+        return options.reduce((acc, option) => acc.or(option), internal_js_1.Guard.isNever);
     }
     static all(casts) {
-        if (Guard.isCollectionOf(Guard.isInstanceOf(Convert)).guard(casts)) {
-            const map = Utils.mapLazy(casts);
-            return new Convert((value, s) => map((conv) => conv.convert(value, s)));
+        if (internal_js_1.Guard.isCollectionOf(internal_js_1.Guard.isInstanceOf(internal_js_1.Convert)).guard(casts)) {
+            const map = internal_js_1.Utils.mapLazy(casts);
+            return new internal_js_1.Convert((value, s) => map((conv) => conv.convert(value, s)));
         }
         else {
-            const map = Utils.mapLazy(casts);
-            return new Cast((value, s) => Maybe.all(map((cast) => cast.cast(value, s))));
+            const map = internal_js_1.Utils.mapLazy(casts);
+            return new Cast((value, s) => internal_js_1.Maybe.all(map((cast) => cast.cast(value, s))));
         }
     }
     /**
@@ -85,7 +88,7 @@ export class Cast {
      * @returns A convert that outputs an array of successfully results
      */
     static any(casts) {
-        return new Convert((value, s) => Maybe.any(casts.map(cast => cast.cast(value, s))));
+        return new internal_js_1.Convert((value, s) => internal_js_1.Maybe.any(casts.map(cast => cast.cast(value, s))));
     }
     if(condition) {
         return this.bind(value => condition(value) ? Cast.just(value) : Cast.nothing());
@@ -97,36 +100,36 @@ export class Cast {
         return this.bind(value => Cast.just(next(value)));
     }
     else(other) {
-        return this.or(new Convert(_ => other));
+        return this.or(new internal_js_1.Convert(_ => other));
     }
     elseThrow(getError = () => new Error('Cast has no value')) {
-        return this.or(new Convert(_ => { throw getError(); }));
+        return this.or(new internal_js_1.Convert(_ => { throw getError(); }));
     }
     get toMaybe() {
-        return this.map(Maybe.just).else(Maybe.nothing());
+        return this.map(internal_js_1.Maybe.just).else(internal_js_1.Maybe.nothing());
     }
     static get asPrimitiveValue() {
-        return Guard.isPrimitiveValue.or(Guard.isArray
+        return internal_js_1.Guard.isPrimitiveValue.or(internal_js_1.Guard.isArray
             .bind(Cast.unwrapArray)
-            .compose(Guard.isPrimitiveValue));
+            .compose(internal_js_1.Guard.isPrimitiveValue));
     }
     static get asString() {
-        return Guard.isString.or(Cast.asPrimitiveValue.map(s => s.toString()));
+        return internal_js_1.Guard.isString.or(Cast.asPrimitiveValue.map(s => s.toString()));
     }
     static get asNumber() {
-        return Cast.asPrimitiveValue.compose(Cast.some(Guard.isNumber, Guard.isConst('NaN').map(() => NaN), Guard.isString.map(parseFloat).if(n => !isNaN(n)), Guard.isBigInt.if(n => Number.MIN_SAFE_INTEGER <= n && n <= Number.MAX_SAFE_INTEGER).map(n => Number(n)), Guard.isBoolean.map(b => b ? 1 : 0)));
+        return Cast.asPrimitiveValue.compose(Cast.some(internal_js_1.Guard.isNumber, internal_js_1.Guard.isConst('NaN').map(() => NaN), internal_js_1.Guard.isString.map(parseFloat).if(n => !isNaN(n)), internal_js_1.Guard.isBigInt.if(n => Number.MIN_SAFE_INTEGER <= n && n <= Number.MAX_SAFE_INTEGER).map(n => Number(n)), internal_js_1.Guard.isBoolean.map(b => b ? 1 : 0)));
     }
     static get asFinite() {
-        return Cast.asNumber.and(Guard.isFinite);
+        return Cast.asNumber.and(internal_js_1.Guard.isFinite);
     }
     static get asInteger() {
         return Cast.asFinite.map(Math.round);
     }
     static get asBigInt() {
-        return Cast.asPrimitiveValue.compose(Cast.some(Guard.isBigInt, Cast.asString.bind(s => Cast.try(() => BigInt(s))), Cast.asInteger.map(n => BigInt(n)), Guard.isBoolean.map(b => BigInt(b ? 1 : 0))));
+        return Cast.asPrimitiveValue.compose(Cast.some(internal_js_1.Guard.isBigInt, Cast.asString.bind(s => Cast.try(() => BigInt(s))), Cast.asInteger.map(n => BigInt(n)), internal_js_1.Guard.isBoolean.map(b => BigInt(b ? 1 : 0))));
     }
     static get asBoolean() {
-        return Guard.isBoolean.or(Cast.asString.bind((v, s) => {
+        return internal_js_1.Guard.isBoolean.or(Cast.asString.bind((v, s) => {
             if (s.booleanNames.true.includes(v))
                 return Cast.just(true);
             else if (s.booleanNames.false.includes(v))
@@ -136,36 +139,36 @@ export class Cast {
         }));
     }
     static get asDate() {
-        return Guard.some(Guard.isInstanceOf(Date), Guard.isString, Guard.isSafeInteger)
+        return internal_js_1.Guard.some(internal_js_1.Guard.isInstanceOf(Date), internal_js_1.Guard.isString, internal_js_1.Guard.isSafeInteger)
             .bind(s => Cast.try(() => new Date(s)))
             .if(d => !isNaN(d.getTime()));
     }
     static get asArray() {
-        return Guard.isArray.or(Guard.isSomething.bind(Cast.wrapArray));
+        return internal_js_1.Guard.isArray.or(internal_js_1.Guard.isSomething.bind(Cast.wrapArray));
     }
     static asConst(value) {
-        return Guard.isConst(value).or(Cast.just(value).asString.bind(str1 => Cast.asString.if(str2 => str1 === str2)).map(_ => value));
+        return internal_js_1.Guard.isConst(value).or(Cast.just(value).asString.bind(str1 => Cast.asString.if(str2 => str1 === str2)).map(_ => value));
     }
     static asEnum(...options) {
         return Cast.some(...options.map(Cast.asConst));
     }
     static makeCollectionOf(cast) {
-        return col => Cast.all(Utils.mapEager(col, i => Cast.just(i).compose(cast)));
+        return col => Cast.all(internal_js_1.Utils.mapEager(col, i => Cast.just(i).compose(cast)));
     }
     static asArrayOf(cast) {
         return Cast.asArray.bind(Cast.makeCollectionOf(cast));
     }
     static asStructOf(cast) {
-        return Guard.isStruct.bind(Cast.makeCollectionOf(cast));
+        return internal_js_1.Guard.isStruct.bind(Cast.makeCollectionOf(cast));
     }
     static makeCollectionLike(casts) {
-        const map = Utils.mapLazy(casts);
+        const map = internal_js_1.Utils.mapLazy(casts);
         return col => Cast.all(map((cast, k) => Cast.just(col[k]).compose(cast)));
     }
     static asCollectionLike(casts) {
         return Array.isArray(casts) ?
             Cast.asArray.bind(Cast.makeCollectionLike(casts)) :
-            Guard.isStruct.bind(Cast.makeCollectionLike(casts));
+            internal_js_1.Guard.isStruct.bind(Cast.makeCollectionLike(casts));
     }
     static asArrayWhere(cast) {
         return Cast.asArray.bind(val => Cast.any(val.map(v => Cast.just(v).compose(cast))));
@@ -186,18 +189,18 @@ export class Cast {
             case 'bigint':
                 return Cast.asBigInt;
             case 'symbol':
-                return Guard.isSymbol;
+                return internal_js_1.Guard.isSymbol;
             case 'undefined':
-                return Guard.isConst(undefined);
+                return internal_js_1.Guard.isConst(undefined);
             case 'function':
-                return Guard.isFunction;
+                return internal_js_1.Guard.isFunction;
             case 'object':
                 if (alt instanceof Cast)
                     return alt;
                 else if (alt === null)
-                    return Guard.isConst(null);
+                    return internal_js_1.Guard.isConst(null);
         }
-        return Cast.asCollectionLike(Utils.mapEager(alt, Cast.as));
+        return Cast.asCollectionLike(internal_js_1.Utils.mapEager(alt, Cast.as));
     }
     get asPrimitiveValue() { return this.compose(Cast.asPrimitiveValue); }
     get asString() { return this.compose(Cast.asString); }
@@ -216,6 +219,7 @@ export class Cast {
     asArrayWhere(cast) { return this.compose(Cast.asArrayWhere(cast)); }
     as(alt) { return this.compose(Cast.as(alt)); }
 }
+exports.Cast = Cast;
 Cast.defaults = {
     keyGuarding: 'loose',
     booleanNames: {
@@ -225,5 +229,5 @@ Cast.defaults = {
     unwrapArray: 'single',
     wrapArray: 'single'
 };
-Cast.asUnknown = new Cast(value => Maybe.just(value));
-Cast.asNever = new Cast(_ => Maybe.nothing());
+Cast.asUnknown = new Cast(value => internal_js_1.Maybe.just(value));
+Cast.asNever = new Cast(_ => internal_js_1.Maybe.nothing());

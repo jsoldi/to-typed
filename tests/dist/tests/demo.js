@@ -1,16 +1,18 @@
-import { Guard, Cast, Convert } from '../src/index.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const index_js_1 = require("../src/index.js");
 // ---------------- Type guarding ----------------
 // Create a `Guard` based on an object, which may include other guards
-const guard = Guard.is({
-    integer: Guard.isInteger,
+const guard = index_js_1.Guard.is({
+    integer: index_js_1.Guard.isInteger,
     number: 0,
     boolean: false,
     tuple: [20, 'default', false],
-    arrayOfNumbers: Guard.isArrayOf(Guard.isFinite),
-    even: Guard.isInteger.if(n => n % 2 === 0),
+    arrayOfNumbers: index_js_1.Guard.isArrayOf(index_js_1.Guard.isFinite),
+    even: index_js_1.Guard.isInteger.if(n => n % 2 === 0),
     object: {
-        union: Guard.some(Guard.isConst(null), Guard.isString, Guard.isNumber),
-        intersection: Guard.every(Guard.is({ int: 0 }), Guard.is({ str: "" }))
+        union: index_js_1.Guard.some(index_js_1.Guard.isConst(null), index_js_1.Guard.isString, index_js_1.Guard.isNumber),
+        intersection: index_js_1.Guard.every(index_js_1.Guard.is({ int: 0 }), index_js_1.Guard.is({ str: "" }))
     }
 });
 const valid = {
@@ -42,23 +44,23 @@ maybe.read(value => console.log(value.object.intersection.int)); // 100
 // ---------------- Type casting / converting ----------------
 // Create a `Convert` based on a sample value, from which the default
 // values will also be taken if any cast fails.
-const converter = Convert.to({
-    integer: Convert.toInteger(1),
+const converter = index_js_1.Convert.to({
+    integer: index_js_1.Convert.toInteger(1),
     number: 0,
     string: '',
     boolean: false,
-    trueIfTruthyInput: Convert.toTruthy(),
+    trueIfTruthyInput: index_js_1.Convert.toTruthy(),
     tuple: [0, 'default', false],
-    arrayOfInts: Convert.toArrayOf(Convert.to(0)),
-    percentage: Convert.toFinite(.5).map(x => Math.round(x * 100) + '%'),
-    enum: Convert.toEnum('zero', 'one', 'two', 'three'),
+    arrayOfInts: index_js_1.Convert.toArrayOf(index_js_1.Convert.to(0)),
+    percentage: index_js_1.Convert.toFinite(.5).map(x => Math.round(x * 100) + '%'),
+    enum: index_js_1.Convert.toEnum('zero', 'one', 'two', 'three'),
     object: {
-        originalAndConverted: Convert.all({
-            original: Convert.id,
-            converted: Convert.to('')
+        originalAndConverted: index_js_1.Convert.all({
+            original: index_js_1.Convert.id,
+            converted: index_js_1.Convert.to('')
         }),
-        strictNumberOrString: Guard.isNumber.or(Convert.to('')),
-        relaxedNumberOrString: Cast.asNumber.or(Convert.to(''))
+        strictNumberOrString: index_js_1.Guard.isNumber.or(index_js_1.Convert.to('')),
+        relaxedNumberOrString: index_js_1.Cast.asNumber.or(index_js_1.Convert.to(''))
     }
 });
 console.log(converter.convert({ excluded: 'exclude-me' }));

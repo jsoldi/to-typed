@@ -1,17 +1,20 @@
-import { Maybe, Cast, Utils } from "./internal.js";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Guard = void 0;
+const internal_js_1 = require("./internal.js");
 class Was {
     constructor() { }
 }
-export class Guard extends Cast {
+class Guard extends internal_js_1.Cast {
     constructor(_guard) {
-        super((val, s) => _guard(val, s) ? Maybe.just(val) : Maybe.nothing());
+        super((val, s) => _guard(val, s) ? internal_js_1.Maybe.just(val) : internal_js_1.Maybe.nothing());
         this._guard = _guard;
     }
     static lazy(fun) {
         return new Guard((val, s) => fun(s)._guard(val, s));
     }
     guard(input, settings) {
-        return this._guard(input, settings !== null && settings !== void 0 ? settings : Cast.defaults);
+        return this._guard(input, settings !== null && settings !== void 0 ? settings : internal_js_1.Cast.defaults);
     }
     config(config) {
         return new Guard((value, s) => this._guard(value, { ...s, ...config }));
@@ -119,8 +122,9 @@ export class Guard extends Cast {
                 else if (alt === null)
                     return Guard.isConst(null);
         }
-        return Guard.isCollectionLike(Utils.mapEager(alt, a => Guard.is(a)));
+        return Guard.isCollectionLike(internal_js_1.Utils.mapEager(alt, a => Guard.is(a)));
     }
 }
+exports.Guard = Guard;
 Guard.isUnknown = new Guard((val) => true);
 Guard.isNever = new Guard((val) => false);

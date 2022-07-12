@@ -1,5 +1,5 @@
 import { Cast } from "../src/index.js";
-import { testEq, testError, TypeAssert, TypesAreEqual } from "./tester.js";
+import { testEq } from "./tester.js";
 
 const customBooleans = {
     booleanNames: {

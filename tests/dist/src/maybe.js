@@ -1,3 +1,6 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Maybe = void 0;
 class MaybeBase {
     constructor(data) {
         this.data = data;
@@ -47,4 +50,4 @@ class MaybeBase {
         return this.read((t) => t, () => { throw getError(); });
     }
 }
-export const Maybe = MaybeBase;
+exports.Maybe = MaybeBase;
