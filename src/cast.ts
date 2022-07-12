@@ -229,10 +229,6 @@ export class Cast<out T = unknown> {
         return Guard.isArray.or(Guard.isSomething.bind(Cast.wrapArray));
     }
 
-    public static get asCollection(): Cast<Collection> {
-        return Guard.isCollection.or(Guard.isSomething.bind(Cast.wrapArray));
-    }
-
     public static asConst<T extends Primitive>(value: T): Cast<T> {
         return Guard.isConst(value).or(
             Cast.just(value).asString.bind(str1 => Cast.asString.if(str2 => str1 === str2)).map(_ => value)
@@ -243,26 +239,29 @@ export class Cast<out T = unknown> {
         return Cast.some(...options.map(Cast.asConst));
     }
 
-    public static asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>> {
-        return Cast.asCollection.bind(a => Cast.all(Utils.mapEager(a, i => Cast.just(i).compose(cast))));
+    private static makeCollectionOf<T>(cast: Cast<T>): (a: Collection) => Cast<Collection<T>> {
+        return col => Cast.all(Utils.mapEager(col, i => Cast.just(i).compose(cast)));
     }
 
     public static asArrayOf<T>(cast: Cast<T>) {
-        return Cast.asArray.compose(Cast.asCollectionOf(cast)) as Cast<T[]>
+        return Cast.asArray.bind(Cast.makeCollectionOf(cast)) as Cast<T[]>
     }
 
     public static asStructOf<T>(cast: Cast<T>) {
-        return Guard.isStruct.compose(Cast.asCollectionOf(cast)) as Cast<Struct<T>>
+        return Guard.isStruct.bind(Cast.makeCollectionOf(cast)) as Cast<Struct<T>>
     }
-
-    protected static asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>> {
+  
+    private static makeCollectionLike(casts: Collection<Cast>): (t: Collection) => Cast<Collection> {
         const map = Utils.mapLazy<Cast>(casts);
-
-        return Cast.asCollection.bind(val => 
-            Cast.all(map((cast: Cast, k) => Cast.just((val as Struct)[k]).compose(cast)))
-        ) as Cast<TCastAll<T>>
+        return col => Cast.all(map((cast: Cast, k) => Cast.just((col as Struct)[k]).compose(cast)));
     }
-    
+
+    public static asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>> {
+        return Array.isArray(casts) ?
+            Cast.asArray.bind(Cast.makeCollectionLike(casts)) as Cast<TCastAll<T>> :
+            Guard.isStruct.bind(Cast.makeCollectionLike(casts)) as Cast<TCastAll<T>>;
+    }
+
     public static asArrayWhere<T>(cast: Cast<T>): Cast<T[]> {
         return Cast.asArray.bind(val => Cast.any(val.map(v => Cast.just(v).compose(cast))))
     }
@@ -309,10 +308,9 @@ export class Cast<out T = unknown> {
     public get asArray() { return this.compose(Cast.asArray) }
     public asConst<T extends PrimitiveValue>(value: T): Cast<T> { return this.compose(Cast.asConst(value)) }
     public asEnum<T extends readonly Primitive[]>(...options: T): Cast<T[number]> { return this.compose(Cast.asEnum(...options)) }
-    public asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>> { return this.compose(Cast.asCollectionOf(cast)) }
     public asArrayOf<T>(cast: Cast<T>): Cast<T[]> { return this.compose(Cast.asArrayOf(cast)) }
     public asStructOf<T>(cast: Cast<T>): Cast<Struct<T>> { return this.compose(Cast.asStructOf(cast)) }
-    protected asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>> { return this.compose(Cast.asCollectionLike(casts)) }    
+    public asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>> { return this.compose(Cast.asCollectionLike(casts)) }    
     public asArrayWhere<T>(cast: Cast<T>): Cast<T[]> { return this.compose(Cast.asArrayWhere(cast)) }
     public as<T>(alt: T): Cast<TCastMap<T>> { return this.compose(Cast.as(alt)) }
 }

@@ -143,27 +143,32 @@ export class Cast {
     static get asArray() {
         return Guard.isArray.or(Guard.isSomething.bind(Cast.wrapArray));
     }
-    static get asCollection() {
-        return Guard.isCollection.or(Guard.isSomething.bind(Cast.wrapArray));
-    }
+    // public static get asCollection(): Cast<Collection> {
+    //     return Guard.isCollection.or(Guard.isSomething.bind(Cast.wrapArray));
+    // }
     static asConst(value) {
         return Guard.isConst(value).or(Cast.just(value).asString.bind(str1 => Cast.asString.if(str2 => str1 === str2)).map(_ => value));
     }
     static asEnum(...options) {
         return Cast.some(...options.map(Cast.asConst));
     }
-    static asCollectionOf(cast) {
-        return Cast.asCollection.bind(a => Cast.all(Utils.mapEager(a, i => Cast.just(i).compose(cast))));
+    static makeCollectionOf(cast) {
+        return col => Cast.all(Utils.mapEager(col, i => Cast.just(i).compose(cast)));
     }
     static asArrayOf(cast) {
-        return Cast.asArray.compose(Cast.asCollectionOf(cast));
+        return Cast.asArray.bind(Cast.makeCollectionOf(cast));
     }
     static asStructOf(cast) {
-        return Guard.isStruct.compose(Cast.asCollectionOf(cast));
+        return Guard.isStruct.bind(Cast.makeCollectionOf(cast));
+    }
+    static makeCollectionLike(casts) {
+        const map = Utils.mapLazy(casts);
+        return col => Cast.all(map((cast, k) => Cast.just(col[k]).compose(cast)));
     }
     static asCollectionLike(casts) {
-        const map = Utils.mapLazy(casts);
-        return Cast.asCollection.bind(val => Cast.all(map((cast, k) => Cast.just(val[k]).compose(cast))));
+        return Array.isArray(casts) ?
+            Cast.asArray.bind(Cast.makeCollectionLike(casts)) :
+            Guard.isStruct.bind(Cast.makeCollectionLike(casts));
     }
     static asArrayWhere(cast) {
         return Cast.asArray.bind(val => Cast.any(val.map(v => Cast.just(v).compose(cast))));
@@ -208,7 +213,6 @@ export class Cast {
     get asArray() { return this.compose(Cast.asArray); }
     asConst(value) { return this.compose(Cast.asConst(value)); }
     asEnum(...options) { return this.compose(Cast.asEnum(...options)); }
-    asCollectionOf(cast) { return this.compose(Cast.asCollectionOf(cast)); }
     asArrayOf(cast) { return this.compose(Cast.asArrayOf(cast)); }
     asStructOf(cast) { return this.compose(Cast.asStructOf(cast)); }
     asCollectionLike(casts) { return this.compose(Cast.asCollectionLike(casts)); }

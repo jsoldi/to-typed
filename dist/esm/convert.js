@@ -64,7 +64,7 @@ export class Convert extends Cast {
         return Cast.asStructOf(convertItem).else(alt);
     }
     static toCollectionLike(converts) {
-        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).as(converts).elseThrow();
+        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).asCollectionLike(converts).elseThrow();
     }
     static toArrayWhere(cast) {
         return Cast.asArrayWhere(cast).else([]);

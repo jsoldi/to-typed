@@ -142,7 +142,7 @@ export class Guard<out T = unknown> extends Cast<T> {
         return Guard.isStruct.and((str, s): str is Struct<T> => Object.values(str).every(i => guard._guard(i, s)));
     }
 
-    protected static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>> {
+    public static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>> {
         const gKeys = Object.keys(guards);
         const gEntries = Object.entries(guards);
 

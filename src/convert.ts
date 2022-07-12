@@ -1,4 +1,4 @@
-import { Utils, Maybe, Cast, Guard, CastSettings, TCastMap } from "./internal.js";
+import { Utils, Maybe, Cast, Guard, CastSettings, TCastAll } from "./internal.js";
 import { Collection, Primitive, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 
 // Maps { b: ? => B, c: C } to { b: B, c: C }:
@@ -94,8 +94,8 @@ export class Convert<out T = unknown> extends Cast<T> {
         return Cast.asStructOf(convertItem).else(alt);
     }
 
-    protected static toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastMap<T>> {
-        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).as(converts).elseThrow();
+    public static toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastAll<T>> {
+        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).asCollectionLike(converts).elseThrow();
     }
 
     public static toArrayWhere<T>(cast: Cast<T>): Convert<T[]> {
@@ -142,7 +142,7 @@ export class Convert<out T = unknown> extends Cast<T> {
     public toArray<T>(convertItem: Convert<T>, alt: T[] = []): Convert<T[]> { return this.compose(Convert.toArrayOf(convertItem, alt)) }
     public toArrayOf<T>(convertItem: Convert<T>, alt: T[] = []): Convert<T[]> { return this.compose(Convert.toArrayOf(convertItem, alt)) }
     public toStructOf<T>(convertItem: Convert<T>, alt: Struct<T> = {}): Convert<Struct<T>> { return this.compose(Convert.toStructOf(convertItem, alt)) }
-    protected toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastMap<T>> { return this.compose(Convert.toCollectionLike(converts)) }
+    public toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastAll<T>> { return this.compose(Convert.toCollectionLike(converts)) }
     public toArrayWhere<T>(cast: Cast<T>): Convert<T[]> { return this.compose(Convert.toArrayWhere(cast)) }
     public to<T>(alt: T): Convert<TConvertMap<T>> { return this.compose(Convert.to(alt)) }
 }

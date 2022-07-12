@@ -67,7 +67,7 @@ class Convert extends internal_js_1.Cast {
         return internal_js_1.Cast.asStructOf(convertItem).else(alt);
     }
     static toCollectionLike(converts) {
-        return internal_js_1.Guard.isCollection.or(internal_js_1.Cast.just(Array.isArray(converts) ? [] : {})).as(converts).elseThrow();
+        return internal_js_1.Guard.isCollection.or(internal_js_1.Cast.just(Array.isArray(converts) ? [] : {})).asCollectionLike(converts).elseThrow();
     }
     static toArrayWhere(cast) {
         return internal_js_1.Cast.asArrayWhere(cast).else([]);

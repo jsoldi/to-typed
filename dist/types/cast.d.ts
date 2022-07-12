@@ -63,13 +63,13 @@ export declare class Cast<out T = unknown> {
     static get asBoolean(): Cast<boolean>;
     static get asDate(): Cast<Date>;
     static get asArray(): Cast<unknown[]>;
-    static get asCollection(): Cast<Collection>;
     static asConst<T extends Primitive>(value: T): Cast<T>;
     static asEnum<T extends readonly Primitive[]>(...options: T): Cast<T[number]>;
-    static asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>>;
+    private static makeCollectionOf;
     static asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     static asStructOf<T>(cast: Cast<T>): Cast<Struct<T>>;
-    protected static asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
+    private static makeCollectionLike;
+    static asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
     static asArrayWhere<T>(cast: Cast<T>): Cast<T[]>;
     /**
      * Creates a `Cast` based on a sample value.
@@ -88,10 +88,9 @@ export declare class Cast<out T = unknown> {
     get asArray(): Cast<unknown[]>;
     asConst<T extends PrimitiveValue>(value: T): Cast<T>;
     asEnum<T extends readonly Primitive[]>(...options: T): Cast<T[number]>;
-    asCollectionOf<T>(cast: Cast<T>): Cast<Collection<T>>;
     asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     asStructOf<T>(cast: Cast<T>): Cast<Struct<T>>;
-    protected asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
+    asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
     asArrayWhere<T>(cast: Cast<T>): Cast<T[]>;
     as<T>(alt: T): Cast<TCastMap<T>>;
 }

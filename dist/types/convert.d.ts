@@ -1,4 +1,4 @@
-import { Cast, CastSettings, TCastMap } from "./internal.js";
+import { Cast, CastSettings, TCastAll } from "./internal.js";
 import { Collection, Primitive, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 declare type TConvertMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends Convert<infer R> ? R : T extends {
     [k in keyof T]: any;
@@ -33,7 +33,7 @@ export declare class Convert<out T = unknown> extends Cast<T> {
     static toArray(alt?: unknown[]): Convert<unknown[]>;
     static toArrayOf<T>(convertItem: Convert<T>, alt?: T[]): Convert<T[]>;
     static toStructOf<T>(convertItem: Convert<T>, alt?: Struct<T>): Convert<Struct<T>>;
-    protected static toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastMap<T>>;
+    static toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastAll<T>>;
     static toArrayWhere<T>(cast: Cast<T>): Convert<T[]>;
     /**
      * Creates a `Convert` based on the given sample value, which is also used as the set of default values.
@@ -50,7 +50,7 @@ export declare class Convert<out T = unknown> extends Cast<T> {
     toArray<T>(convertItem: Convert<T>, alt?: T[]): Convert<T[]>;
     toArrayOf<T>(convertItem: Convert<T>, alt?: T[]): Convert<T[]>;
     toStructOf<T>(convertItem: Convert<T>, alt?: Struct<T>): Convert<Struct<T>>;
-    protected toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastMap<T>>;
+    toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastAll<T>>;
     toArrayWhere<T>(cast: Cast<T>): Convert<T[]>;
     to<T>(alt: T): Convert<TConvertMap<T>>;
 }
