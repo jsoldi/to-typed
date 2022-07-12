@@ -123,7 +123,7 @@ export class Cast {
         return Cast.asFinite.map(Math.round);
     }
     static get asBigInt() {
-        return Cast.asPrimitiveValue.compose(Cast.some(Guard.isBigInt, Cast.asString.bind(s => Cast.try(() => BigInt(s))), Cast.asInteger.map(n => BigInt(n)), Guard.isBoolean.map(b => BigInt(b ? 1 : 0))));
+        return Cast.asPrimitiveValue.compose(Cast.some(Guard.isBigInt, Guard.isString.bind(s => Cast.try(() => BigInt(s))), Guard.isSafeInteger.map(n => BigInt(n)), Guard.isBoolean.map(b => BigInt(b ? 1 : 0))));
     }
     static get asBoolean() {
         return Guard.isBoolean.or(Cast.asString.bind((v, s) => {

@@ -200,8 +200,8 @@ export class Cast<out T = unknown> {
     public static get asBigInt(): Cast<bigint> {
         return Cast.asPrimitiveValue.compose(Cast.some(
             Guard.isBigInt,
-            Cast.asString.bind(s => Cast.try(() => BigInt(s))),
-            Cast.asInteger.map(n => BigInt(n)),
+            Guard.isString.bind(s => Cast.try(() => BigInt(s))),
+            Guard.isSafeInteger.map(n => BigInt(n)),
             Guard.isBoolean.map(b => BigInt(b ? 1 : 0)),
         ));
     }

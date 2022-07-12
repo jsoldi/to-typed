@@ -126,7 +126,7 @@ class Cast {
         return Cast.asFinite.map(Math.round);
     }
     static get asBigInt() {
-        return Cast.asPrimitiveValue.compose(Cast.some(internal_js_1.Guard.isBigInt, Cast.asString.bind(s => Cast.try(() => BigInt(s))), Cast.asInteger.map(n => BigInt(n)), internal_js_1.Guard.isBoolean.map(b => BigInt(b ? 1 : 0))));
+        return Cast.asPrimitiveValue.compose(Cast.some(internal_js_1.Guard.isBigInt, internal_js_1.Guard.isString.bind(s => Cast.try(() => BigInt(s))), internal_js_1.Guard.isSafeInteger.map(n => BigInt(n)), internal_js_1.Guard.isBoolean.map(b => BigInt(b ? 1 : 0))));
     }
     static get asBoolean() {
         return internal_js_1.Guard.isBoolean.or(Cast.asString.bind((v, s) => {

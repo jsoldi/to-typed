@@ -54,7 +54,7 @@ testConvert('Convert.toBoolean does not coerce to true', index_js_1.Convert.toBo
 testConvert('Convert.toBoolean does not coerce to false', index_js_1.Convert.toBoolean(null), '', null);
 testConvert('Convert.toTruthy coerces to false', index_js_1.Convert.toTruthy(), null, false);
 testConvert('Convert.toTruthy coerces to true', index_js_1.Convert.toTruthy(), [], true);
-testConvert('Convert.toBigInt parses large integer', index_js_1.Convert.toBigInt(null), Number.MAX_SAFE_INTEGER.toString() + '0', BigInt(Number.MAX_SAFE_INTEGER.toString()) * BigInt(10));
+testConvert('Convert.toBigInt parses large integer', index_js_1.Convert.toBigInt(null), Number.MAX_SAFE_INTEGER.toString() + '0', BigInt(Number.MAX_SAFE_INTEGER.toString() + '0'));
 testConvert('Convert.toBigInt passes through bigint', index_js_1.Convert.toBigInt(null), BigInt(33), BigInt(33));
 testConvert('Convert.toArray accepts empty array', index_js_1.Convert.toArray(null), [], []);
 testConvert('Convert.toArray accepts array', index_js_1.Convert.toArray(null), [1, 2, 3], [1, 2, 3]);

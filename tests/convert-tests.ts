@@ -58,7 +58,7 @@ testConvert('Convert.toBoolean does not coerce to true', Convert.toBoolean(null 
 testConvert('Convert.toBoolean does not coerce to false', Convert.toBoolean(null as any as boolean), '', null)
 testConvert('Convert.toTruthy coerces to false', Convert.toTruthy(), null, false)
 testConvert('Convert.toTruthy coerces to true', Convert.toTruthy(), [], true)
-testConvert('Convert.toBigInt parses large integer', Convert.toBigInt(null as any as bigint), Number.MAX_SAFE_INTEGER.toString() + '0', BigInt(Number.MAX_SAFE_INTEGER.toString()) * BigInt(10))
+testConvert('Convert.toBigInt parses large integer', Convert.toBigInt(null as any as bigint), Number.MAX_SAFE_INTEGER.toString() + '0', BigInt(Number.MAX_SAFE_INTEGER.toString() + '0'))
 testConvert('Convert.toBigInt passes through bigint', Convert.toBigInt(null as any as bigint), BigInt(33), BigInt(33))
 
 testConvert('Convert.toArray accepts empty array', Convert.toArray(null as any as any[]), [], [])
