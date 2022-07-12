@@ -11,7 +11,12 @@ export function test(name: string, action: () => void) {
     if (!testInfo.started) {
 
         testInfo.started = true
-        setTimeout(() => console.log(`${testInfo.failed ? '❌' : '✅'} ${testInfo.passed} passed, ${testInfo.failed} failed`), 1);
+        setTimeout(() => {
+            if (testInfo.failed > 0) 
+                throw new Error(`${testInfo.failed} tests failed`);
+            else
+                console.log(`✅ ${testInfo.passed} passed, ${testInfo.failed} failed`); 
+        }, 1);
     }
 
     if (!testInfo.tests.has(name))
