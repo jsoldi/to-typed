@@ -56,7 +56,7 @@ export declare class Guard<T = unknown> extends Cast<T> {
     static isCollectionOf<T>(guard: Guard<T>): Guard<Collection<T>>;
     static isArrayOf<T>(guard: Guard<T>): Guard<T[]>;
     static isStructOf<T>(guard: Guard<T>): Guard<Struct<T>>;
-    protected static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>>;
+    static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>>;
     /**
      * Creates a `Guard` based on a sample value.
      * @param alt a sample value

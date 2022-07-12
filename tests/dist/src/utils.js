@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Utils = void 0;
-class Utils {
+export class Utils {
     static mapLazy(container) {
         if (Array.isArray(container)) {
             return (map) => container.map((v, i) => map(v, i.toString()));
@@ -27,5 +24,3 @@ class Utils {
         return res;
     }
 }
-exports.Utils = Utils;
-//# sourceMappingURL=utils.js.map

@@ -124,4 +124,3 @@ export class Guard extends Cast {
 }
 Guard.isUnknown = new Guard((val) => true);
 Guard.isNever = new Guard((val) => false);
-//# sourceMappingURL=guard.js.map

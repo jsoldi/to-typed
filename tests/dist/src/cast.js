@@ -227,4 +227,3 @@ Cast.defaults = {
 };
 Cast.asUnknown = new Cast(value => Maybe.just(value));
 Cast.asNever = new Cast(_ => Maybe.nothing());
-//# sourceMappingURL=cast.js.map

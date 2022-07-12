@@ -8,7 +8,7 @@ export class Convert extends Cast {
         return new Convert((val, s) => fun(s)._convert(val, s));
     }
     convert(value, settings) {
-        return this._convert(value, settings ?? Cast.defaults);
+        return this._convert(value, settings !== null && settings !== void 0 ? settings : Cast.defaults);
     }
     config(config) {
         return new Convert((value, s) => this._convert(value, { ...s, ...config }));

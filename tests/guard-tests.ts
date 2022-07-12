@@ -68,17 +68,17 @@ const loose = { keyGuarding: 'loose' } as const
 
 testEq('Guard.isCollectionLike strict works for tuple', Guard.is([ Guard.isString, Guard.isNumber ]).config(strict).guard([ 'hey', 23 ]), true)
 testEq('Guard.isCollectionLike strict fails for smaller tuple', Guard.is([ Guard.isString, Guard.isNumber ]).config(strict).guard([ 'hey' ]), false)
-testEq('Guard.isCollectionLike strict fails for larger tuple', Guard.is([ Guard.isString, Guard.isNumber ]).config(strict).guard([ 'hey', 23, 1n ]), false)
+testEq('Guard.isCollectionLike strict fails for larger tuple', Guard.is([ Guard.isString, Guard.isNumber ]).config(strict).guard([ 'hey', 23, true ]), false)
 testEq('Guard.isCollectionLike loose works for tuple', Guard.is([ Guard.isString, Guard.isNumber ]).config(loose).guard([ 'hey', 23 ]), true)
 testEq('Guard.isCollectionLike loose fails for smaller tuple', Guard.is([ Guard.isString, Guard.isNumber ]).config(loose).guard([ 'hey' ]), false)
-testEq('Guard.isCollectionLike loose works for larger tuple', Guard.is([ Guard.isString, Guard.isNumber ]).config(loose).guard([ 'hey', 23, 1n ]), true)
+testEq('Guard.isCollectionLike loose works for larger tuple', Guard.is([ Guard.isString, Guard.isNumber ]).config(loose).guard([ 'hey', 23, true ]), true)
 
 testEq('Guard.isCollectionLike strict works for object', Guard.is({ a: Guard.isString, b: Guard.isNumber }).config(strict).guard({ a: 'hey', b: 9 }), true)
 testEq('Guard.isCollectionLike strict fails for smaller object', Guard.is({ a: Guard.isString, b: Guard.isNumber }).config(strict).guard({ a: 'hey' }), false)
-testEq('Guard.isCollectionLike strict fails for larger object', Guard.is({ a: Guard.isString, b: Guard.isNumber }).config(strict).guard({ a: 'hey', b: 9, c: 1n }), false)
+testEq('Guard.isCollectionLike strict fails for larger object', Guard.is({ a: Guard.isString, b: Guard.isNumber }).config(strict).guard({ a: 'hey', b: 9, c: true }), false)
 testEq('Guard.isCollectionLike loose works for object', Guard.is({ a: Guard.isString, b: Guard.isNumber }).config(loose).guard({ a: 'hey', b: 9 }), true)
 testEq('Guard.isCollectionLike loose fails for smaller object', Guard.is({ a: Guard.isString, b: Guard.isNumber }).config(loose).guard({ a: 'hey' }), false)
-testEq('Guard.isCollectionLike loose works for larger object', Guard.is({ a: Guard.isString, b: Guard.isNumber }).config(loose).guard({ a: 'hey', b: 9, c: 1n }), true)
+testEq('Guard.isCollectionLike loose works for larger object', Guard.is({ a: Guard.isString, b: Guard.isNumber }).config(loose).guard({ a: 'hey', b: 9, c: true }), true)
 
 testEq('Guard.isArrayOf uses default settings', Guard.isArrayOf(Guard.is([ Guard.isNumber ])).guard([ [10], [20], [30, 40] ]), true)
 testEq('Guard.isArrayOf propagates settings', Guard.isArrayOf(Guard.is([ Guard.isNumber ])).config(strict).guard([ [10], [20], [30, 40] ]), false)

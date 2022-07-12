@@ -5,7 +5,7 @@ export class Utils {
         }
         else {
             const entries = Object.entries(container);
-            return (map) => Object.fromEntries(entries.map(([key, value]) => [key, map(value, key)]));
+            return (map) => Utils.fromEntries(entries.map(([key, value]) => [key, map(value, key)]));
         }
     }
     static mapEager(container, map) {
@@ -14,8 +14,14 @@ export class Utils {
         }
         else {
             const entries = Object.entries(container);
-            return Object.fromEntries(entries.map(([key, value]) => [key, map(value, key)]));
+            return Utils.fromEntries(entries.map(([key, value]) => [key, map(value, key)]));
         }
+    }
+    static fromEntries(entries) {
+        let res = {};
+        for (let [key, value] of entries)
+            res[key] = value;
+        return res;
     }
 }
 //# sourceMappingURL=utils.js.map

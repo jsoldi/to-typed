@@ -33,7 +33,7 @@ class Cast {
         return new Cast((val, s) => fun(s)._cast(val, s));
     }
     cast(value, settings) {
-        return this._cast(value, settings ?? Cast.defaults);
+        return this._cast(value, settings !== null && settings !== void 0 ? settings : Cast.defaults);
     }
     config(config) {
         return new Cast((value, s) => this._cast(value, { ...s, ...config }));
@@ -146,9 +146,6 @@ class Cast {
     static get asArray() {
         return internal_js_1.Guard.isArray.or(internal_js_1.Guard.isSomething.bind(Cast.wrapArray));
     }
-    // public static get asCollection(): Cast<Collection> {
-    //     return Guard.isCollection.or(Guard.isSomething.bind(Cast.wrapArray));
-    // }
     static asConst(value) {
         return internal_js_1.Guard.isConst(value).or(Cast.just(value).asString.bind(str1 => Cast.asString.if(str2 => str1 === str2)).map(_ => value));
     }

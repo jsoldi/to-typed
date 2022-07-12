@@ -1,17 +1,14 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Convert = void 0;
-const internal_js_1 = require("./internal.js");
-class Convert extends internal_js_1.Cast {
+import { Utils, Maybe, Cast, Guard } from "./internal.js";
+export class Convert extends Cast {
     constructor(_convert) {
-        super((value, s) => internal_js_1.Maybe.just(_convert(value, s)));
+        super((value, s) => Maybe.just(_convert(value, s)));
         this._convert = _convert;
     }
     static lazy(fun) {
         return new Convert((val, s) => fun(s)._convert(val, s));
     }
     convert(value, settings) {
-        return this._convert(value, settings !== null && settings !== void 0 ? settings : internal_js_1.Cast.defaults);
+        return this._convert(value, settings !== null && settings !== void 0 ? settings : Cast.defaults);
     }
     config(config) {
         return new Convert((value, s) => this._convert(value, { ...s, ...config }));
@@ -31,46 +28,46 @@ class Convert extends internal_js_1.Cast {
      * @returns a `Convert` that converts to a union
      */
     static toEnum(...options) {
-        return internal_js_1.Cast.asEnum(...options).else(options[0]);
+        return Cast.asEnum(...options).else(options[0]);
     }
     static toString(alt = '') {
-        return internal_js_1.Cast.asString.else(alt);
+        return Cast.asString.else(alt);
     }
     static toNumber(alt = 0) {
-        return internal_js_1.Cast.asNumber.else(alt);
+        return Cast.asNumber.else(alt);
     }
     static toFinite(alt = 0) {
-        return internal_js_1.Cast.asFinite.else(alt);
+        return Cast.asFinite.else(alt);
     }
     static toInteger(alt = 0) {
-        return internal_js_1.Cast.asInteger.else(alt);
+        return Cast.asInteger.else(alt);
     }
     static toBoolean(alt = false) {
-        return internal_js_1.Cast.asBoolean.else(alt);
+        return Cast.asBoolean.else(alt);
     }
     static toTruthy() {
         return new Convert(value => !!value);
     }
     static toBigInt(alt = BigInt(0)) {
-        return internal_js_1.Cast.asBigInt.else(alt);
+        return Cast.asBigInt.else(alt);
     }
     static toDate(alt = new Date(0)) {
-        return internal_js_1.Cast.asDate.else(alt);
+        return Cast.asDate.else(alt);
     }
     static toArray(alt = []) {
-        return internal_js_1.Cast.asArray.else(alt);
+        return Cast.asArray.else(alt);
     }
     static toArrayOf(convertItem, alt = []) {
-        return internal_js_1.Cast.asArrayOf(convertItem).else(alt);
+        return Cast.asArrayOf(convertItem).else(alt);
     }
     static toStructOf(convertItem, alt = {}) {
-        return internal_js_1.Cast.asStructOf(convertItem).else(alt);
+        return Cast.asStructOf(convertItem).else(alt);
     }
     static toCollectionLike(converts) {
-        return internal_js_1.Guard.isCollection.or(internal_js_1.Cast.just(Array.isArray(converts) ? [] : {})).asCollectionLike(converts).elseThrow();
+        return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).asCollectionLike(converts).elseThrow();
     }
     static toArrayWhere(cast) {
-        return internal_js_1.Cast.asArrayWhere(cast).else([]);
+        return Cast.asArrayWhere(cast).else([]);
     }
     /**
      * Creates a `Convert` based on the given sample value, which is also used as the set of default values.
@@ -88,9 +85,9 @@ class Convert extends internal_js_1.Cast {
             case 'bigint':
                 return Convert.toBigInt(alt);
             case 'symbol':
-                internal_js_1.Guard.isSymbol.else(alt);
+                Guard.isSymbol.else(alt);
             case 'function':
-                return internal_js_1.Guard.isFunction.else(alt);
+                return Guard.isFunction.else(alt);
             case 'undefined':
                 return Convert.toConst(undefined);
             case 'object':
@@ -99,7 +96,7 @@ class Convert extends internal_js_1.Cast {
                 else if (alt === null)
                     return Convert.toConst(null);
         }
-        return Convert.toCollectionLike(internal_js_1.Utils.mapEager(alt, Convert.to));
+        return Convert.toCollectionLike(Utils.mapEager(alt, Convert.to));
     }
     toEnum(...options) { return this.compose(Convert.toEnum(...options)); }
     toString(alt = '') { return this.compose(Convert.toString(alt)); }
@@ -114,6 +111,4 @@ class Convert extends internal_js_1.Cast {
     toArrayWhere(cast) { return this.compose(Convert.toArrayWhere(cast)); }
     to(alt) { return this.compose(Convert.to(alt)); }
 }
-exports.Convert = Convert;
 Convert.id = new Convert(value => value);
-//# sourceMappingURL=convert.js.map

@@ -14,7 +14,7 @@ class Guard extends internal_js_1.Cast {
         return new Guard((val, s) => fun(s)._guard(val, s));
     }
     guard(input, settings) {
-        return this._guard(input, settings ?? internal_js_1.Cast.defaults);
+        return this._guard(input, settings !== null && settings !== void 0 ? settings : internal_js_1.Cast.defaults);
     }
     config(config) {
         return new Guard((value, s) => this._guard(value, { ...s, ...config }));

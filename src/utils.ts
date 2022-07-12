@@ -1,4 +1,4 @@
-import { Collection, Struct } from "./types"
+import { Collection } from "./types"
 
 export class Utils {
     static mapLazy<S, C extends Collection<S> = Collection<S>>(container: C): <T>(map: (value: S, key: string) => T) => { [I in keyof C]: T } {
@@ -9,7 +9,7 @@ export class Utils {
         else {
             const entries = Object.entries(container)
             return <T>(map: (value: S, key: string) => T) => 
-                Object.fromEntries(entries.map(([key, value]) => [ key, map(value, key) ])) as any
+                Utils.fromEntries(entries.map(([key, value]) => [ key, map(value, key) ])) as any
         }
     }
 
@@ -19,7 +19,16 @@ export class Utils {
         } 
         else {
             const entries = Object.entries(container)
-            return Object.fromEntries(entries.map(([key, value]) => [ key, map(value, key) ])) as any
+            return Utils.fromEntries(entries.map(([key, value]) => [ key, map(value, key) ])) as any
         }
+    }
+
+    static fromEntries<T>(entries: [string, T][]): { [s: string]: T } {
+        let res = {} as any;
+
+        for (let [key, value] of entries)
+            res[key] = value;
+
+        return res;
     }
 }
