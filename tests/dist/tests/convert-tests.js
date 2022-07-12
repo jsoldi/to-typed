@@ -33,8 +33,8 @@ testConvert('Convert.toNumber defaults for empty string', index_js_1.Convert.toN
 testConvert('Convert.toNumber defaults for invalid string', index_js_1.Convert.toNumber(-1), 'foo', -1);
 testConvert('Convert.toNumber converts from object', index_js_1.Convert.toNumber(-1), {}, -1);
 testConvert('Convert.toNumber converts from bigint', index_js_1.Convert.toNumber(-1), BigInt(12345), 12345);
-testConvert('Convert.toNumber defaults for too large bigint', index_js_1.Convert.toNumber(-1), BigInt(Number.MAX_SAFE_INTEGER + 1), -1);
-testConvert('Convert.toNumber defaults for too small bigint', index_js_1.Convert.toNumber(-1), BigInt(Number.MIN_SAFE_INTEGER - 1), -1);
+testConvert('Convert.toNumber defaults for too large bigint', index_js_1.Convert.toNumber(-1), BigInt(Number.MAX_SAFE_INTEGER.toString() + '0'), -1);
+testConvert('Convert.toNumber defaults for too small bigint', index_js_1.Convert.toNumber(-1), BigInt(Number.MIN_SAFE_INTEGER.toString() + '0'), -1);
 testConvert('Convert.toFinite gets only item in array', index_js_1.Convert.toFinite(-1), ['-3.14'], -3.14);
 testConvert('Convert.toFinite fails for multiple items array', index_js_1.Convert.toFinite(-1), ['-3.14', 2], -1);
 testConvert('Convert.toFinite defaults for Infinity', index_js_1.Convert.toFinite(-1), Infinity, -1);
@@ -47,7 +47,7 @@ testConvert('Convert.toInteger fails for multiple items asrray', index_js_1.Conv
 testConvert('Convert.toInteger rounds down', index_js_1.Convert.toInteger(-1), '123.45', 123);
 testConvert('Convert.toInteger rounds up', index_js_1.Convert.toInteger(-1), '123.65', 124);
 testConvert('Convert.toInteger converts from bigint', index_js_1.Convert.toInteger(-1), BigInt(123), 123);
-testConvert('Convert.toInteger defaults for too large bigint', index_js_1.Convert.toInteger(-1), BigInt(Number.MAX_SAFE_INTEGER + 1), -1);
+testConvert('Convert.toInteger defaults for too large bigint', index_js_1.Convert.toInteger(-1), BigInt(Number.MAX_SAFE_INTEGER.toString() + '0'), -1);
 testConvert('Convert.toBoolean parses true', index_js_1.Convert.toBoolean(null), 'true', true);
 testConvert('Convert.toBoolean parses false', index_js_1.Convert.toBoolean(null), 'false', false);
 testConvert('Convert.toBoolean does not coerce to true', index_js_1.Convert.toBoolean(null), 'aaaaaaaa', null);
