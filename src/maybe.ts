@@ -46,7 +46,14 @@ class MaybeBase<out T> {
     }
 
     public static any<T>(maybes: Maybe<T>[]): T[] {
-        return maybes.flatMap(m => m.hasValue ? [m.value] : []);
+        const result = [] as T[];
+
+        for (let maybe of maybes) {
+            if (maybe.hasValue)
+                result.push(maybe.value);
+        }
+
+        return result;
     }
 
     public read<R>(ifValue: (left: T) => R): R | void

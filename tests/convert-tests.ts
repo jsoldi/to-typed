@@ -1,6 +1,8 @@
 import { Cast, Convert, Maybe } from "../src/index.js";
 import { testEq, testError, TypeAssert, TypesAreEqual } from "./tester.js";
 
+declare const BigInt: (input: any) => bigint;
+
 function testConvert<T>(name: string, convert: Convert<T>, value: unknown, expectedValue: T) {
     testEq(name, convert.convert(value), expectedValue);
 }

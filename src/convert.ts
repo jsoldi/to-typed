@@ -8,6 +8,8 @@ type TConvertMap<T> =
     T extends { [k in keyof T]: any } ? { [k in keyof T]: TConvertMap<T[k]> } :
     unknown;
 
+declare const BigInt: (input: any) => bigint;
+
 export class Convert<out T = unknown> extends Cast<T> {
     public constructor(private readonly _convert: (value: unknown, settings: CastSettings) => T) {
         super((value, s) => Maybe.just(_convert(value, s)));

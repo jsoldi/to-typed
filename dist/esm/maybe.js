@@ -26,7 +26,12 @@ class MaybeBase {
         return MaybeBase.just(result);
     }
     static any(maybes) {
-        return maybes.flatMap(m => m.hasValue ? [m.value] : []);
+        const result = [];
+        for (let maybe of maybes) {
+            if (maybe.hasValue)
+                result.push(maybe.value);
+        }
+        return result;
     }
     read(ifValue, ifNothing) {
         return this.data.hasValue ? ifValue(this.data.value) : ifNothing ? ifNothing() : undefined;
