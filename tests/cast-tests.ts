@@ -21,6 +21,8 @@ function testCastNo<T>(name: string, cast: Cast<T>, value: unknown) {
 testCastYes('Cast uses default settings', Cast.asArrayWhere(Cast.asBoolean), ['true', 'false', 'nope', 'yup'], [true, false]);
 testCastYes('Cast.asArrayWhere propagates settings', Cast.asArrayWhere(Cast.asBoolean).config(customBooleans), ['true', 'false', 'nope', 'yup'], [false, true]);
 
+testCastYes('This must fail', Cast.asNever, 234, 123);
+
 testCastYes('Cast deep propagates settings', Cast.as({
     a: [Cast.asBoolean],
     b: {
