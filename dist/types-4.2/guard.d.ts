@@ -6,7 +6,7 @@ declare abstract class Was<U> {
     private constructor();
 }
 declare type SubtypeOf<T, U> = unknown extends T ? T & U : T extends never ? T & U : T extends null ? T & U : T extends undefined ? T & U : T & U & Was<U>;
-declare type TGuardMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends Guard<infer R> ? R : T extends {
+export declare type TGuardMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends Guard<infer R> ? R : T extends {
     [k in keyof T]: any;
 } ? {
     [k in keyof T]: TGuardMap<T[k]>;
@@ -56,6 +56,11 @@ export declare class Guard<T = unknown> extends Cast<T> {
     static isCollectionOf<T>(guard: Guard<T>): Guard<Collection<T>>;
     static isArrayOf<T>(guard: Guard<T>): Guard<T[]>;
     static isStructOf<T>(guard: Guard<T>): Guard<Struct<T>>;
+    /**
+     * Given an object or tuple of guards, it produces a guard that guards for an object or tuple that has the same shape as the given guards.
+     * @param casts an object or tuple of guards
+     * @returns a guard that guards for an object or tuple matching the shape of the given guards
+     */
     static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>>;
     /**
      * Creates a `Guard` based on a sample value.

@@ -1,8 +1,7 @@
 import { Utils, Maybe, Cast, Guard, CastSettings, TCastAll } from "./internal.js";
 import { Collection, Primitive, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 
-// Maps { b: ? => B, c: C } to { b: B, c: C }:
-type TConvertMap<T> = 
+export type TConvertMap<T> = 
     T extends SimpleType ? SimpleTypeOf<T> :
     T extends Convert<infer R> ? R :
     T extends { [k in keyof T]: any } ? { [k in keyof T]: TConvertMap<T[k]> } :
@@ -96,10 +95,20 @@ export class Convert<out T = unknown> extends Cast<T> {
         return Cast.asStructOf(convertItem).else(alt);
     }
 
-    public static toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastAll<T>> {
+    /**
+     * Given an object or tuple of converts, it produces a convert that outputs an object or tuple having the same shape as the given converts.
+     * @param casts an object or tuple of converts
+     * @returns a convert that produces an object or tuple matching the shape of the given converts
+     */
+     public static toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastAll<T>> {
         return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).asCollectionLike(converts).elseThrow();
     }
 
+    /**
+     * Produces a convert that filters out values from the input that could not be casted by the given cast.
+     * @param cast the cast to use for filtering
+     * @returns a convert that filters out values that could not be casted by the given cast
+     */
     public static toArrayWhere<T>(cast: Cast<T>): Convert<T[]> {
         return Cast.asArrayWhere(cast).else([] as T[]);
     }

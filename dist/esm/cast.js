@@ -162,11 +162,21 @@ export class Cast {
         const map = Utils.mapLazy(casts);
         return col => Cast.all(map((cast, k) => Cast.just(col[k]).compose(cast)));
     }
+    /**
+     * Given an object or tuple of casts, it produces a cast that outputs an object or tuple having the same shape as the given casts.
+     * @param casts an object or tuple of casts
+     * @returns a cast that produces an object or tuple matching the shape of the given casts
+     */
     static asCollectionLike(casts) {
         return Array.isArray(casts) ?
             Cast.asArray.bind(Cast.makeCollectionLike(casts)) :
             Guard.isStruct.bind(Cast.makeCollectionLike(casts));
     }
+    /**
+     * Produces a cast that filters out values from the input that could not be casted by the given cast.
+     * @param cast the cast to use for filtering
+     * @returns a cast that filters out values that could not be casted by the given cast
+     */
     static asArrayWhere(cast) {
         return Cast.asArray.bind(val => Cast.any(val.map(v => Cast.just(v).compose(cast))));
     }

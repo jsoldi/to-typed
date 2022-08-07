@@ -1,6 +1,6 @@
 import { Cast, CastSettings, TCastAll } from "./internal.js";
 import { Collection, Primitive, SimpleType, SimpleTypeOf, Struct } from "./types.js";
-declare type TConvertMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends Convert<infer R> ? R : T extends {
+export declare type TConvertMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T extends Convert<infer R> ? R : T extends {
     [k in keyof T]: any;
 } ? {
     [k in keyof T]: TConvertMap<T[k]>;
@@ -33,7 +33,17 @@ export declare class Convert<out T = unknown> extends Cast<T> {
     static toArray(alt?: unknown[]): Convert<unknown[]>;
     static toArrayOf<T>(convertItem: Convert<T>, alt?: T[]): Convert<T[]>;
     static toStructOf<T>(convertItem: Convert<T>, alt?: Struct<T>): Convert<Struct<T>>;
+    /**
+     * Given an object or tuple of converts, it produces a convert that outputs an object or tuple having the same shape as the given converts.
+     * @param casts an object or tuple of converts
+     * @returns a convert that produces an object or tuple matching the shape of the given converts
+     */
     static toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastAll<T>>;
+    /**
+     * Produces a convert that filters out values from the input that could not be casted by the given cast.
+     * @param cast the cast to use for filtering
+     * @returns a convert that filters out values that could not be casted by the given cast
+     */
     static toArrayWhere<T>(cast: Cast<T>): Convert<T[]>;
     /**
      * Creates a `Convert` based on the given sample value, which is also used as the set of default values.
@@ -54,4 +64,3 @@ export declare class Convert<out T = unknown> extends Cast<T> {
     toArrayWhere<T>(cast: Cast<T>): Convert<T[]>;
     to<T>(alt: T): Convert<TConvertMap<T>>;
 }
-export {};

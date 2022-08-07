@@ -8,7 +8,6 @@ type CastSome<T extends readonly Cast<unknown>[]> =
 
 export type TCastAll<T extends Collection<Cast>> = { [I in keyof T]: T[I] extends Cast<infer V> ? V : never }
 
-// Maps { b: ? => B, c: C } to { b: B, c: C }:
 export type TCastMap<T> = 
     T extends SimpleType ? SimpleTypeOf<T> :
     T extends Cast<infer R> ? R :
@@ -258,13 +257,23 @@ export class Cast<out T = unknown> {
         return col => Cast.all(map((cast: Cast, k) => Cast.just((col as Struct)[k]).compose(cast)));
     }
 
+    /**
+     * Given an object or tuple of casts, it produces a cast that outputs an object or tuple having the same shape as the given casts.
+     * @param casts an object or tuple of casts
+     * @returns a cast that produces an object or tuple matching the shape of the given casts
+     */
     public static asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>> {
         return Array.isArray(casts) ?
             Cast.asArray.bind(Cast.makeCollectionLike(casts)) as Cast<TCastAll<T>> :
             Guard.isStruct.bind(Cast.makeCollectionLike(casts)) as Cast<TCastAll<T>>;
     }
 
-    public static asArrayWhere<T>(cast: Cast<T>): Cast<T[]> {
+    /**
+     * Produces a cast that filters out values from the input that could not be casted by the given cast.
+     * @param cast the cast to use for filtering
+     * @returns a cast that filters out values that could not be casted by the given cast
+     */
+     public static asArrayWhere<T>(cast: Cast<T>): Cast<T[]> {
         return Cast.asArray.bind(val => Cast.any(val.map(v => Cast.just(v).compose(cast))))
     }
 

@@ -86,10 +86,14 @@ export class Guard extends Cast {
     static isStructOf(guard) {
         return Guard.isStruct.and((str, s) => Object.values(str).every(i => guard._guard(i, s)));
     }
+    /**
+     * Given an object or tuple of guards, it produces a guard that guards for an object or tuple that has the same shape as the given guards.
+     * @param casts an object or tuple of guards
+     * @returns a guard that guards for an object or tuple matching the shape of the given guards
+     */
     static isCollectionLike(guards) {
-        const gKeys = Object.keys(guards);
         const gEntries = Object.entries(guards);
-        return Guard.isCollection.and((col, s) => (s.keyGuarding === 'loose' || gKeys.length === Object.keys(col).length)
+        return Guard.isCollection.and((col, s) => (s.keyGuarding === 'loose' || gEntries.length === Object.keys(col).length)
             && gEntries.every(([k, g]) => g.guard(col[k], s)));
     }
     /**

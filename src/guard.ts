@@ -17,8 +17,7 @@ type SubtypeOf<T, U> =
     T extends undefined ? T & U :
     T & U & Was<U>
 
-// Maps { b: ? => B, c: C } to { b: B, c: C }:
-type TGuardMap<T> = 
+export type TGuardMap<T> = 
     T extends SimpleType ? SimpleTypeOf<T> :
     T extends Guard<infer R> ? R :
     T extends { [k in keyof T]: any } ? { [k in keyof T]: TGuardMap<T[k]> } :
@@ -142,12 +141,16 @@ export class Guard<out T = unknown> extends Cast<T> {
         return Guard.isStruct.and((str, s): str is Struct<T> => Object.values(str).every(i => guard._guard(i, s)));
     }
 
-    public static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>> {
-        const gKeys = Object.keys(guards);
+    /**
+     * Given an object or tuple of guards, it produces a guard that guards for an object or tuple that has the same shape as the given guards.
+     * @param casts an object or tuple of guards
+     * @returns a guard that guards for an object or tuple matching the shape of the given guards
+     */
+     public static isCollectionLike<T extends Collection<Guard>>(guards: T): Guard<TCastAll<T>> {
         const gEntries = Object.entries(guards);
 
         return Guard.isCollection.and((col, s): col is TCastAll<T> => 
-            (s.keyGuarding === 'loose' || gKeys.length === Object.keys(col).length)
+            (s.keyGuarding === 'loose' || gEntries.length === Object.keys(col).length)
             && gEntries.every(([k, g]) => g.guard((col as Struct)[k], s))
         );
     }

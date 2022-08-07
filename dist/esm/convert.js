@@ -63,9 +63,19 @@ export class Convert extends Cast {
     static toStructOf(convertItem, alt = {}) {
         return Cast.asStructOf(convertItem).else(alt);
     }
+    /**
+     * Given an object or tuple of converts, it produces a convert that outputs an object or tuple having the same shape as the given converts.
+     * @param casts an object or tuple of converts
+     * @returns a convert that produces an object or tuple matching the shape of the given converts
+     */
     static toCollectionLike(converts) {
         return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).asCollectionLike(converts).elseThrow();
     }
+    /**
+     * Produces a convert that filters out values from the input that could not be casted by the given cast.
+     * @param cast the cast to use for filtering
+     * @returns a convert that filters out values that could not be casted by the given cast
+     */
     static toArrayWhere(cast) {
         return Cast.asArrayWhere(cast).else([]);
     }

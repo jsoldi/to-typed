@@ -69,7 +69,17 @@ export declare class Cast<out T = unknown> {
     static asArrayOf<T>(cast: Cast<T>): Cast<T[]>;
     static asStructOf<T>(cast: Cast<T>): Cast<Struct<T>>;
     private static makeCollectionLike;
+    /**
+     * Given an object or tuple of casts, it produces a cast that outputs an object or tuple having the same shape as the given casts.
+     * @param casts an object or tuple of casts
+     * @returns a cast that produces an object or tuple matching the shape of the given casts
+     */
     static asCollectionLike<T extends Collection<Cast>>(casts: T): Cast<TCastAll<T>>;
+    /**
+     * Produces a cast that filters out values from the input that could not be casted by the given cast.
+     * @param cast the cast to use for filtering
+     * @returns a cast that filters out values that could not be casted by the given cast
+     */
     static asArrayWhere<T>(cast: Cast<T>): Cast<T[]>;
     /**
      * Creates a `Cast` based on a sample value.
