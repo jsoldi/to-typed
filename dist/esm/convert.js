@@ -10,6 +10,24 @@ export class Convert extends Cast {
     convert(value, settings) {
         return this._convert(value, settings !== null && settings !== void 0 ? settings : Cast.defaults);
     }
+    get default() {
+        return this.convert(undefined);
+    }
+    keys() {
+        return Object.keys(this.default);
+    }
+    entries() {
+        const def = this.default;
+        const keys = this.keys();
+        const result = {};
+        for (const key of keys) {
+            result[key] = new Convert((value, settings) => {
+                const s = { ...def, [key]: value };
+                return this._convert(s, settings)[key];
+            });
+        }
+        return result;
+    }
     config(config) {
         return new Convert((value, s) => this._convert(value, { ...s, ...config }));
     }

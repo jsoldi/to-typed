@@ -11,6 +11,11 @@ export declare class Convert<out T = unknown> extends Cast<T> {
     static lazy<T>(fun: (s: CastSettings) => Convert<T>): Convert<T>;
     convert(value: unknown): T;
     convert(value: unknown, settings: CastSettings): T;
+    get default(): T;
+    keys<S extends Struct<unknown>>(this: Convert<S>): readonly (keyof S)[];
+    entries<S extends Struct<unknown>>(this: Convert<S>): {
+        [k in keyof S]: Convert<S[k]>;
+    };
     config(config: Partial<CastSettings>): Convert<T>;
     static readonly id: Convert<unknown>;
     static toConst<T>(value: T): Convert<T>;

@@ -24,6 +24,29 @@ export class Convert<out T = unknown> extends Cast<T> {
         return this._convert(value, settings ?? Cast.defaults);
     }
 
+    public get default(): T {
+        return this.convert(undefined);
+    }
+
+    public keys<S extends Struct<unknown>>(this: Convert<S>): readonly (keyof S)[] {
+        return Object.keys(this.default) as readonly (keyof S)[];
+    }
+
+    public entries<S extends Struct<unknown>>(this: Convert<S>): { [k in keyof S]: Convert<S[k]> } {
+        const def = this.default;
+        const keys = this.keys();
+        const result = {} as { [k in keyof S]: Convert<S[k]> };
+
+        for (const key of keys) {
+            result[key] = new Convert((value, settings) => {
+                const s = { ...def, [key]: value };
+                return this._convert(s, settings)[key];
+            });
+        }
+
+        return result;
+    }
+
     public config(config: Partial<CastSettings>) {
         return new Convert((value, s) => this._convert(value, { ...s, ...config }));
     }
