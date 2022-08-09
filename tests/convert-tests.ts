@@ -39,15 +39,15 @@ testConvert('Convert.toNumber converts from bigint', Convert.toNumber(-1), BigIn
 testConvert('Convert.toNumber defaults for too large bigint', Convert.toNumber(-1), BigInt(Number.MAX_SAFE_INTEGER.toString() + '0'), -1)
 testConvert('Convert.toNumber defaults for too small bigint', Convert.toNumber(-1), BigInt(Number.MIN_SAFE_INTEGER.toString() + '0'), -1)
 
-testConvert('Convert.toFinite gets only item in array', Convert.toFinite(-1), [ '-3.14' ], -3.14)
-testConvert('Convert.toFinite fails for multiple items array', Convert.toFinite(-1), [ '-3.14', 2 ], -1)
+testConvert('Convert.toFinite gets only item in array', Convert.toFinite(-1), ['-3.14'], -3.14)
+testConvert('Convert.toFinite fails for multiple items array', Convert.toFinite(-1), ['-3.14', 2], -1)
 testConvert('Convert.toFinite defaults for Infinity', Convert.toFinite(-1), Infinity, -1)
 testConvert('Convert.toFinite defaults for NaN', Convert.toFinite(-1), NaN, -1)
 testConvert('Convert.toFinite defaults for string Infinity', Convert.toFinite(-1), 'Infinity', -1)
 testConvert('Convert.toFinite defaults for string NaN', Convert.toFinite(-1), 'NaN', -1)
 testConvert('Convert.toFinite parses float', Convert.toFinite(-1), '123.45', 123.45)
-testConvert('Convert.toInteger gets only item in array', Convert.toInteger(-1), [ '1.2' ], 1)
-testConvert('Convert.toInteger fails for multiple items asrray', Convert.toInteger(-1), [ '1.2', '2.3' ], -1)
+testConvert('Convert.toInteger gets only item in array', Convert.toInteger(-1), ['1.2'], 1)
+testConvert('Convert.toInteger fails for multiple items asrray', Convert.toInteger(-1), ['1.2', '2.3'], -1)
 testConvert('Convert.toInteger rounds down', Convert.toInteger(-1), '123.45', 123)
 testConvert('Convert.toInteger rounds up', Convert.toInteger(-1), '123.65', 124)
 testConvert('Convert.toInteger converts from bigint', Convert.toInteger(-1), BigInt(123), 123)
@@ -70,8 +70,8 @@ testConvert('Convert.toArray wraps primitive', Convert.toArray(null as any as an
 
 testConvert('Convert.toArrayOf converts empty array', Convert.toArrayOf(Convert.toString(), null as any), [], [])
 testConvert('Convert.toArrayOf converts array contents', Convert.toArrayOf(Convert.toString(), null as any), [1, 2, 3], ['1', '2', '3'])
-testConvert('Convert.toArrayOf wraps primitive', Convert.toArrayOf(Convert.id, 'DEF' as any), 'hello', [ 'hello' ] as any)
-testConvert('Convert.toArrayOf wraps object', Convert.toArrayOf(Convert.id, 'DEF' as any), { hi: 123 }, [ { hi: 123 } ] as any)
+testConvert('Convert.toArrayOf wraps primitive', Convert.toArrayOf(Convert.id, 'DEF' as any), 'hello', ['hello'] as any)
+testConvert('Convert.toArrayOf wraps object', Convert.toArrayOf(Convert.id, 'DEF' as any), { hi: 123 }, [{ hi: 123 }] as any)
 testConvert('Convert.toArrayOf defaults for null', Convert.toArrayOf(Convert.id, 'DEF' as any), null, 'DEF' as any)
 testConvert('Convert.toArrayOf defaults for undefined', Convert.toArrayOf(Convert.id, 'DEF' as any), undefined, 'DEF' as any)
 
@@ -84,7 +84,7 @@ testConvert('Convert.toStructOf defaults for undefined', Convert.toStructOf(Conv
 
 testConvert('Convert.to empty array produces empty array on success', Convert.to([]), [1, 2, 3], [])
 testConvert('Convert.to empty array produces empty array on error', Convert.to([]), null, [])
-testConvert('Convert.to array converts array items', Convert.to([ Convert.toString('DEF'), Convert.toNumber() ]), [ {}, 'NaN', 20 ], [ 'DEF', NaN ])
+testConvert('Convert.to array converts array items', Convert.to([Convert.toString('DEF'), Convert.toNumber()]), [{}, 'NaN', 20], ['DEF', NaN])
 
 testConvert('Convert.to empty object produces empty object on success', Convert.to({}), { hi: 1 }, {})
 testConvert('Convert.to empty object produces empty object on error', Convert.to({}), null, {})
@@ -101,12 +101,12 @@ testConvert('Convert.toBigInt converts true to 1', Convert.toBigInt(BigInt(-1)),
 
 const convertAllEmptyArray = Convert.all([])
 const convertAllEmptyStruct = Convert.all({})
-const convertAllStringInArray = Convert.all([ Convert.toString() ])
+const convertAllStringInArray = Convert.all([Convert.toString()])
 const convertAllStringInStruct = Convert.all({ a: Convert.toString() })
-const convertAllCastInArray = Convert.all([ Cast.asString ])
+const convertAllCastInArray = Convert.all([Cast.asString])
 const convertAllCastInStruct = Convert.all({ a: Cast.asString })
-const convertAllCastAndConvertInArray = Convert.all([ Convert.toString(), Cast.asNumber ])
-const convertAllCastAndConvertInTuple = Convert.all([ Convert.toString(), Cast.asNumber ] as const)
+const convertAllCastAndConvertInArray = Convert.all([Convert.toString(), Cast.asNumber])
+const convertAllCastAndConvertInTuple = Convert.all([Convert.toString(), Cast.asNumber] as const)
 const convertAllCastAndConvertInStruct = Convert.all({ a: Convert.toString(), b: Cast.asNumber })
 
 type ConvertAllEmptyArrayIsConvert = TypeAssert<TypesAreEqual<typeof convertAllEmptyArray, Convert<unknown[]>>>
@@ -121,11 +121,11 @@ type ConvertAllCastAndConvertInStructIsCast = TypeAssert<TypesAreEqual<typeof co
 
 testEq('Convert.all empty array produces a Convert', Convert.all([]).constructor.name, Convert.prototype.constructor.name)
 testEq('Convert.all empty struct produces a Convert', Convert.all({}).constructor.name, Convert.prototype.constructor.name)
-testEq('Convert.all with Cast in array produces a Cast', Convert.all([ Cast.asString ]).constructor.name, Cast.prototype.constructor.name)
+testEq('Convert.all with Cast in array produces a Cast', Convert.all([Cast.asString]).constructor.name, Cast.prototype.constructor.name)
 testEq('Convert.all with Cast in struct produces a Cast', Convert.all({ hi: Cast.asString }).constructor.name, Cast.prototype.constructor.name)
-testEq('Convert.all with Convert in array produces a Convert', Convert.all([ Convert.toString() ]).constructor.name, Convert.prototype.constructor.name)
+testEq('Convert.all with Convert in array produces a Convert', Convert.all([Convert.toString()]).constructor.name, Convert.prototype.constructor.name)
 testEq('Convert.all with Convert in struct produces a Convert', Convert.all({ hi: Convert.toString() }).constructor.name, Convert.prototype.constructor.name)
-testEq('Convert.all with both in array produces a Cast', Convert.all([ Convert.toString(), Cast.asString ]).constructor.name, Cast.prototype.constructor.name)
+testEq('Convert.all with both in array produces a Cast', Convert.all([Convert.toString(), Cast.asString]).constructor.name, Cast.prototype.constructor.name)
 testEq('Convert.all with both in struct produces a Cast', Convert.all({ hi: Convert.toString(), bye: Cast.asString }).constructor.name, Cast.prototype.constructor.name)
 
 testConvert('Convert.all converts null to empty array', Convert.all([]).else('DEF'), null, [])
@@ -148,3 +148,22 @@ testEq('Cast.elseThrow returns a convert', Cast.asInteger.elseThrow().constructo
 testConvert('Cast.elseThrow converts valid value', Cast.asInteger.elseThrow(), '123', 123);
 testError('Cast.elseThrow throws for invalid value with default message', 'Cast has no value', () => Cast.asInteger.elseThrow().convert('bad'));
 testError('Cast.elseThrow throws for invalid value with custom message', 'Bad number', () => Cast.asInteger.elseThrow(() => new Error('Bad number')).convert('bad'));
+
+const structConvert = Convert.to({
+    int: Convert.toInteger(),
+    str: Convert.toString('DEFAULT'),
+    tup: [100, '200']
+})
+
+testEq('Convert.props returns keys', Object.keys(structConvert.obj), ['int', 'str', 'tup']);
+testEq('Convert.props member 1 behaves as original (1)', structConvert.obj.int.convert(1.9), 2);
+testEq('Convert.props member 1 behaves as original (2)', structConvert.obj.int.convert(null), 0);
+testEq('Convert.props member 2 behaves as original (1)', structConvert.obj.str.convert(1.9), '1.9');
+testEq('Convert.props member 2 behaves as original (2)', structConvert.obj.str.convert(null), 'DEFAULT');
+testEq('Convert.props member 3 behaves as original (1)', structConvert.obj.tup.convert(null), [100, '200']);
+testEq('Convert.props member 3 behaves as original (2)', structConvert.obj.tup.convert(['123', '321']), [123, '321']);
+
+testEq('Convert.props can handle hidden keys',
+    Object.entries(Cast.as({ uno: 1 }).else({ uno: 10, dos: 'hey' }).obj).map(([key, convert]) => [key, convert.convert(null)]),
+    [['uno', 10], ['dos', 'hey']]
+);

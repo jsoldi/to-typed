@@ -112,11 +112,3 @@ console.log(converter.convert({
 //         relaxedNumberOrString: -Infinity
 //     }
 // }
-const lol = index_js_1.Convert.to({
-    uno: 1,
-    dos: 'rata'
-});
-const dales = lol.entries();
-console.log(dales.dos.convert(null));
-console.log(dales.dos.convert('pedo'));
-console.log(dales.dos.convert(12.32));

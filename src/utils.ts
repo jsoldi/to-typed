@@ -23,7 +23,7 @@ export class Utils {
         }
     }
 
-    static fromEntries<T>(entries: [string, T][]): { [s: string]: T } {
+    static fromEntries<T>(entries: [keyof any, T][]): { [s: string]: T } {
         let res = {} as any;
 
         for (let [key, value] of entries)

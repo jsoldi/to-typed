@@ -6,7 +6,7 @@ export declare class Utils {
     static mapEager<S, T, C extends Collection<S>>(container: C, map: (value: S, key: string) => T): {
         [I in keyof C]: T;
     };
-    static fromEntries<T>(entries: [string, T][]): {
+    static fromEntries<T>(entries: [keyof any, T][]): {
         [s: string]: T;
     };
 }

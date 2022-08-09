@@ -1,15 +1,19 @@
 import { Utils, Maybe, Cast, Guard, CastSettings, TCastAll } from "./internal.js";
 import { Collection, Primitive, SimpleType, SimpleTypeOf, Struct } from "./types.js";
 
-export type TConvertMap<T> = 
+export type TConvertMap<T> =
     T extends SimpleType ? SimpleTypeOf<T> :
     T extends Convert<infer R> ? R :
     T extends { [k in keyof T]: any } ? { [k in keyof T]: TConvertMap<T[k]> } :
     unknown;
 
+type ConvertObject<T> = { readonly [k in keyof T]: Convert<T[k]> };
+
 declare const BigInt: (input: any) => bigint;
 
 export class Convert<out T = unknown> extends Cast<T> {
+    private _obj: ConvertObject<T> | undefined;
+
     public constructor(private readonly _convert: (value: unknown, settings: CastSettings) => T) {
         super((value, s) => Maybe.just(_convert(value, s)));
     }
@@ -24,27 +28,21 @@ export class Convert<out T = unknown> extends Cast<T> {
         return this._convert(value, settings ?? Cast.defaults);
     }
 
-    public get default(): T {
-        return this.convert(undefined);
-    }
-
-    public keys<S extends Struct<unknown>>(this: Convert<S>): readonly (keyof S)[] {
-        return Object.keys(this.default) as readonly (keyof S)[];
-    }
-
-    public entries<S extends Struct<unknown>>(this: Convert<S>): { [k in keyof S]: Convert<S[k]> } {
-        const def = this.default;
-        const keys = this.keys();
-        const result = {} as { [k in keyof S]: Convert<S[k]> };
-
-        for (const key of keys) {
-            result[key] = new Convert((value, settings) => {
-                const s = { ...def, [key]: value };
-                return this._convert(s, settings)[key];
-            });
+    public get obj(): ConvertObject<T> {
+        if (this._obj === undefined) {
+            this._obj = Object.defineProperties({}, Utils.fromEntries(Object.keys(this.convert(undefined)).map(key => [
+                key,
+                {
+                    enumerable: true,
+                    get: () => new Convert((value, settings) => {
+                        const obj = this._convert({ [key]: value }, settings);
+                        return key in obj ? obj[key as keyof T] : undefined;
+                    })
+                }
+            ]))) as ConvertObject<T>
         }
 
-        return result;
+        return this._obj;
     }
 
     public config(config: Partial<CastSettings>) {
@@ -91,7 +89,7 @@ export class Convert<out T = unknown> extends Cast<T> {
     }
 
     public static toBoolean(alt: boolean = false) {
-        return Cast.asBoolean.else(alt);        
+        return Cast.asBoolean.else(alt);
     }
 
     public static toTruthy() {
@@ -113,7 +111,7 @@ export class Convert<out T = unknown> extends Cast<T> {
     public static toArrayOf<T>(convertItem: Convert<T>, alt: T[] = []): Convert<T[]> {
         return Cast.asArrayOf(convertItem).else(alt);
     }
- 
+
     public static toStructOf<T>(convertItem: Convert<T>, alt: Struct<T> = {}): Convert<Struct<T>> {
         return Cast.asStructOf(convertItem).else(alt);
     }
@@ -123,7 +121,7 @@ export class Convert<out T = unknown> extends Cast<T> {
      * @param casts an object or tuple of converts
      * @returns a convert that produces an object or tuple matching the shape of the given converts
      */
-     public static toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastAll<T>> {
+    public static toCollectionLike<T extends Collection<Convert>>(converts: T): Convert<TCastAll<T>> {
         return Guard.isCollection.or(Cast.just(Array.isArray(converts) ? [] : {})).asCollectionLike(converts).elseThrow();
     }
 
@@ -157,8 +155,8 @@ export class Convert<out T = unknown> extends Cast<T> {
                 return Guard.isFunction.else(alt) as Convert<TConvertMap<T>>
             case 'undefined':
                 return Convert.toConst(undefined) as Convert<TConvertMap<T>>
-            case 'object': 
-                if (alt instanceof Convert)  
+            case 'object':
+                if (alt instanceof Convert)
                     return alt;
                 else if (alt === null)
                     return Convert.toConst(null) as Convert<TConvertMap<T>>

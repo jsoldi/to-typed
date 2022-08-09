@@ -7,7 +7,7 @@ export declare class Utils {
         [I in keyof C]: T;
     };
     static fromEntries<T>(entries: [
-        string,
+        keyof any,
         T
     ][]): {
         [s: string]: T;

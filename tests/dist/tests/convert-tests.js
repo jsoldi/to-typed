@@ -122,3 +122,16 @@ testConvert('Cast.elseNothing returns something on success', index_js_1.Cast.asI
 testConvert('Cast.elseThrow converts valid value', index_js_1.Cast.asInteger.elseThrow(), '123', 123);
 (0, tester_js_1.testError)('Cast.elseThrow throws for invalid value with default message', 'Cast has no value', () => index_js_1.Cast.asInteger.elseThrow().convert('bad'));
 (0, tester_js_1.testError)('Cast.elseThrow throws for invalid value with custom message', 'Bad number', () => index_js_1.Cast.asInteger.elseThrow(() => new Error('Bad number')).convert('bad'));
+const structConvert = index_js_1.Convert.to({
+    int: index_js_1.Convert.toInteger(),
+    str: index_js_1.Convert.toString('DEFAULT'),
+    tup: [100, '200']
+});
+(0, tester_js_1.testEq)('Convert.props returns keys', Object.keys(structConvert.obj), ['int', 'str', 'tup']);
+(0, tester_js_1.testEq)('Convert.props member 1 behaves as original (1)', structConvert.obj.int.convert(1.9), 2);
+(0, tester_js_1.testEq)('Convert.props member 1 behaves as original (2)', structConvert.obj.int.convert(null), 0);
+(0, tester_js_1.testEq)('Convert.props member 2 behaves as original (1)', structConvert.obj.str.convert(1.9), '1.9');
+(0, tester_js_1.testEq)('Convert.props member 2 behaves as original (2)', structConvert.obj.str.convert(null), 'DEFAULT');
+(0, tester_js_1.testEq)('Convert.props member 3 behaves as original (1)', structConvert.obj.tup.convert(null), [100, '200']);
+(0, tester_js_1.testEq)('Convert.props member 3 behaves as original (2)', structConvert.obj.tup.convert(['123', '321']), [123, '321']);
+(0, tester_js_1.testEq)('Convert.props can handle hidden keys', Object.entries(index_js_1.Cast.as({ uno: 1 }).else({ uno: 10, dos: 'hey' }).obj).map(([key, convert]) => [key, convert.convert(null)]), [['uno', 10], ['dos', 'hey']]);
