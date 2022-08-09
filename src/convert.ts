@@ -7,13 +7,9 @@ export type TConvertMap<T> =
     T extends { [k in keyof T]: any } ? { [k in keyof T]: TConvertMap<T[k]> } :
     unknown;
 
-type ConvertObject<T> = { readonly [k in keyof T]: Convert<T[k]> };
-
 declare const BigInt: (input: any) => bigint;
 
 export class Convert<out T = unknown> extends Cast<T> {
-    private _obj: ConvertObject<T> | undefined;
-
     public constructor(private readonly _convert: (value: unknown, settings: CastSettings) => T) {
         super((value, s) => Maybe.just(_convert(value, s)));
     }
@@ -28,21 +24,19 @@ export class Convert<out T = unknown> extends Cast<T> {
         return this._convert(value, settings ?? Cast.defaults);
     }
 
-    public get obj(): ConvertObject<T> {
-        if (this._obj === undefined) {
-            this._obj = Object.defineProperties({}, Utils.fromEntries(Object.keys(this.convert(undefined)).map(key => [
-                key,
-                {
-                    enumerable: true,
-                    get: () => new Convert((value, settings) => {
-                        const obj = this._convert({ [key]: value }, settings);
-                        return key in obj ? obj[key as keyof T] : undefined;
-                    })
-                }
-            ]))) as ConvertObject<T>
-        }
+    public decons<S extends Struct>(this: Convert<S>): { readonly [k in keyof S]: Convert<S[k]> } {
+        const obj = this.convert(undefined);
+        const keys = obj !== null && typeof obj === 'object' ? Object.keys(obj) : [];
 
-        return this._obj;
+        const propMap = Utils.fromEntries(keys.map(key => [key, {
+            enumerable: true,
+            get: () => new Convert((value, settings) => {
+                const obj = this._convert({ [key]: value }, settings);
+                return key in obj ? obj[key] : undefined;
+            })
+        }]));
+
+        return Object.defineProperties({}, propMap) as { readonly [k in keyof S]: Convert<S[k]> };
     }
 
     public config(config: Partial<CastSettings>) {

@@ -13,20 +13,17 @@ class Convert extends internal_js_1.Cast {
     convert(value, settings) {
         return this._convert(value, settings !== null && settings !== void 0 ? settings : internal_js_1.Cast.defaults);
     }
-    get obj() {
-        if (this._obj === undefined) {
-            this._obj = Object.defineProperties({}, internal_js_1.Utils.fromEntries(Object.keys(this.convert(undefined)).map(key => [
-                key,
-                {
-                    enumerable: true,
-                    get: () => new Convert((value, settings) => {
-                        const obj = this._convert({ [key]: value }, settings);
-                        return key in obj ? obj[key] : undefined;
-                    })
-                }
-            ])));
-        }
-        return this._obj;
+    decons() {
+        const obj = this.convert(undefined);
+        const keys = obj !== null && typeof obj === 'object' ? Object.keys(obj) : [];
+        const propMap = internal_js_1.Utils.fromEntries(keys.map(key => [key, {
+                enumerable: true,
+                get: () => new Convert((value, settings) => {
+                    const obj = this._convert({ [key]: value }, settings);
+                    return key in obj ? obj[key] : undefined;
+                })
+            }]));
+        return Object.defineProperties({}, propMap);
     }
     config(config) {
         return new Convert((value, s) => this._convert(value, { ...s, ...config }));

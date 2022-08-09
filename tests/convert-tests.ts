@@ -155,15 +155,17 @@ const structConvert = Convert.to({
     tup: [100, '200']
 })
 
-testEq('Convert.props returns keys', Object.keys(structConvert.obj), ['int', 'str', 'tup']);
-testEq('Convert.props member 1 behaves as original (1)', structConvert.obj.int.convert(1.9), 2);
-testEq('Convert.props member 1 behaves as original (2)', structConvert.obj.int.convert(null), 0);
-testEq('Convert.props member 2 behaves as original (1)', structConvert.obj.str.convert(1.9), '1.9');
-testEq('Convert.props member 2 behaves as original (2)', structConvert.obj.str.convert(null), 'DEFAULT');
-testEq('Convert.props member 3 behaves as original (1)', structConvert.obj.tup.convert(null), [100, '200']);
-testEq('Convert.props member 3 behaves as original (2)', structConvert.obj.tup.convert(['123', '321']), [123, '321']);
+const obj = structConvert.decons();
+
+testEq('Convert.props returns keys', Object.keys(obj), ['int', 'str', 'tup']);
+testEq('Convert.props member 1 behaves as original (1)', obj.int.convert(1.9), 2);
+testEq('Convert.props member 1 behaves as original (2)', obj.int.convert(null), 0);
+testEq('Convert.props member 2 behaves as original (1)', obj.str.convert(1.9), '1.9');
+testEq('Convert.props member 2 behaves as original (2)', obj.str.convert(null), 'DEFAULT');
+testEq('Convert.props member 3 behaves as original (1)', obj.tup.convert(null), [100, '200']);
+testEq('Convert.props member 3 behaves as original (2)', obj.tup.convert(['123', '321']), [123, '321']);
 
 testEq('Convert.props can handle hidden keys',
-    Object.entries(Cast.as({ uno: 1 }).else({ uno: 10, dos: 'hey' }).obj).map(([key, convert]) => [key, convert.convert(null)]),
+    Object.entries(Cast.as({ uno: 1 }).else({ uno: 10, dos: 'hey' }).decons()).map(([key, convert]) => [key, convert.convert(null)]),
     [['uno', 10], ['dos', 'hey']]
 );

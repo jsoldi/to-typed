@@ -5,17 +5,15 @@ export declare type TConvertMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T 
 } ? {
     [k in keyof T]: TConvertMap<T[k]>;
 } : unknown;
-declare type ConvertObject<T> = {
-    readonly [k in keyof T]: Convert<T[k]>;
-};
 export declare class Convert<out T = unknown> extends Cast<T> {
     private readonly _convert;
-    private _obj;
     constructor(_convert: (value: unknown, settings: CastSettings) => T);
     static lazy<T>(fun: (s: CastSettings) => Convert<T>): Convert<T>;
     convert(value: unknown): T;
     convert(value: unknown, settings: CastSettings): T;
-    get obj(): ConvertObject<T>;
+    decons<S extends Struct>(this: Convert<S>): {
+        readonly [k in keyof S]: Convert<S[k]>;
+    };
     config(config: Partial<CastSettings>): Convert<T>;
     static readonly id: Convert<unknown>;
     static toConst<T>(value: T): Convert<T>;
@@ -69,4 +67,3 @@ export declare class Convert<out T = unknown> extends Cast<T> {
     toArrayWhere<T>(cast: Cast<T>): Convert<T[]>;
     to<T>(alt: T): Convert<TConvertMap<T>>;
 }
-export {};
