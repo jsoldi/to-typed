@@ -128,11 +128,34 @@ const structConvert = index_js_1.Convert.to({
     tup: [100, '200']
 });
 const obj = structConvert.decons();
-(0, tester_js_1.testEq)('Convert.props returns keys', Object.keys(obj), ['int', 'str', 'tup']);
-(0, tester_js_1.testEq)('Convert.props member 1 behaves as original (1)', obj.int.convert(1.9), 2);
-(0, tester_js_1.testEq)('Convert.props member 1 behaves as original (2)', obj.int.convert(null), 0);
-(0, tester_js_1.testEq)('Convert.props member 2 behaves as original (1)', obj.str.convert(1.9), '1.9');
-(0, tester_js_1.testEq)('Convert.props member 2 behaves as original (2)', obj.str.convert(null), 'DEFAULT');
-(0, tester_js_1.testEq)('Convert.props member 3 behaves as original (1)', obj.tup.convert(null), [100, '200']);
-(0, tester_js_1.testEq)('Convert.props member 3 behaves as original (2)', obj.tup.convert(['123', '321']), [123, '321']);
-(0, tester_js_1.testEq)('Convert.props can handle hidden keys', Object.entries(index_js_1.Cast.as({ uno: 1 }).else({ uno: 10, dos: 'hey' }).decons()).map(([key, convert]) => [key, convert.convert(null)]), [['uno', 10], ['dos', 'hey']]);
+(0, tester_js_1.testEq)('Convert.decons for object returns an object', obj.constructor.name, 'Object');
+(0, tester_js_1.testEq)('Convert.decons for object returns keys', Object.keys(obj), ['int', 'str', 'tup']);
+(0, tester_js_1.testEq)('Convert.decons for object member 1 behaves as original (1)', obj.int.convert(1.9), 2);
+(0, tester_js_1.testEq)('Convert.decons for object member 1 behaves as original (2)', obj.int.convert(null), 0);
+(0, tester_js_1.testEq)('Convert.decons for object member 2 behaves as original (1)', obj.str.convert(1.9), '1.9');
+(0, tester_js_1.testEq)('Convert.decons for object member 2 behaves as original (2)', obj.str.convert(null), 'DEFAULT');
+(0, tester_js_1.testEq)('Convert.decons for object member 3 behaves as original (1)', obj.tup.convert(null), [100, '200']);
+(0, tester_js_1.testEq)('Convert.decons for object member 3 behaves as original (2)', obj.tup.convert(['123', '321']), [123, '321']);
+(0, tester_js_1.testEq)('Convert.decons object returns undefined for hidden keys', Object.entries(index_js_1.Cast.as({ uno: 1 }).else({ uno: 10, dos: 'hey' }).decons()).map(([key, convert]) => [key, convert.convert([])]), [['uno', 10], ['dos', undefined]]);
+const tupleConvert = index_js_1.Convert.to([
+    index_js_1.Convert.toInteger(),
+    index_js_1.Convert.toString('DEFAULT'),
+    [100, '200']
+]);
+const tuple = tupleConvert.decons();
+(0, tester_js_1.testEq)('Convert.decons for tuple returns an array', tuple.constructor.name, 'Array');
+(0, tester_js_1.testEq)('Convert.decons for tuple returns keys', Object.keys(tuple), ['0', '1', '2']);
+(0, tester_js_1.testEq)('Convert.decons for tuple member 1 behaves as original (1)', tuple[0].convert(1.9), 2);
+(0, tester_js_1.testEq)('Convert.decons for tuple member 1 behaves as original (2)', tuple[0].convert(null), 0);
+(0, tester_js_1.testEq)('Convert.decons for tuple member 2 behaves as original (1)', tuple[1].convert(1.9), '1.9');
+(0, tester_js_1.testEq)('Convert.decons for tuple member 2 behaves as original (2)', tuple[1].convert(null), 'DEFAULT');
+(0, tester_js_1.testEq)('Convert.decons for tuple member 3 behaves as original (1)', tuple[2].convert(null), [100, '200']);
+(0, tester_js_1.testEq)('Convert.decons for tuple member 3 behaves as original (2)', tuple[2].convert(['123', '321']), [123, '321']);
+(0, tester_js_1.testEq)('Convert.decons tuple returns undefined for hidden keys', index_js_1.Cast.as([1]).else([10, 'hey']).decons().map((convert, index) => [index, convert.convert([])]), [[0, 10], [1, undefined]]);
+(0, tester_js_1.testEq)('Convert.decons for number returns default', index_js_1.Convert.toInteger(123).decons(), 123);
+(0, tester_js_1.testEq)('Convert.decons for string returns default', index_js_1.Convert.toString('abc').decons(), 'abc');
+(0, tester_js_1.testEq)('Convert.decons for boolean returns default', index_js_1.Convert.to(true).decons(), true);
+(0, tester_js_1.testEq)('Convert.decons for date returns date', index_js_1.Convert.toDate(new Date(123456)).decons(), new Date(123456));
+(0, tester_js_1.testEq)('Convert.decons for function returns function', index_js_1.Convert.to(() => 10).decons()(), 10);
+(0, tester_js_1.testEq)('Convert.decons for null returns null', index_js_1.Convert.to(null).decons(), null);
+(0, tester_js_1.testEq)('Convert.decons for undefined returns undefined', index_js_1.Convert.to(undefined).decons(), undefined);

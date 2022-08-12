@@ -14,16 +14,25 @@ class Convert extends internal_js_1.Cast {
         return this._convert(value, settings !== null && settings !== void 0 ? settings : internal_js_1.Cast.defaults);
     }
     decons() {
-        const obj = this.convert(undefined);
-        const keys = obj !== null && typeof obj === 'object' ? Object.keys(obj) : [];
-        const propMap = internal_js_1.Utils.fromEntries(keys.map(key => [key, {
-                enumerable: true,
-                get: () => new Convert((value, settings) => {
-                    const obj = this._convert({ [key]: value }, settings);
-                    return key in obj ? obj[key] : undefined;
-                })
-            }]));
-        return Object.defineProperties({}, propMap);
+        const def = this.convert(undefined);
+        if (def !== null && typeof def === 'object' && !(def instanceof Date)) {
+            const replaceProperty = (key, value) => new Proxy(def, {
+                get: (...args) => args[1] === key ? value : Reflect.get(...args)
+            });
+            const convertGetter = (key) => new Convert((value, settings) => {
+                const t = this._convert(replaceProperty(key, value), settings);
+                return t ? t[key] : undefined;
+            });
+            return new Proxy(def, {
+                get: (...args) => {
+                    if (args[0].propertyIsEnumerable(args[1]))
+                        return convertGetter(args[1]);
+                    return Reflect.get(...args);
+                }
+            });
+        }
+        else
+            return def;
     }
     config(config) {
         return new Convert((value, s) => this._convert(value, { ...s, ...config }));

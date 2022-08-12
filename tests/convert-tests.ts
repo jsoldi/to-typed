@@ -157,15 +157,46 @@ const structConvert = Convert.to({
 
 const obj = structConvert.decons();
 
-testEq('Convert.props returns keys', Object.keys(obj), ['int', 'str', 'tup']);
-testEq('Convert.props member 1 behaves as original (1)', obj.int.convert(1.9), 2);
-testEq('Convert.props member 1 behaves as original (2)', obj.int.convert(null), 0);
-testEq('Convert.props member 2 behaves as original (1)', obj.str.convert(1.9), '1.9');
-testEq('Convert.props member 2 behaves as original (2)', obj.str.convert(null), 'DEFAULT');
-testEq('Convert.props member 3 behaves as original (1)', obj.tup.convert(null), [100, '200']);
-testEq('Convert.props member 3 behaves as original (2)', obj.tup.convert(['123', '321']), [123, '321']);
+testEq('Convert.decons for object returns an object', obj.constructor.name, 'Object');
+testEq('Convert.decons for object returns keys', Object.keys(obj), ['int', 'str', 'tup']);
+testEq('Convert.decons for object member 1 behaves as original (1)', obj.int.convert(1.9), 2);
+testEq('Convert.decons for object member 1 behaves as original (2)', obj.int.convert(null), 0);
+testEq('Convert.decons for object member 2 behaves as original (1)', obj.str.convert(1.9), '1.9');
+testEq('Convert.decons for object member 2 behaves as original (2)', obj.str.convert(null), 'DEFAULT');
+testEq('Convert.decons for object member 3 behaves as original (1)', obj.tup.convert(null), [100, '200']);
+testEq('Convert.decons for object member 3 behaves as original (2)', obj.tup.convert(['123', '321']), [123, '321']);
 
-testEq('Convert.props can handle hidden keys',
-    Object.entries(Cast.as({ uno: 1 }).else({ uno: 10, dos: 'hey' }).decons()).map(([key, convert]) => [key, convert.convert(null)]),
-    [['uno', 10], ['dos', 'hey']]
+testEq('Convert.decons object returns undefined for hidden keys',
+    Object.entries(Cast.as({ uno: 1 }).else({ uno: 10, dos: 'hey' }).decons()).map(([key, convert]) => [key, convert.convert([])]),
+    [['uno', 10], ['dos', undefined]]
 );
+
+const tupleConvert = Convert.to([
+    Convert.toInteger(),
+    Convert.toString('DEFAULT'),
+    [100, '200']
+] as const);
+
+const tuple = tupleConvert.decons();
+
+testEq('Convert.decons for tuple returns an array', tuple.constructor.name, 'Array');
+testEq('Convert.decons for tuple returns keys', Object.keys(tuple), ['0', '1', '2']);
+testEq('Convert.decons for tuple member 1 behaves as original (1)', tuple[0].convert(1.9), 2);
+testEq('Convert.decons for tuple member 1 behaves as original (2)', tuple[0].convert(null), 0);
+testEq('Convert.decons for tuple member 2 behaves as original (1)', tuple[1].convert(1.9), '1.9');
+testEq('Convert.decons for tuple member 2 behaves as original (2)', tuple[1].convert(null), 'DEFAULT');
+testEq('Convert.decons for tuple member 3 behaves as original (1)', tuple[2].convert(null), [100, '200']);
+testEq('Convert.decons for tuple member 3 behaves as original (2)', tuple[2].convert(['123', '321']), [123, '321']);
+
+testEq('Convert.decons tuple returns undefined for hidden keys',
+    Cast.as([1]).else([10, 'hey']).decons().map((convert, index) => [index, convert.convert([])]),
+    [[0, 10], [1, undefined as any]]
+);
+
+testEq('Convert.decons for number returns default', Convert.toInteger(123).decons(), 123);
+testEq('Convert.decons for string returns default', Convert.toString('abc').decons(), 'abc');
+testEq('Convert.decons for boolean returns default', Convert.to(true).decons(), true);
+testEq('Convert.decons for date returns date', Convert.toDate(new Date(123456)).decons(), new Date(123456));
+testEq('Convert.decons for function returns function', Convert.to(() => 10).decons()(), 10);
+testEq('Convert.decons for null returns null', Convert.to(null).decons(), null);
+testEq('Convert.decons for undefined returns undefined', Convert.to(undefined).decons(), undefined);

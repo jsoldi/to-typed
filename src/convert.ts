@@ -7,6 +7,11 @@ export type TConvertMap<T> =
     T extends { [k in keyof T]: any } ? { [k in keyof T]: TConvertMap<T[k]> } :
     unknown;
 
+export type TDeconsMap<T> =     
+    T extends SimpleType ? T :
+    T extends Date ? Date :
+    { readonly [k in keyof T]: Convert<T[k]> }    
+
 declare const BigInt: (input: any) => bigint;
 
 export class Convert<out T = unknown> extends Cast<T> {
@@ -24,19 +29,30 @@ export class Convert<out T = unknown> extends Cast<T> {
         return this._convert(value, settings ?? Cast.defaults);
     }
 
-    public decons<S extends Struct>(this: Convert<S>): { readonly [k in keyof S]: Convert<S[k]> } {
-        const obj = this.convert(undefined);
-        const keys = obj !== null && typeof obj === 'object' ? Object.keys(obj) : [];
+    public decons(): TDeconsMap<T> {
+        const def = this.convert(undefined);
 
-        const propMap = Utils.fromEntries(keys.map(key => [key, {
-            enumerable: true,
-            get: () => new Convert((value, settings) => {
-                const obj = this._convert({ [key]: value }, settings);
-                return key in obj ? obj[key] : undefined;
+        if (def !== null && typeof def === 'object' && !(def instanceof Date)) {
+            const replaceProperty = (key: keyof T, value: unknown) => new Proxy(def as object & T, {
+                get: (...args) => args[1] === key ? value : Reflect.get(...args)
             })
-        }]));
 
-        return Object.defineProperties({}, propMap) as { readonly [k in keyof S]: Convert<S[k]> };
+            const convertGetter = (key: keyof T) => new Convert((value, settings) => {
+                const t = this._convert(replaceProperty(key, value), settings);
+                return t ? t[key] : undefined;
+            });
+
+            return new Proxy(def as object & T, {
+                get: (...args) => {
+                    if (args[0].propertyIsEnumerable(args[1]))
+                        return convertGetter(args[1] as keyof T);
+
+                    return Reflect.get(...args);
+                }
+            }) as TDeconsMap<T>;
+        }
+        else
+            return def as TDeconsMap<T>;
     }
 
     public config(config: Partial<CastSettings>) {
@@ -151,7 +167,7 @@ export class Convert<out T = unknown> extends Cast<T> {
                 return Convert.toConst(undefined) as Convert<TConvertMap<T>>
             case 'object':
                 if (alt instanceof Convert)
-                    return alt;
+                    return alt as Convert<TConvertMap<T>>;
                 else if (alt === null)
                     return Convert.toConst(null) as Convert<TConvertMap<T>>
         }
