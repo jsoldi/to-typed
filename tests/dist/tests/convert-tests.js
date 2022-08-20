@@ -159,3 +159,5 @@ const tuple = tupleConvert.decons();
 (0, tester_js_1.testEq)('Convert.decons for function returns function', index_js_1.Convert.to(() => 10).decons()(), 10);
 (0, tester_js_1.testEq)('Convert.decons for null returns null', index_js_1.Convert.to(null).decons(), null);
 (0, tester_js_1.testEq)('Convert.decons for undefined returns undefined', index_js_1.Convert.to(undefined).decons(), undefined);
+(0, tester_js_1.testEq)('Convert.toJSON works for numbers', index_js_1.Convert.toJSON.convert(23.4), '23.4');
+(0, tester_js_1.testEq)('Convert.toJSON can return undefined', index_js_1.Convert.toJSON.convert(() => { }), undefined);

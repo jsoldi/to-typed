@@ -46,7 +46,15 @@ export class Cast {
             return Cast.just(get());
         }
         catch (e) {
-            return Cast.nothing();
+            return Cast.nothing(e instanceof Error ? e : typeof e === 'string' ? new Error(e) : Cast.castError);
+        }
+    }
+    parse(json) {
+        try {
+            return this.cast(JSON.parse(json));
+        }
+        catch (e) {
+            return Maybe.nothing(e instanceof Error ? e : new Error('Unknown JSON.parse error'));
         }
     }
     bind(next) {
@@ -99,8 +107,8 @@ export class Cast {
     else(other) {
         return this.or(new Convert(_ => other));
     }
-    elseThrow(getError = () => new Error('Cast has no value')) {
-        return this.or(new Convert(_ => { throw getError(); }));
+    elseThrow(getError = e => e) {
+        return new Convert((value, s) => this._cast(value, s).else(e => { throw getError(e); }));
     }
     get toMaybe() {
         return new Convert(value => this.cast(value));

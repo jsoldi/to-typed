@@ -75,6 +75,16 @@ export class Convert extends Cast {
     static toDate(alt = new Date(0)) {
         return Cast.asDate.else(alt);
     }
+    static get toJSON() {
+        return new Convert(value => {
+            try {
+                return JSON.stringify(value);
+            }
+            catch (e) {
+                return undefined;
+            }
+        });
+    }
     static toArray(alt = []) {
         return Cast.asArray.else(alt);
     }

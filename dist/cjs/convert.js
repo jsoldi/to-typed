@@ -78,6 +78,16 @@ class Convert extends internal_js_1.Cast {
     static toDate(alt = new Date(0)) {
         return internal_js_1.Cast.asDate.else(alt);
     }
+    static get toJSON() {
+        return new Convert(value => {
+            try {
+                return JSON.stringify(value);
+            }
+            catch (e) {
+                return undefined;
+            }
+        });
+    }
     static toArray(alt = []) {
         return internal_js_1.Cast.asArray.else(alt);
     }

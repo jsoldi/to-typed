@@ -17,7 +17,7 @@ export type TCastMap<T> =
 declare const BigInt: (input: any) => bigint;
 
 export class Cast<out T = unknown> {
-    private static readonly castError = new Error('Cast has no value');
+    protected static readonly castError = new Error('Cast has no value');
 
     protected static readonly defaults: CastSettings = {
         keyGuarding: 'loose',
@@ -87,7 +87,15 @@ export class Cast<out T = unknown> {
             return Cast.just(get());
         }
         catch (e) {
-            return Cast.nothing();
+            return Cast.nothing(e instanceof Error ? e : typeof e === 'string' ? new Error(e) : Cast.castError);
+        }
+    }
+
+    public parse(json: string): Maybe<T> {
+        try {
+            return this.cast(JSON.parse(json));
+        } catch (e: any) {
+            return Maybe.nothing(e instanceof Error ? e : new Error('Unknown JSON.parse error'));
         }
     }
 
@@ -160,8 +168,8 @@ export class Cast<out T = unknown> {
         return this.or(new Convert(_ => other));
     }
 
-    public elseThrow(getError: () => Error = () => new Error('Cast has no value')): Convert<T> {
-        return this.or(new Convert(_ => { throw getError(); }));
+    public elseThrow(getError: (error: Error) => Error = e => e): Convert<T> {
+        return new Convert((value, s) => this._cast(value, s).else(e => { throw getError(e); }));
     }
 
     public get toMaybe(): Convert<Maybe<T>> {

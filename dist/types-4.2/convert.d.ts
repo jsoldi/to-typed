@@ -37,6 +37,7 @@ export declare class Convert<T = unknown> extends Cast<T> {
     static toTruthy(): Convert<boolean>;
     static toBigInt(alt?: bigint): Convert<bigint>;
     static toDate(alt?: Date): Convert<Date>;
+    static get toJSON(): Convert<string | undefined>;
     static toArray(alt?: unknown[]): Convert<unknown[]>;
     static toArrayOf<T>(convertItem: Convert<T>, alt?: T[]): Convert<T[]>;
     static toStructOf<T>(convertItem: Convert<T>, alt?: Struct<T>): Convert<Struct<T>>;

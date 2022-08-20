@@ -11,7 +11,7 @@ export declare type TCastMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T ext
 } : unknown;
 export declare class Cast<T = unknown> {
     private readonly _cast;
-    private static readonly castError;
+    protected static readonly castError: Error;
     protected static readonly defaults: CastSettings;
     constructor(_cast: (value: unknown, settings: CastSettings) => Maybe<T>);
     private static get build();
@@ -26,6 +26,7 @@ export declare class Cast<T = unknown> {
     static just<T>(value: T): Cast<T>;
     static nothing<T = never>(error?: Error): Cast<T>;
     static try<T>(get: () => T): Cast<T>;
+    parse(json: string): Maybe<T>;
     bind<R>(next: (t: T, s: CastSettings) => Cast<R>): Cast<R>;
     compose<R>(next: Cast<R>): Cast<R>;
     or<R>(right: Convert<R>): Convert<T | R>;
@@ -53,7 +54,7 @@ export declare class Cast<T = unknown> {
     and<R>(guard: Guard<R>): Cast<T & R>;
     map<R>(next: (t: T) => R): Cast<R>;
     else<R>(other: R): Convert<T | R>;
-    elseThrow(getError?: () => Error): Convert<T>;
+    elseThrow(getError?: (error: Error) => Error): Convert<T>;
     get toMaybe(): Convert<Maybe<T>>;
     static get asPrimitiveValue(): Cast<PrimitiveValue>;
     static get asString(): Cast<string>;

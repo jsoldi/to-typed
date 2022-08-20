@@ -114,6 +114,17 @@ export class Convert<out T = unknown> extends Cast<T> {
         return Cast.asDate.else(alt);
     }
 
+    public static get toJSON(): Convert<string | undefined> {
+        return new Convert(value => {
+            try {
+                return JSON.stringify(value);
+            }
+            catch (e) {
+                return undefined;
+            }
+        })
+    }
+
     public static toArray(alt: unknown[] = []) {
         return Cast.asArray.else(alt);
     }

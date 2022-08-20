@@ -56,3 +56,5 @@ testCastYes('Cast deep propagates settings', index_js_1.Cast.as({
     }
 });
 (0, tester_js_1.testEq)('Cast can set error', index_js_1.Cast.asNumber.or(index_js_1.Cast.nothing(new Error('FAILED'))).cast({}), index_js_1.Maybe.nothing(new Error('FAILED')));
+(0, tester_js_1.testEq)('Cast.parse works', index_js_1.Cast.asArrayOf(index_js_1.Cast.asNumber).parse('[10, "20", 30]'), index_js_1.Maybe.just([10, 20, 30]));
+(0, tester_js_1.testEq)('Cast.parse fails', index_js_1.Cast.asUnknown.parse('Invalid JSON').hasValue, false);

@@ -200,3 +200,6 @@ testEq('Convert.decons for date returns date', Convert.toDate(new Date(123456)).
 testEq('Convert.decons for function returns function', Convert.to(() => 10).decons()(), 10);
 testEq('Convert.decons for null returns null', Convert.to(null).decons(), null);
 testEq('Convert.decons for undefined returns undefined', Convert.to(undefined).decons(), undefined);
+
+testEq('Convert.toJSON works for numbers', Convert.toJSON.convert(23.4), '23.4');
+testEq('Convert.toJSON can return undefined', Convert.toJSON.convert(() => { }), undefined);
