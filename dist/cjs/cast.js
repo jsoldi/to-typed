@@ -41,8 +41,8 @@ class Cast {
     static just(value) {
         return new Cast(_ => internal_js_1.Maybe.just(value));
     }
-    static nothing() {
-        return new Cast(_ => internal_js_1.Maybe.nothing());
+    static nothing(error = Cast.castError) {
+        return new Cast(_ => internal_js_1.Maybe.nothing(error));
     }
     static try(get) {
         try {
@@ -106,7 +106,7 @@ class Cast {
         return this.or(new internal_js_1.Convert(_ => { throw getError(); }));
     }
     get toMaybe() {
-        return this.map(internal_js_1.Maybe.just).else(internal_js_1.Maybe.nothing());
+        return new internal_js_1.Convert(value => this.cast(value));
     }
     static get asPrimitiveValue() {
         return internal_js_1.Guard.isPrimitiveValue.or(internal_js_1.Guard.isArray
@@ -230,6 +230,7 @@ class Cast {
     as(alt) { return this.compose(Cast.as(alt)); }
 }
 exports.Cast = Cast;
+Cast.castError = new Error('Cast has no value');
 Cast.defaults = {
     keyGuarding: 'loose',
     booleanNames: {
@@ -240,5 +241,5 @@ Cast.defaults = {
     wrapArray: 'single'
 };
 Cast.asUnknown = new Cast(value => internal_js_1.Maybe.just(value));
-Cast.asNever = new Cast(_ => internal_js_1.Maybe.nothing());
+Cast.asNever = new Cast(_ => internal_js_1.Maybe.nothing(Cast.castError));
 //# sourceMappingURL=cast.js.map

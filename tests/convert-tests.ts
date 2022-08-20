@@ -141,7 +141,7 @@ testConvert('Convert.toDate converts valid number', Convert.toDate('DEF' as any)
 testConvert('Convert.toDate fails for float', Convert.toDate('DEF' as any), 1577836800000.1, 'DEF' as any)
 testConvert('Convert.toDate fails for unsafe integer', Convert.toDate('DEF' as any), 999999999999999 * 10, 'DEF' as any)
 
-testConvert('Cast.elseNothing returns nothing on fail', Cast.asInteger.toMaybe, [], Maybe.nothing())
+testConvert('Cast.elseNothing returns nothing on fail', Cast.asInteger.toMaybe, [], Cast.asNever.cast(0))
 testConvert('Cast.elseNothing returns something on success', Cast.asInteger.toMaybe, '123', Maybe.just(123))
 
 testEq('Cast.elseThrow returns a convert', Cast.asInteger.elseThrow().constructor.name, Convert.prototype.constructor.name);

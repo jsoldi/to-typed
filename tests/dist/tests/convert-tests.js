@@ -116,7 +116,7 @@ testConvert('Convert.toDate fails for invalid string', index_js_1.Convert.toDate
 testConvert('Convert.toDate converts valid number', index_js_1.Convert.toDate('DEF'), 1577836800000, new Date('2020-01-01T00:00:00.000Z'));
 testConvert('Convert.toDate fails for float', index_js_1.Convert.toDate('DEF'), 1577836800000.1, 'DEF');
 testConvert('Convert.toDate fails for unsafe integer', index_js_1.Convert.toDate('DEF'), 999999999999999 * 10, 'DEF');
-testConvert('Cast.elseNothing returns nothing on fail', index_js_1.Cast.asInteger.toMaybe, [], index_js_1.Maybe.nothing());
+testConvert('Cast.elseNothing returns nothing on fail', index_js_1.Cast.asInteger.toMaybe, [], index_js_1.Cast.asNever.cast(0));
 testConvert('Cast.elseNothing returns something on success', index_js_1.Cast.asInteger.toMaybe, '123', index_js_1.Maybe.just(123));
 (0, tester_js_1.testEq)('Cast.elseThrow returns a convert', index_js_1.Cast.asInteger.elseThrow().constructor.name, index_js_1.Convert.prototype.constructor.name);
 testConvert('Cast.elseThrow converts valid value', index_js_1.Cast.asInteger.elseThrow(), '123', 123);

@@ -13,6 +13,7 @@ export declare type TGuardMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T ex
 } : unknown;
 export declare class Guard<T = unknown> extends Cast<T> {
     private readonly _guard;
+    private static readonly guardError;
     constructor(_guard: (input: unknown, settings: CastSettings) => input is T);
     static readonly isUnknown: Guard<unknown>;
     static readonly isNever: Guard<never>;

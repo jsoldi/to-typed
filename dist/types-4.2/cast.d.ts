@@ -11,6 +11,7 @@ export declare type TCastMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T ext
 } : unknown;
 export declare class Cast<T = unknown> {
     private readonly _cast;
+    private static readonly castError;
     protected static readonly defaults: CastSettings;
     constructor(_cast: (value: unknown, settings: CastSettings) => Maybe<T>);
     private static get build();
@@ -23,7 +24,7 @@ export declare class Cast<T = unknown> {
     cast(value: unknown, settings: CastSettings): Maybe<T>;
     config(config: Partial<CastSettings>): Cast<T>;
     static just<T>(value: T): Cast<T>;
-    static nothing<T = never>(): Cast<T>;
+    static nothing<T = never>(error?: Error): Cast<T>;
     static try<T>(get: () => T): Cast<T>;
     bind<R>(next: (t: T, s: CastSettings) => Cast<R>): Cast<R>;
     compose<R>(next: Cast<R>): Cast<R>;

@@ -24,8 +24,10 @@ export type TGuardMap<T> =
     unknown;
 
 export class Guard<out T = unknown> extends Cast<T> {
+    private static readonly guardError = new Error('Guard has no value');
+
     public constructor(private readonly _guard: (input: unknown, settings: CastSettings) => input is T) { 
-        super((val, s) => _guard(val, s) ? Maybe.just(val) : Maybe.nothing());
+        super((val, s) => _guard(val, s) ? Maybe.just(val) : Maybe.nothing(Guard.guardError));
     }
 
     public static readonly isUnknown = new Guard<unknown>((val): val is unknown => true);

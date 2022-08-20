@@ -7,7 +7,7 @@ class Was {
 }
 class Guard extends internal_js_1.Cast {
     constructor(_guard) {
-        super((val, s) => _guard(val, s) ? internal_js_1.Maybe.just(val) : internal_js_1.Maybe.nothing());
+        super((val, s) => _guard(val, s) ? internal_js_1.Maybe.just(val) : internal_js_1.Maybe.nothing(Guard.guardError));
         this._guard = _guard;
     }
     static lazy(fun) {
@@ -130,5 +130,6 @@ class Guard extends internal_js_1.Cast {
     }
 }
 exports.Guard = Guard;
+Guard.guardError = new Error('Guard has no value');
 Guard.isUnknown = new Guard((val) => true);
 Guard.isNever = new Guard((val) => false);

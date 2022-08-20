@@ -4,7 +4,7 @@ class Was {
 }
 export class Guard extends Cast {
     constructor(_guard) {
-        super((val, s) => _guard(val, s) ? Maybe.just(val) : Maybe.nothing());
+        super((val, s) => _guard(val, s) ? Maybe.just(val) : Maybe.nothing(Guard.guardError));
         this._guard = _guard;
     }
     static lazy(fun) {
@@ -126,6 +126,7 @@ export class Guard extends Cast {
         return Guard.isCollectionLike(Utils.mapEager(alt, a => Guard.is(a)));
     }
 }
+Guard.guardError = new Error('Guard has no value');
 Guard.isUnknown = new Guard((val) => true);
 Guard.isNever = new Guard((val) => false);
 //# sourceMappingURL=guard.js.map

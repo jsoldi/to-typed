@@ -17,6 +17,8 @@ export type TCastMap<T> =
 declare const BigInt: (input: any) => bigint;
 
 export class Cast<out T = unknown> {
+    private static readonly castError = new Error('Cast has no value');
+
     protected static readonly defaults: CastSettings = {
         keyGuarding: 'loose',
         booleanNames: {
@@ -34,7 +36,7 @@ export class Cast<out T = unknown> {
     }
 
     public static readonly asUnknown = new Cast<unknown>(value => Maybe.just(value));
-    public static readonly asNever = new Cast<never>(_ => Maybe.nothing());
+    public static readonly asNever = new Cast<never>(_ => Maybe.nothing(Cast.castError));
 
     private static unwrapArray<T>(arr: T[], s: CastSettings) {
         switch (s.unwrapArray) {
@@ -76,8 +78,8 @@ export class Cast<out T = unknown> {
         return new Cast(_ => Maybe.just(value));
     }
 
-    public static nothing<T = never>() {
-        return new Cast<T>(_ => Maybe.nothing());
+    public static nothing<T = never>(error: Error = Cast.castError) {
+        return new Cast<T>(_ => Maybe.nothing(error));
     }
 
     public static try<T>(get: () => T) {
@@ -163,7 +165,7 @@ export class Cast<out T = unknown> {
     }
 
     public get toMaybe(): Convert<Maybe<T>> {
-        return this.map(Maybe.just).else(Maybe.nothing());
+        return new Convert(value => this.cast(value));
     }
 
     public static get asPrimitiveValue(): Cast<PrimitiveValue> {

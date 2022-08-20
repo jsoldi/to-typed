@@ -55,3 +55,4 @@ testCastYes('Cast deep propagates settings', index_js_1.Cast.as({
             }]
     }
 });
+(0, tester_js_1.testEq)('Cast can set error', index_js_1.Cast.asNumber.or(index_js_1.Cast.nothing(new Error('FAILED'))).cast({}), index_js_1.Maybe.nothing(new Error('FAILED')));

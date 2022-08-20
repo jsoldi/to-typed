@@ -8,19 +8,22 @@ interface Just<out T> extends MaybeBase<T> {
 
 interface Nothing<out T> extends MaybeBase<T> { 
     hasValue: false 
+    error: Error
 }
 
 export type Maybe<T> = Just<T> | Nothing<T>
 
 class MaybeBase<out T> {
-    private constructor(private readonly data: { hasValue: true, value: T } | { hasValue: false }) { }
+    private static readonly defaultError = new Error("Maybe has no value");
+
+    private constructor(private readonly data: { hasValue: true, value: T } | { hasValue: false, error: Error }) { }
 
     static just<T>(value: T) { 
         return new MaybeBase({ hasValue: true, value }) as Maybe<T>
     }
 
-    static nothing<T = never>() {
-        return new MaybeBase<T>({ hasValue: false }) as Maybe<T>
+    static nothing<T = never>(error: Error = MaybeBase.defaultError) {
+        return new MaybeBase<T>({ hasValue: false, error }) as Maybe<T>
     }
 
     get hasValue() {
@@ -31,7 +34,11 @@ class MaybeBase<out T> {
         return this.else(() => undefined);
     }
 
-    static all<T extends MaybeValues>(maybes: T): Maybe<TMaybeAll<T>> {
+    get error() {
+        return this.read(() => undefined, e => e);
+    }
+
+    static all<T extends MaybeValues>(maybes: T, error: Error = Maybe.defaultError): Maybe<TMaybeAll<T>> {
         const result = (Array.isArray(maybes) ? [] : {}) as any;
         const entries = Object.entries(maybes);
 
@@ -39,7 +46,7 @@ class MaybeBase<out T> {
             if (v.hasValue)
                 result[k] = v.value;
             else
-                return MaybeBase.nothing();
+                return MaybeBase.nothing(error);
         }
 
         return MaybeBase.just(result);
@@ -57,9 +64,9 @@ class MaybeBase<out T> {
     }
 
     public read<R>(ifValue: (left: T) => R): R | void
-    public read<R>(ifValue: (left: T) => R, ifNothing: () => R): R
-    public read<R>(ifValue: (left: T) => R, ifNothing?: () => R): R | void {
-        return this.data.hasValue ? ifValue(this.data.value) : ifNothing ? ifNothing() : undefined;
+    public read<R>(ifValue: (left: T) => R, ifNothing: (error: Error) => R): R
+    public read<R>(ifValue: (left: T) => R, ifNothing?: (error: Error) => R): R | void {
+        return this.data.hasValue ? ifValue(this.data.value) : ifNothing ? ifNothing(this.data.error) : undefined;
     }
 
     public bind<R>(next: (value: T) => Maybe<R>): Maybe<R> {
@@ -74,12 +81,12 @@ class MaybeBase<out T> {
         return this.read(t => MaybeBase.just<T | R>(t), () => right);
     }
 
-    public else<R>(getAlt: () => R): T | R {
-        return this.read((t: T | R) => t, () => getAlt());
+    public else<R>(getAlt: (error: Error) => R): T | R {
+        return this.read((t: T | R) => t, e => getAlt(e));
     }
 
-    public elseThrow(getError: () => Error): T {
-        return this.read((t: T) => t, () => { throw getError(); });
+    public elseThrow(getError: (error: Error) => Error = e => e): T {
+        return this.read((t: T) => t, e => { throw getError(e); });
     }
 }
 

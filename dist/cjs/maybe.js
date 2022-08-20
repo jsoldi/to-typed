@@ -8,8 +8,8 @@ class MaybeBase {
     static just(value) {
         return new MaybeBase({ hasValue: true, value });
     }
-    static nothing() {
-        return new MaybeBase({ hasValue: false });
+    static nothing(error = MaybeBase.defaultError) {
+        return new MaybeBase({ hasValue: false, error });
     }
     get hasValue() {
         return this.data.hasValue;
@@ -17,14 +17,17 @@ class MaybeBase {
     get value() {
         return this.else(() => undefined);
     }
-    static all(maybes) {
+    get error() {
+        return this.read(() => undefined, e => e);
+    }
+    static all(maybes, error = exports.Maybe.defaultError) {
         const result = (Array.isArray(maybes) ? [] : {});
         const entries = Object.entries(maybes);
         for (let [k, v] of entries) {
             if (v.hasValue)
                 result[k] = v.value;
             else
-                return MaybeBase.nothing();
+                return MaybeBase.nothing(error);
         }
         return MaybeBase.just(result);
     }
@@ -37,7 +40,7 @@ class MaybeBase {
         return result;
     }
     read(ifValue, ifNothing) {
-        return this.data.hasValue ? ifValue(this.data.value) : ifNothing ? ifNothing() : undefined;
+        return this.data.hasValue ? ifValue(this.data.value) : ifNothing ? ifNothing(this.data.error) : undefined;
     }
     bind(next) {
         return this.read(next, MaybeBase.nothing);
@@ -49,11 +52,12 @@ class MaybeBase {
         return this.read(t => MaybeBase.just(t), () => right);
     }
     else(getAlt) {
-        return this.read((t) => t, () => getAlt());
+        return this.read((t) => t, e => getAlt(e));
     }
-    elseThrow(getError) {
-        return this.read((t) => t, () => { throw getError(); });
+    elseThrow(getError = e => e) {
+        return this.read((t) => t, e => { throw getError(e); });
     }
 }
+MaybeBase.defaultError = new Error("Maybe has no value");
 exports.Maybe = MaybeBase;
 //# sourceMappingURL=maybe.js.map

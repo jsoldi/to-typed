@@ -38,8 +38,8 @@ export class Cast {
     static just(value) {
         return new Cast(_ => Maybe.just(value));
     }
-    static nothing() {
-        return new Cast(_ => Maybe.nothing());
+    static nothing(error = Cast.castError) {
+        return new Cast(_ => Maybe.nothing(error));
     }
     static try(get) {
         try {
@@ -103,7 +103,7 @@ export class Cast {
         return this.or(new Convert(_ => { throw getError(); }));
     }
     get toMaybe() {
-        return this.map(Maybe.just).else(Maybe.nothing());
+        return new Convert(value => this.cast(value));
     }
     static get asPrimitiveValue() {
         return Guard.isPrimitiveValue.or(Guard.isArray
@@ -226,6 +226,7 @@ export class Cast {
     asArrayWhere(cast) { return this.compose(Cast.asArrayWhere(cast)); }
     as(alt) { return this.compose(Cast.as(alt)); }
 }
+Cast.castError = new Error('Cast has no value');
 Cast.defaults = {
     keyGuarding: 'loose',
     booleanNames: {
@@ -236,5 +237,5 @@ Cast.defaults = {
     wrapArray: 'single'
 };
 Cast.asUnknown = new Cast(value => Maybe.just(value));
-Cast.asNever = new Cast(_ => Maybe.nothing());
+Cast.asNever = new Cast(_ => Maybe.nothing(Cast.castError));
 //# sourceMappingURL=cast.js.map

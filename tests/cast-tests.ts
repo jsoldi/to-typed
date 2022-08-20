@@ -1,4 +1,4 @@
-import { Cast } from "../src/index.js";
+import { Cast, Maybe } from "../src/index.js";
 import { testEq } from "./tester.js";
 
 const customBooleans = {
@@ -58,3 +58,5 @@ testCastYes('Cast deep propagates settings', Cast.as({
         }]
     }
 });
+
+testEq('Cast can set error', Cast.asNumber.or(Cast.nothing(new Error('FAILED'))).cast({}),  Maybe.nothing(new Error('FAILED')));
