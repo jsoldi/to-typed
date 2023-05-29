@@ -9,6 +9,7 @@ export declare type TCastMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T ext
 } ? {
     [k in keyof T]: TCastMap<T[k]>;
 } : unknown;
+export declare type Casted<T> = T extends Cast<infer R> ? R : unknown;
 export declare class Cast<T = unknown> {
     private readonly _cast;
     protected static readonly castError: Error;
