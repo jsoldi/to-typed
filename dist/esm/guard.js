@@ -2,16 +2,49 @@ import { Maybe, Cast, Utils } from "./internal.js";
 class Was {
     constructor() { }
 }
+export class GuardError extends Error {
+    constructor(message) { super(message); }
+}
 export class Guard extends Cast {
-    constructor(_guard) {
-        super((val, s) => _guard(val, s) ? Maybe.just(val) : Maybe.nothing(Cast.castError));
-        this._guard = _guard;
+    constructor(_check) {
+        // false & GuardError -> Nothing
+        super((value, s) => {
+            try {
+                return _check(value, s) ? Maybe.just(value) : Maybe.nothing(Cast.castError);
+            }
+            catch (e) {
+                if (e instanceof GuardError)
+                    return Maybe.nothing(e);
+                else
+                    throw e;
+            }
+        });
+        // false & GuardError -> false
+        this._guard = (input, settings) => {
+            try {
+                return _check(input, settings);
+            }
+            catch (e) {
+                if (e instanceof GuardError)
+                    return false;
+                else
+                    throw e;
+            }
+        };
+        // false & GuardError -> GuardError
+        this._assert = (value, settings) => {
+            if (!_check(value, settings))
+                throw new GuardError('Guard assertion failed.');
+        };
     }
     static lazy(fun) {
         return new Guard((val, s) => fun(s)._guard(val, s));
     }
     guard(input, settings) {
         return this._guard(input, settings !== null && settings !== void 0 ? settings : Cast.defaults);
+    }
+    assert(input, settings) {
+        return this._assert(input, settings !== null && settings !== void 0 ? settings : Cast.defaults);
     }
     config(config) {
         return new Guard((value, s) => this._guard(value, { ...s, ...config }));
@@ -128,4 +161,5 @@ export class Guard extends Cast {
 }
 Guard.isUnknown = new Guard((val) => true);
 Guard.isNever = new Guard((val) => false);
+Guard.isAny = new Guard((val) => true);
 //# sourceMappingURL=guard.js.map

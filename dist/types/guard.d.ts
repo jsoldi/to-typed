@@ -11,14 +11,21 @@ export declare type TGuardMap<T> = T extends SimpleType ? SimpleTypeOf<T> : T ex
 } ? {
     [k in keyof T]: TGuardMap<T[k]>;
 } : unknown;
+export declare class GuardError extends Error {
+    constructor(message: string);
+}
 export declare class Guard<out T = unknown> extends Cast<T> {
-    private readonly _guard;
-    constructor(_guard: (input: unknown, settings: CastSettings) => input is T);
+    protected readonly _guard: (input: unknown, settings: CastSettings) => input is T;
+    protected readonly _assert: (input: unknown, settings: CastSettings) => void;
+    constructor(_check: (input: unknown, settings: CastSettings) => input is T);
     static readonly isUnknown: Guard<unknown>;
     static readonly isNever: Guard<never>;
+    static readonly isAny: Guard<any>;
     static lazy<T>(fun: (s: CastSettings) => Guard<T>): Guard<T>;
     guard<U>(input: U): input is SubtypeOf<T, U>;
     guard<U>(input: U, settings: CastSettings): input is SubtypeOf<T, U>;
+    assert<U>(input: U): void;
+    assert<U>(input: U, settings: CastSettings): void;
     config(config: Partial<CastSettings>): Guard<T>;
     and<R>(right: Guard<R>): Guard<T & R>;
     and<R>(right: (t: T, s: CastSettings) => t is T & R): Guard<T & R>;

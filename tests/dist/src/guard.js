@@ -1,20 +1,54 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Guard = void 0;
+exports.Guard = exports.GuardError = void 0;
 const internal_js_1 = require("./internal.js");
 class Was {
     constructor() { }
 }
+class GuardError extends Error {
+    constructor(message) { super(message); }
+}
+exports.GuardError = GuardError;
 class Guard extends internal_js_1.Cast {
-    constructor(_guard) {
-        super((val, s) => _guard(val, s) ? internal_js_1.Maybe.just(val) : internal_js_1.Maybe.nothing(internal_js_1.Cast.castError));
-        this._guard = _guard;
+    constructor(_check) {
+        // false & GuardError -> Nothing
+        super((value, s) => {
+            try {
+                return _check(value, s) ? internal_js_1.Maybe.just(value) : internal_js_1.Maybe.nothing(internal_js_1.Cast.castError);
+            }
+            catch (e) {
+                if (e instanceof GuardError)
+                    return internal_js_1.Maybe.nothing(e);
+                else
+                    throw e;
+            }
+        });
+        // false & GuardError -> false
+        this._guard = (input, settings) => {
+            try {
+                return _check(input, settings);
+            }
+            catch (e) {
+                if (e instanceof GuardError)
+                    return false;
+                else
+                    throw e;
+            }
+        };
+        // false & GuardError -> GuardError
+        this._assert = (value, settings) => {
+            if (!_check(value, settings))
+                throw new GuardError('Guard assertion failed.');
+        };
     }
     static lazy(fun) {
         return new Guard((val, s) => fun(s)._guard(val, s));
     }
     guard(input, settings) {
         return this._guard(input, settings !== null && settings !== void 0 ? settings : internal_js_1.Cast.defaults);
+    }
+    assert(input, settings) {
+        return this._assert(input, settings !== null && settings !== void 0 ? settings : internal_js_1.Cast.defaults);
     }
     config(config) {
         return new Guard((value, s) => this._guard(value, { ...s, ...config }));
@@ -132,3 +166,4 @@ class Guard extends internal_js_1.Cast {
 exports.Guard = Guard;
 Guard.isUnknown = new Guard((val) => true);
 Guard.isNever = new Guard((val) => false);
+Guard.isAny = new Guard((val) => true);

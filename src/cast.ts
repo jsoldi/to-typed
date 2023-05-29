@@ -14,6 +14,8 @@ export type TCastMap<T> =
     T extends { [k in keyof T]: any } ? { [k in keyof T]: TCastMap<T[k]> } :
     unknown; 
 
+export type Casted<T> = T extends Cast<infer R> ? R : unknown;
+
 declare const BigInt: (input: any) => bigint;
 
 export class Cast<out T = unknown> {

@@ -23,13 +23,51 @@ export type TGuardMap<T> =
     T extends { [k in keyof T]: any } ? { [k in keyof T]: TGuardMap<T[k]> } :
     unknown;
 
+export class GuardError extends Error {
+    constructor(message: string) { super(message) }
+}
+
 export class Guard<out T = unknown> extends Cast<T> {
-    public constructor(private readonly _guard: (input: unknown, settings: CastSettings) => input is T) { 
-        super((val, s) => _guard(val, s) ? Maybe.just(val) : Maybe.nothing(Cast.castError));
+    protected readonly _guard: (input: unknown, settings: CastSettings) => input is T
+    protected readonly _assert: (input: unknown, settings: CastSettings) => void
+
+    public constructor(_check: (input: unknown, settings: CastSettings) => input is T) { 
+        // false & GuardError -> Nothing
+        super((value, s) => {
+            try {
+                return _check(value, s) ? Maybe.just(value) : Maybe.nothing(Cast.castError);
+            }
+            catch (e) {
+                if (e instanceof GuardError)
+                    return Maybe.nothing(e);
+                else 
+                    throw e;
+            }
+        });
+
+        // false & GuardError -> false
+        this._guard = (input, settings): input is T => {
+            try {
+                return _check(input, settings);
+            }
+            catch (e) {
+                if (e instanceof GuardError) 
+                    return false;
+                else 
+                    throw e;
+            }
+        };
+
+        // false & GuardError -> GuardError
+        this._assert = (value, settings) => {
+            if (!_check(value, settings))
+                throw new GuardError('Guard assertion failed.');
+        }
     }
 
     public static readonly isUnknown = new Guard<unknown>((val): val is unknown => true);
     public static readonly isNever = new Guard<never>((val): val is never => false);
+    public static readonly isAny = new Guard<any>((val): val is any => true);
 
     public static lazy<T>(fun: (s: CastSettings) => Guard<T>) {
         return new Guard((val, s): val is T => fun(s)._guard(val, s));
@@ -39,6 +77,12 @@ export class Guard<out T = unknown> extends Cast<T> {
     public guard<U>(input: U, settings: CastSettings): input is SubtypeOf<T, U>
     public guard<U>(input: U, settings?: CastSettings) {
         return this._guard(input, settings ?? Cast.defaults);
+    }
+
+    public assert<U>(input: U): void
+    public assert<U>(input: U, settings: CastSettings): void
+    public assert<U>(input: U, settings?: CastSettings) {
+        return this._assert(input, settings ?? Cast.defaults);
     }
 
     public config(config: Partial<CastSettings>) {
