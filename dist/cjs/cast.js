@@ -104,6 +104,9 @@ class Cast {
     and(guard) {
         return this.bind((value, s) => guard.guard(value, s) ? Cast.just(value) : Cast.nothing());
     }
+    merge(cast) {
+        return this.bind(self => cast.bind(other => Cast.just({ ...self, ...other })));
+    }
     map(next) {
         return this.bind(value => Cast.just(next(value)));
     }

@@ -63,3 +63,5 @@ testEq('Cast can set error', Cast.asNumber.or(Cast.nothing(new Error('FAILED')))
 
 testEq('Cast.parse works', Cast.asArrayOf(Cast.asNumber).parse('[10, "20", 30]'), Maybe.just([10, 20, 30]));
 testEq('Cast.parse fails', Cast.asUnknown.parse('Invalid JSON').hasValue, false);
+
+testCastYes('Cast.merge works', new Cast(_ => Maybe.just({ a: 1 })).merge(new Cast(_ => Maybe.just({ b: 2 }))), {}, { a: 1, b: 2 });

@@ -162,6 +162,10 @@ export class Cast<out T = unknown> {
         return this.bind((value, s) => guard.guard(value, s) ? Cast.just(value) : Cast.nothing());
     }
 
+    public merge<R extends {}>(this: Cast<{}>, cast: Cast<R>): Cast<T & R> {
+        return this.bind(self => cast.bind(other => Cast.just({ ...self, ...other } as T & R)));
+    }
+
     public map<R>(next: (t: T) => R): Cast<R> {
         return this.bind(value => Cast.just(next(value)));
     }

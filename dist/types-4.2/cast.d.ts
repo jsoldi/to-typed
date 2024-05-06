@@ -53,6 +53,7 @@ export declare class Cast<T = unknown> {
     static any<T>(casts: Cast<T>[]): Convert<T[]>;
     if(condition: (input: T) => unknown): Cast<T>;
     and<R>(guard: Guard<R>): Cast<T & R>;
+    merge<R extends {}>(this: Cast<{}>, cast: Cast<R>): Cast<T & R>;
     map<R>(next: (t: T) => R): Cast<R>;
     else<R>(other: R): Convert<T | R>;
     elseThrow(getError?: (error: Error) => Error): Convert<T>;
