@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "to-typed",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Type-guards, casts and converts unknowns into typed values",
   "repository": {
     "type": "git",
@@ -41,7 +41,8 @@
     "test:run": "node ./tests/dist/tests/index.js",
     "test": "npm run test:clear && npm run test:build && npm run test:run",
     "demo:run": "node ./tests/dist/tests/demo.js",
-    "demo": "npm run test:clear && npm run test:build && npm run demo:run"
+    "demo": "npm run test:clear && npm run test:build && npm run demo:run",
+    "start": "tsc && node ./dist/esm/playground.js"
   },
   "author": "Juan Soldi",
   "license": "MIT",

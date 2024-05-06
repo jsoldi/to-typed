@@ -20,14 +20,14 @@ class MaybeBase {
     get error() {
         return this.read(() => undefined, e => e);
     }
-    static all(maybes, error = exports.Maybe.defaultError) {
+    static all(maybes) {
         const result = (Array.isArray(maybes) ? [] : {});
         const entries = Object.entries(maybes);
         for (let [k, v] of entries) {
             if (v.hasValue)
                 result[k] = v.value;
             else
-                return MaybeBase.nothing(error);
+                return MaybeBase.nothing(v.error);
         }
         return MaybeBase.just(result);
     }

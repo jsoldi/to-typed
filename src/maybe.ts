@@ -38,7 +38,7 @@ class MaybeBase<out T> {
         return this.read(() => undefined, e => e);
     }
 
-    static all<T extends MaybeValues>(maybes: T, error: Error = Maybe.defaultError): Maybe<TMaybeAll<T>> {
+    static all<T extends MaybeValues>(maybes: T): Maybe<TMaybeAll<T>> {
         const result = (Array.isArray(maybes) ? [] : {}) as any;
         const entries = Object.entries(maybes);
 
@@ -46,7 +46,7 @@ class MaybeBase<out T> {
             if (v.hasValue)
                 result[k] = v.value;
             else
-                return MaybeBase.nothing(error);
+                return MaybeBase.nothing(v.error);
         }
 
         return MaybeBase.just(result);

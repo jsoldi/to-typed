@@ -22,7 +22,7 @@ declare class MaybeBase<T> {
     get hasValue(): boolean;
     get value(): T | undefined;
     get error(): Error | undefined;
-    static all<T extends MaybeValues>(maybes: T, error?: Error): Maybe<TMaybeAll<T>>;
+    static all<T extends MaybeValues>(maybes: T): Maybe<TMaybeAll<T>>;
     static any<T>(maybes: Maybe<T>[]): T[];
     read<R>(ifValue: (left: T) => R): R | void;
     read<R>(ifValue: (left: T) => R, ifNothing: (error: Error) => R): R;
