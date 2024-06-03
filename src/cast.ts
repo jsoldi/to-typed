@@ -18,6 +18,8 @@ export type Casted<T> = T extends Cast<infer R> ? R : unknown;
 
 declare const BigInt: (input: any) => bigint;
 
+// type DoBlockItem<S, T> = Cast<T> | ((t: S, s: CastSettings) => Cast<T>);
+
 export class Cast<out T = unknown> {
     protected static readonly castError = new Error('Cast has no value');
 
@@ -106,8 +108,19 @@ export class Cast<out T = unknown> {
     }
 
     public compose<R>(next: Cast<R>): Cast<R> {
-        return this.bind(value => new Cast((_, s) => next.cast(value, s)));
+        return new Cast((value, s) => this._cast(value, s).bind(t => next._cast(t, s)));
     }
+
+    // public static do<A>(a: Cast<A>): Cast<A>
+    // public static do<A, B>(a: Cast<A>, b: DoBlockItem<A, B>): Cast<B>
+    // public static do<A, B, C>(a: Cast<A>, b: DoBlockItem<A, B>, c: DoBlockItem<B, C>): Cast<C>
+    // public static do<A, B, C, D>(a: Cast<A>, b: DoBlockItem<A, B>, c: DoBlockItem<B, C>, d: DoBlockItem<C, D>): Cast<D>
+    // public static do<A, B, C, D, E>(a: Cast<A>, b: DoBlockItem<A, B>, c: DoBlockItem<B, C>, d: DoBlockItem<C, D>, e: DoBlockItem<D, E>): Cast<E>
+    // public static do<A, B, C, D, E, F>(a: Cast<A>, b: DoBlockItem<A, B>, c: DoBlockItem<B, C>, d: DoBlockItem<C, D>, e: DoBlockItem<D, E>, f: DoBlockItem<E, F>): Cast<F>
+    // public static do<A, B, C, D, E, F, G>(a: Cast<A>, b: DoBlockItem<A, B>, c: DoBlockItem<B, C>, d: DoBlockItem<C, D>, e: DoBlockItem<D, E>, f: DoBlockItem<E, F>, g: DoBlockItem<F, G>): Cast<G>
+    // public static do(...args: [Cast<any>, ...DoBlockItem<any, any>[]]) {
+    //     return args.reduce<Cast<any>>((acc, item) => acc.bind(typeof item === 'function' ? item : () => item), args[0]);
+    // }
 
     public or<R>(right: Convert<R>): Convert<T | R>
     public or<R>(right: Cast<R>): Cast<T | R>
@@ -115,7 +128,7 @@ export class Cast<out T = unknown> {
         if (right instanceof Convert)
             return new Convert((value, s) => this._cast(value, s).else(() => right.convert(value, s)));
         else
-            return new Cast((value, s) => this.cast(value, s).or(right.cast(value, s)));
+            return new Cast((value, s) => this._cast(value, s).or(right._cast(value, s)));
     }
 
     /**

@@ -1,4 +1,5 @@
 import { Maybe, Guard, Convert, Utils } from "./internal.js";
+// type DoBlockItem<S, T> = Cast<T> | ((t: S, s: CastSettings) => Cast<T>);
 export class Cast {
     constructor(_cast) {
         this._cast = _cast;
@@ -61,13 +62,13 @@ export class Cast {
         return new Cast((value, s) => this._cast(value, s).bind(t => next(t, s)._cast(value, s)));
     }
     compose(next) {
-        return this.bind(value => new Cast((_, s) => next.cast(value, s)));
+        return new Cast((value, s) => this._cast(value, s).bind(t => next._cast(t, s)));
     }
     or(right) {
         if (right instanceof Convert)
             return new Convert((value, s) => this._cast(value, s).else(() => right.convert(value, s)));
         else
-            return new Cast((value, s) => this.cast(value, s).or(right.cast(value, s)));
+            return new Cast((value, s) => this._cast(value, s).or(right._cast(value, s)));
     }
     /**
      * Unions a list of casts by combining them with the `or` operator.
